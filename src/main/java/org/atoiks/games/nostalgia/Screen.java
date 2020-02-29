@@ -3,6 +3,9 @@ package org.atoiks.games.nostalgia;
 import java.io.IOException;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentAdapter;
 import java.awt.image.BufferedImage;
 
 import javax.swing.*;
@@ -58,6 +61,10 @@ public final class Screen extends JFrame implements MemoryHandler {
         }
     }
 
+    private float scaleFactor;
+    private float transX;
+    private float transY;
+
     // Each short is decomposed into 5 fields:
     //   1_1_111_111_11111111 <== 16 bits (which is a short)
     // (15)         |      (0)
@@ -72,7 +79,12 @@ public final class Screen extends JFrame implements MemoryHandler {
     private final JPanel canvas = new JPanel() {
 
         @Override
-        protected void paintComponent(Graphics g) {
+        protected void paintComponent(Graphics gr) {
+            final Graphics2D g = (Graphics2D) gr;
+
+            g.translate(transX, transY);
+            g.scale(scaleFactor, scaleFactor);
+
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, UNSCL_WIDTH, UNSCL_HEIGHT);
 
@@ -136,9 +148,27 @@ public final class Screen extends JFrame implements MemoryHandler {
         super.setSize(UNSCL_WIDTH, UNSCL_HEIGHT);
         super.setLocationRelativeTo(null);
         super.setDefaultCloseOperation(3);
-        super.setResizable(false); // TODO: MAKE SURE RESIZE WORKS!
 
         super.getContentPane().add(this.canvas);
+
+        super.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                final float x = Screen.this.getWidth();
+                final float y = Screen.this.getHeight();
+
+                final float scaleRatioX = x / UNSCL_WIDTH;
+                final float scaleRatioY = y / UNSCL_HEIGHT;
+
+                // Make sure aspect ratio is maintained
+                final float sf = Math.min(scaleRatioX, scaleRatioY);
+                Screen.this.scaleFactor = sf;
+
+                // Add appropriate padding
+                Screen.this.transX = (x - UNSCL_WIDTH * sf) / 2;
+                Screen.this.transY = (y - UNSCL_HEIGHT * sf) / 2;
+            }
+        });
     }
 
     @Override
