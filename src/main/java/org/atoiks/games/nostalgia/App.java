@@ -26,9 +26,9 @@ public class App {
 
         final ByteBuffer buffer = ByteBuffer.wrap(encoder.getBytes());
 
-        mem.mapHandler(0, new GenericMemory(ByteBuffer.allocate(0x2000)));
-        mem.mapHandler(0x2000, screen);
+        mem.mapHandler(0, new GenericMemory(ByteBuffer.allocate(0x1000)));
         mem.mapHandler(0x4000, new GenericMemory(buffer.duplicate()));
+        screen.setupMemory(mem);
 
         // Really just for human validation
         final Disassembler dis = new Disassembler(System.out, buffer.duplicate());

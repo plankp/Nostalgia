@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
 
-public final class Screen extends JFrame implements MemoryHandler {
+public final class Screen extends JFrame {
 
     public static final int VIRT_WIDTH      = 80;
     public static final int VIRT_HEIGHT     = 25;
@@ -143,6 +146,9 @@ public final class Screen extends JFrame implements MemoryHandler {
         }
     };
 
+    private final GraphicsMemory memGraphics = new GraphicsMemory();
+    private final KeyboardMemory memKeyboard = new KeyboardMemory();
+
     public Screen() {
         super("Atoiks Games - Nostalgia...");
         super.setSize(UNSCL_WIDTH, UNSCL_HEIGHT);
@@ -169,23 +175,13 @@ public final class Screen extends JFrame implements MemoryHandler {
                 Screen.this.transY = (y - UNSCL_HEIGHT * sf) / 2;
             }
         });
+
+        super.addKeyListener(this.memKeyboard);
     }
 
-    @Override
-    public int getCapacity() {
-        return VIRT_WIDTH * VIRT_HEIGHT * 2;
-    }
-
-    @Override
-    public byte readOffset(final int offset) {
-        final short cell = this.memory[offset / 2];
-        return (byte) (Short.toUnsignedInt(cell) >> (4 * (offset % 2)));
-    }
-
-    @Override
-    public void writeOffset(final int offset, byte b) {
-        this.internalWrite(offset, b);
-        this.repaint();
+    public void setupMemory(MemoryUnit mem) {
+        mem.mapHandler(0x2000, this.memGraphics);
+        mem.mapHandler(0x1000, this.memKeyboard);
     }
 
     private void internalWrite(final int offset, byte b) {
@@ -217,5 +213,65 @@ public final class Screen extends JFrame implements MemoryHandler {
 
     public void flush() {
         this.repaint();
+    }
+
+    private final class GraphicsMemory implements MemoryHandler {
+
+        @Override
+        public int getCapacity() {
+            return VIRT_WIDTH * VIRT_HEIGHT * 2;
+        }
+
+        @Override
+        public byte readOffset(final int offset) {
+            final short cell = Screen.this.memory[offset / 2];
+            return (byte) (Short.toUnsignedInt(cell) >> (8 * (offset % 2)));
+        }
+
+        @Override
+        public void writeOffset(final int offset, byte b) {
+            Screen.this.internalWrite(offset, b);
+            Screen.this.repaint();
+        }
+    }
+
+    private final class KeyboardMemory extends KeyAdapter implements MemoryHandler {
+
+        // 0 - not filled
+        // 1 - filled can replace
+        // 2 - filled cannot replace (due to read)
+        private final AtomicInteger state = new AtomicInteger(0);
+        private int keycode = 0;
+
+        @Override
+        public int getCapacity() {
+            return 4;
+        }
+
+        @Override
+        public byte readOffset(final int offset) {
+            // If filled, then make sure it cannot be replaced
+            this.state.compareAndSet(1, 2);
+            if (this.state.get() == 2) {
+                return (byte) (this.keycode >>> (8 * (3 - offset % 4)));
+            }
+
+            // Only query the keycode if the buffer is filled
+            return 0;
+        }
+
+        @Override
+        public void writeOffset(int offset, byte b) {
+            // If was blocked by read, then it should be emptied.
+            this.state.compareAndSet(2, 0);
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            this.state.compareAndSet(0, 1);
+            if (this.state.get() == 1) {
+                this.keycode = e.getKeyCode();
+            }
+        }
     }
 }
