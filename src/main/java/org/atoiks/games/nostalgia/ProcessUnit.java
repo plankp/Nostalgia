@@ -331,14 +331,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void ldW(int imm, int radj, int rdst) {
-        final ByteBuffer buf = ByteBuffer.allocate(4);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
         this.memory.read(imm + this.readRegister(radj), buf);
         this.writeRegister(rdst, buf.flip().getShort());
     }
 
     @Override
     public void stW(int imm, int radj, int rsrc) {
-        final ByteBuffer buf = ByteBuffer.allocate(4);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
         buf.putShort(this.readRegister(rsrc)).flip();
         this.memory.write(imm + this.readRegister(radj), buf);
     }
