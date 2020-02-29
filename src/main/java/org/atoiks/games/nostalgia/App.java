@@ -4,7 +4,16 @@ import java.nio.ByteBuffer;
 
 public class App {
     public static void main(String[] args) {
-        System.out.println("Atoiks Games - Nostalgia");
+        final Screen screen = new Screen();
+        screen.setVisible(true);
+
+        // Print the welcoming message
+        final String st = "Atoiks Games - Nostalgia...";
+        final byte fast = Screen.makeCellAttr(7, 0);
+        for (int i = 0; i < st.length(); ++i) {
+            screen.setEntry(i, 0, (byte) st.charAt(i), fast);
+        }
+        screen.flush();
 
         final MemoryUnit mem = new MemoryUnit();
         final ProcessUnit proc = new ProcessUnit(mem);
@@ -18,7 +27,7 @@ public class App {
         final ByteBuffer buffer = ByteBuffer.wrap(encoder.getBytes());
 
         mem.mapHandler(0, new GenericMemory(ByteBuffer.allocate(0x2000)));
-        mem.mapHandler(0x2000, new GenericMemory(ByteBuffer.allocate(80 * 25 * 2))); // video memory!
+        mem.mapHandler(0x2000, screen);
         mem.mapHandler(0x4000, new GenericMemory(buffer.duplicate()));
 
         // Really just for human validation
@@ -28,9 +37,8 @@ public class App {
         // instruction pointer is word aligned
         proc.setIP(0x4000 / 2);
 
-        for (int i = 0; i < 10; ++i) {
+        while (true) {
             proc.executeNext();
-            System.out.println(proc.toString());
         }
     }
 }

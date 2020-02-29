@@ -17,3 +17,7 @@ Run `gradlew build` to build it or `gradlew run` to run after building
 > _Heh! You consider this a game!?_
 
 You code assembler! Maybe some people like this...
+
+## Asssets Used
+
+* Super authentic [VGA-ROM font](https://github.com/spacerace/romfont)

@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
+    // TODO: ADD SHIFTS, PUSH3, POP3
+
     private static final int DATA_WIDTH = 2;
 
     // See readRegister and writeRegister (r0 is always 0)
