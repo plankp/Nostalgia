@@ -9,7 +9,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.BitSet;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
@@ -237,41 +239,49 @@ public final class Screen extends JFrame {
 
     private final class KeyboardMemory extends KeyAdapter implements MemoryHandler {
 
-        // 0 - not filled
-        // 1 - filled can replace
-        // 2 - filled cannot replace (due to read)
-        private final AtomicInteger state = new AtomicInteger(0);
-        private int keycode = 0;
+        private final ByteBuffer bytes = ByteBuffer.allocate(4);
+        private final BitSet set = new BitSet();
 
         @Override
         public int getCapacity() {
-            return 4;
+            return 5;
         }
 
         @Override
         public byte readOffset(final int offset) {
-            // If filled, then make sure it cannot be replaced
-            this.state.compareAndSet(1, 2);
-            if (this.state.get() == 2) {
-                return (byte) (this.keycode >>> (8 * (3 - offset % 4)));
+            if (offset < 4) {
+                return this.bytes.get(offset);
             }
 
-            // Only query the keycode if the buffer is filled
-            return 0;
+            // offset must be 4, in which case we check if key is down
+            return this.set.get(this.bytes.getInt(0)) ? (byte) 1 : 0;
         }
 
         @Override
         public void writeOffset(int offset, byte b) {
-            // If was blocked by read, then it should be emptied.
-            this.state.compareAndSet(2, 0);
+            if (offset < 4) {
+                this.bytes.put(offset, b);
+                return;
+            }
+
+            // offset must be 4, b is a like a control bit.
+
+            if ((b & 1) != 0) this.bytes.put(0, (byte) 0);
+            if ((b & 2) != 0) this.bytes.put(1, (byte) 0);
+            if ((b & 4) != 0) this.bytes.put(2, (byte) 0);
+            if ((b & 8) != 0) this.bytes.put(3, (byte) 0);
+
+            // Ignore everything else...
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
-            this.state.compareAndSet(0, 1);
-            if (this.state.get() == 1) {
-                this.keycode = e.getKeyCode();
-            }
+            this.set.set(e.getKeyCode());
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            this.set.clear(e.getKeyCode());
         }
     }
 }
