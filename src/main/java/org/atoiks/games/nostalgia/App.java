@@ -1,5 +1,6 @@
 package org.atoiks.games.nostalgia;
 
+import java.io.*;
 import java.nio.ByteBuffer;
 
 public class App {
@@ -21,23 +22,14 @@ public class App {
         final MemoryUnit mem = new MemoryUnit();
         final ProcessUnit proc = new ProcessUnit(mem);
 
-        final Encoder encoder = new Encoder();
-
-        // We look for keycode 'A', and if we do, display '!'.
-        // Otherwise, we do not display anything!
-        encoder.movI(0x2036, 1);    // graphics memory
-        encoder.movI(0x1000, 2);    // keycode memory
-        encoder.movI(65, 5);
-        encoder.stB(3, 2, 5);       //  set keyboard to listen to 'A'
-                                    //  {
-        encoder.ldB(4, 2, 5);       //      r5 = whether or not 'A' is down
-        encoder.movI(' ', 3);
-        encoder.jrelZ(+1, 5);
-        encoder.movI('!', 3);       //      r3 = if r5 then '!' else ' '
-        encoder.stB(0, 1, 3);       //      display r3 on screen
-        encoder.jabsZ(0x400e / 2, 0);   // } loop
-
-        final ByteBuffer buffer = ByteBuffer.wrap(encoder.getBytes());
+        final ByteBuffer buffer;
+        try (final Assembler asm = new Assembler(new InputStreamReader(App.class.getResourceAsStream("/check_kc_a.nos")))) {
+            asm.assembleAll();
+            buffer = ByteBuffer.wrap(asm.getEncoder().getBytes());
+        } catch (IOException ex) {
+            System.err.println("IOExceptioned: " + ex.getMessage());
+            return;
+        }
 
         mem.mapHandler(0, new GenericMemory(ByteBuffer.allocate(0x1000)));
         mem.mapHandler(0x4000, new GenericMemory(buffer.duplicate()));
