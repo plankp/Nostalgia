@@ -13,16 +13,29 @@ public class App {
         for (int i = 0; i < st.length(); ++i) {
             screen.setEntry(i, 0, (byte) st.charAt(i), fast);
         }
+        for (int i = st.length(); i < 80 * 25; ++i) {
+            screen.setEntry(i, 0, (byte) 0, fast);
+        }
         screen.flush();
 
         final MemoryUnit mem = new MemoryUnit();
         final ProcessUnit proc = new ProcessUnit(mem);
 
         final Encoder encoder = new Encoder();
-        encoder.movI(0xFFFF, 7);
-        encoder.orR(0, 0, 1);
-        encoder.addI(1, 1);
-        encoder.jrelZ(-3, 0);
+
+        // We look for keycode 'A', and if we do, display '!'.
+        // Otherwise, we do not display anything!
+        encoder.movI(0x2036, 1);    // graphics memory
+        encoder.movI(0x1000, 2);    // keycode memory
+        encoder.movI(65, 5);
+        encoder.stB(3, 2, 5);       //  set keyboard to listen to 'A'
+                                    //  {
+        encoder.ldB(4, 2, 5);       //      r5 = whether or not 'A' is down
+        encoder.movI(' ', 3);
+        encoder.jrelZ(+1, 5);
+        encoder.movI('!', 3);       //      r3 = if r5 then '!' else ' '
+        encoder.stB(0, 1, 3);       //      display r3 on screen
+        encoder.jabsZ(0x400e / 2, 0);   // } loop
 
         final ByteBuffer buffer = ByteBuffer.wrap(encoder.getBytes());
 
@@ -37,8 +50,15 @@ public class App {
         // instruction pointer is word aligned
         proc.setIP(0x4000 / 2);
 
-        while (true) {
-            proc.executeNext();
+        try {
+            while (true) {
+                proc.executeNext();
+            }
+        } catch (RuntimeException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println(proc);
         }
+    }
+
     }
 }
