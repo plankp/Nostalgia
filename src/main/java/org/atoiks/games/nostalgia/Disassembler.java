@@ -241,7 +241,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void ldB(int imm, int radj, int rdst) {
-        this.out.printf("LD.B       r%d, 0x%x, r%d, r%d", rdst, imm, radj);
+        this.out.printf("LD.B       r%d, 0x%x, r%d", rdst, imm, radj);
     }
 
     @Override
