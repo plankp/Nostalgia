@@ -1,8 +1,14 @@
 ;;
+;; These are very useful constants...
+;;
+    .SET VIDMEM, 0x2036
+    .SET KEYMEM, 0x1000
+
+;;
 ;; If keycode 'A' is down, then we display '!'. Otherwise, we display nothing.
 ;;
-    MOV.I   %R1, 0x2036         ; graphics memory
-    MOV.I   %R2, 0x1000         ; keyboard memory(?)
+    MOV.I   %R1, VIDMEM         ; graphics memory
+    MOV.I   %R2, KEYMEM         ; keyboard memory(?)
     MOV.I   %R5, 65
     ST.B    %R5, 0x3, %R2       ; listen to keycode 'A'
 query:
@@ -12,3 +18,7 @@ query:
     MOV.I   %R3, 0x21           ; if true, then should display '!'
     ST.B    %R3, 0x0, %R1       ; write character to graphics memory
     JABS.Z  %R0, 0x2007         ; <<query>>
+
+;;
+    .UNSET VIDMEM
+    .UNSET KEYMEM

@@ -12,6 +12,7 @@ public final class Assembler implements Closeable {
     }
 
     private final HashMap<String, Integer> symtbl = new HashMap<>();
+    private final HashMap<String, String> subtbl = new HashMap<>();
     private final Encoder encoder = new Encoder();
 
     private final BufferedReader reader;
@@ -86,12 +87,11 @@ public final class Assembler implements Closeable {
         if (!isValidLabelName(label)) {
             throw new RuntimeException("Assembler: Illegal symbol: '" + label + "'");
         }
-        final Integer prev = symtbl.get(label);
-        if (prev != null) {
+
+        final Integer prev;
+        if ((prev = this.symtbl.putIfAbsent(label, this.encoder.size())) != null) {
             throw new RuntimeException("Assembler: Redefinition of symbol: '" + label + "' previously bound at " + prev);
         }
-
-        this.symtbl.put(label, this.encoder.size());
 
         // Everything after the label should be processed
         return line.substring(index + 1);
@@ -125,10 +125,33 @@ public final class Assembler implements Closeable {
         }
 
         // mov.i and MOV.I (and everything in between is the same)
-        this.matchInstruction(op.toUpperCase(), operands);
+        final String mne = op.toUpperCase();
+        if (mne.charAt(0) == '.') {
+            this.matchDirective(mne, operands);
+        } else {
+            this.matchInstruction(mne, operands);
+        }
 
         // Everything is used up. Nothing left to process
         return "";
+    }
+
+    private void matchDirective(String opUpcase, String[] operands) {
+        String tmp;
+        switch (opUpcase) {
+            case ".SET":
+                checkOperandCount(operands, 2);
+                if ((tmp = this.subtbl.putIfAbsent(operands[0], operands[1])) != null) {
+                    throw new RuntimeException("Assembler: Redefinition of '" + operands[0] + "' previously bound to '" + tmp + "'");
+                }
+                break;
+            case ".UNSET":
+                checkOperandCount(operands, 1);
+                this.subtbl.remove(operands[0]);
+                break;
+            default:
+                throw new RuntimeException("Assembler: Illegal directive: '" + opUpcase + "'");
+        }
     }
 
     private void matchInstruction(String opUpcase, String[] operands) {
@@ -295,11 +318,11 @@ public final class Assembler implements Closeable {
                 this.encoder.stB(buf[0], buf[1], buf[2]);
                 break;
             default:
-                throw new RuntimeException("Assembler: Illegal mnemonic: '" + opUpcase + "'");
+                throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }
     }
 
-    private static int[] checkInstrClassI(String[] operands) {
+    private int[] checkInstrClassI(String[] operands) {
         // Class I:     encoded as [imm]
         //    OP IMM
         checkOperandCount(operands, 1);
@@ -308,7 +331,7 @@ public final class Assembler implements Closeable {
         return new int[] { imm };
     }
 
-    private static int[] checkInstrClassIR(String[] operands) {
+    private int[] checkInstrClassIR(String[] operands) {
         // Class IR:    encoded as [imm, rx]
         //    OP %RX, IMM
         checkOperandCount(operands, 2);
@@ -318,7 +341,7 @@ public final class Assembler implements Closeable {
         return new int[] { imm, rx };
     }
 
-    private static int[] checkInstrClassIRR(String[] operands) {
+    private int[] checkInstrClassIRR(String[] operands) {
         // Class IRR:   encoded as [imm, rk, rx]
         //    OP %RX, IMM, %RK
         checkOperandCount(operands, 3);
@@ -329,7 +352,7 @@ public final class Assembler implements Closeable {
         return new int[] { imm, rk, rx };
     }
 
-    private static int[] checkInstrClassRRR(String[] operands) {
+    private int[] checkInstrClassRRR(String[] operands) {
         // Class RRR:   encoded as [ru, rv, rx]
         //    OP %RX, %RU, %RV
         checkOperandCount(operands, 3);
@@ -346,7 +369,28 @@ public final class Assembler implements Closeable {
         }
     }
 
-    public static int getConstant(String str) {
+    public String macroExpand(String str) {
+        // if $str is macro-defined, expand it, then try to expand it again.
+        // otherwise, return it directly.
+
+        String acc = str;
+        while (true) {
+            final String other = this.subtbl.get(acc);
+            if (other == null) {
+                break;
+            }
+
+            acc = other;
+        }
+
+        return acc;
+    }
+
+    public int getConstant(String str) {
+        return parseConstant(this.macroExpand(str));
+    }
+
+    public static int parseConstant(String str) {
         if (str.length() >= 3) {
             if (str.charAt(0) == '0') {
                 switch (str.charAt(1)) {
@@ -367,7 +411,11 @@ public final class Assembler implements Closeable {
         }
     }
 
-    public static int getRegisterIndex(String str) {
+    public int getRegisterIndex(String str) {
+        return parseRegisterIndex(this.macroExpand(str));
+    }
+
+    public static int parseRegisterIndex(String str) {
         switch (str) {
             case "%r0":
             case "%R0":
