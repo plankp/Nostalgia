@@ -25,7 +25,7 @@ public final class Screen extends JFrame {
     public static final int UNSCL_HEIGHT    = 500;
 
     private static final int CELL_WIDTH     = UNSCL_WIDTH / VIRT_WIDTH;
-    private static final int CELL_HEIGHT    = UNSCL_HEIGHT / VIRT_HEIGHT;
+    private static final int CELL_HEIGHT    = UNSCL_HEIGHT / (VIRT_HEIGHT + 1);
 
     private static final Color[] COLOR_MAP = {
         Color.BLACK,
