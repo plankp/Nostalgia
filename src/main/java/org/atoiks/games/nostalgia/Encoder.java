@@ -32,6 +32,16 @@ public final class Encoder implements InstrVisitor {
         this.out.writeTo(stream);
     }
 
+    public void emit(byte b, int times) {
+        if (times < 0) {
+            throw new IllegalArgumentException("Encoder: Cannot fill byte negative times: " + times);
+        }
+
+        for (int i = 0; i < times; ++i) {
+            this.out.write(b);
+        }
+    }
+
     private void emitShort(short s) {
         final int ui = Short.toUnsignedInt(s);
 

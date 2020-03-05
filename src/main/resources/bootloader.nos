@@ -1,0 +1,77 @@
+;;
+;; Bootloader
+;;
+;;   Ok, honestly, if you don't load this into memory 0x0000 then I don't know
+;;   what to say... The instruction pointer starts at 0...
+;;
+;;   We do a couple things here:
+;;   - Initialize the graphics memory by turning all cells into white text on
+;;     black.
+;;   - Set stack pointer to 0x800 (which is actually 0x1000 due to scaling).
+;;     The stack grows upwards towards 0x0000 and will eventually overwrite the
+;;     bootloader! Yay!
+;;   - Set instruction pointer to 0x2000, that means your kernel is loaded at
+;;     0x4000 due to scaling.
+;;
+
+    .SET    VIDMEM, 0x2000
+    .SET    NULCHR, 0x0007
+
+;;
+;; Initialize video memory:
+;;   All cells will be displaying the null byte, white text on black.
+;;
+    MOV.I   %R2, NULCHR         ; move into register because memstore needs it
+    MOV.I   %R1, 4000           ; screen has 80 * 25 cells, cells are wordsized
+    SUB.I   %R1, 2              ; wordsize is 2 bytes
+    ST.W    %R2, VIDMEM, %R1    ; VIDMEM[%R1] = NULCHR
+    JABS.GT %R1, 3              ; go back to the SUB.I instruction
+                                ; Note: at this point, %R1 = 0.
+
+;;
+;; Just to show the video memory was actually properly initialized...
+;;
+    LD.B    %R2, 0x200, %R1
+    ADD.I   %R1, 1
+    ST.B    %R2, VIDMEM, %R3
+    ADD.I   %R3, 2
+    JABS.NZ %R2, 7              ; go back to the LD.B instruction
+
+;;
+;; Setup stack pointer:
+;;   Grows from 0x1000 upwards (towards 0x0000). Like the instruction pointer,
+;;   it is also word aligned and is scaled by 2.
+;;
+    MTSP    %R0, 0x0800         ; 0x1000 / 2 = 0x0800
+
+;;
+;; Start the kernel:
+;;   Sets the instruction pointer to 0x2000, but you actually load the kernel
+;;   at 0x4000. Note: this is not a call but a absolute jump, so *do not* call
+;;   RET from the kernel...
+;;
+    MOV.I   %R1, 0              ; clear all general-purpose registers
+    MOV.I   %R2, 0
+    MOV.I   %R3, 0
+    JABS.Z  %R0, 0x2000
+
+;;
+;; Our very shady data section:
+;;   It starts at 0x200
+;;
+    .ZERO   0x200
+
+    ; This holds the C-string "Atoiks Games - Nostalgia..."
+    .EMIT   0x41, 0x74, 0x6f, 0x69, 0x6b, 0x73, 0x20, 0x47, 0x61, 0x6d, 0x65
+    .EMIT   0x73, 0x20, 0x2d, 0x20, 0x4e, 0x6f, 0x73, 0x74, 0x61, 0x6c, 0x67
+    .EMIT   0x69, 0x61, 0x2e, 0x2e, 0x2e
+    .EMIT   0x00
+
+;;
+;; Remember the stack pointer? We make sure the stack is actually present by
+;; filling from the current address upto 0x1000 with zeros.
+;;
+    .ZERO   0x1000
+
+    .UNSET  VIDMEM
+    .UNSET  NULCHR

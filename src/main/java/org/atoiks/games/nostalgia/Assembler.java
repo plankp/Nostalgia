@@ -149,6 +149,15 @@ public final class Assembler implements Closeable {
                 checkOperandCount(operands, 1);
                 this.subtbl.remove(operands[0]);
                 break;
+            case ".ZERO":
+                checkOperandCount(operands, 1);
+                this.encoder.emit((byte) 0, getConstant(operands[0]) - this.encoder.size());
+                break;
+            case ".EMIT":
+                for (final String op : operands) {
+                    this.encoder.emit((byte) getConstant(op), 1);
+                }
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal directive: '" + opUpcase + "'");
         }

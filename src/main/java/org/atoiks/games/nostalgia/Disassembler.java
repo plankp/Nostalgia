@@ -22,7 +22,13 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         this.out.println();
     }
 
-    public void disassemble() {
+    public void disassemble(int limit) {
+        for (int i = 0; i < limit && this.buf.hasRemaining(); ++i) {
+            this.disassembleNext();
+        }
+    }
+
+    public void disassembleAll() {
         while (this.buf.hasRemaining()) {
             this.disassembleNext();
         }
