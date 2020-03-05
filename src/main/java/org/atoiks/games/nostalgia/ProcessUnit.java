@@ -352,4 +352,22 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     public void stB(int imm, int radj, int rsrc) {
         this.memory.write(imm + this.readRegister(radj), (byte) this.readRegister(rsrc));
     }
+
+    @Override
+    public void shlR(int rlhs, int rrhs, int rdst) {
+        final short out = (short) (this.readRegister(rlhs) << this.readRegister(rrhs));
+        this.writeRegister(rdst, out);
+    }
+
+    @Override
+    public void shrR(int rlhs, int rrhs, int rdst) {
+        final short out = (short) (Short.toUnsignedInt(this.readRegister(rlhs)) >> this.readRegister(rrhs));
+        this.writeRegister(rdst, out);
+    }
+
+    @Override
+    public void sarR(int rlhs, int rrhs, int rdst) {
+        final short out = (short) (this.readRegister(rlhs) >> this.readRegister(rrhs));
+        this.writeRegister(rdst, out);
+    }
 }

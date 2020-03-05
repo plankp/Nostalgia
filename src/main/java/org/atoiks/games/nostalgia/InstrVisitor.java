@@ -52,4 +52,8 @@ public interface InstrVisitor {
     public void stW(int imm, int radj, int rsrc);
     public void ldB(int imm, int radj, int rdst);
     public void stB(int imm, int radj, int rsrc);
+
+    public void shlR(int rlhs, int rrhs, int rdst);
+    public void shrR(int rlhs, int rrhs, int rdst);
+    public void sarR(int rlhs, int rrhs, int rdst);
 }

@@ -326,6 +326,20 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassIRR(operands);
                 this.encoder.stB(buf[0], buf[1], buf[2]);
                 break;
+            case "SHL.R":
+            case "SAL.R":
+                // no distinction between arithmetic and logical left shift
+                buf = checkInstrClassRRR(operands);
+                this.encoder.shlR(buf[0], buf[1], buf[2]);
+                break;
+            case "SHR.R":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.shrR(buf[0], buf[1], buf[2]);
+                break;
+            case "SAR.R":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.sarR(buf[0], buf[1], buf[2]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

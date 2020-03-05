@@ -197,6 +197,15 @@ public final class Decoder {
             case Opcode.OP_ST_B:
                 vis.stB(immHi, rB, rA);
                 break;
+            case Opcode.OP_SHL_R:
+                vis.shlR(rC, rB, rA);
+                break;
+            case Opcode.OP_SHR_R:
+                vis.shrR(rC, rB, rA);
+                break;
+            case Opcode.OP_SAR_R:
+                vis.sarR(rC, rB, rA);
+                break;
         }
     }
 

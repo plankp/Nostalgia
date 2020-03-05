@@ -46,4 +46,7 @@ public final class Opcode {
     public static final int OP_ST_W = 37;
     public static final int OP_LD_B = 38;
     public static final int OP_ST_B = 39;
+    public static final int OP_SHL_R = 40;
+    public static final int OP_SHR_R = 41;
+    public static final int OP_SAR_R = 42;
 }
