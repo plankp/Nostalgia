@@ -17,6 +17,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     private short sp;
     private short bp;
 
+    // This is a secret register (it doesn't even show up in toString!)
+    private short imm;
+
     // Super random, but can we get a counter register lulz!?
 
     private final MemoryUnit memory;
@@ -59,6 +62,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.ip = 0;
         this.sp = 0;
         this.bp = 0;
+
+        this.imm = 0;
     }
 
     public void setIP(int ip) {
@@ -102,8 +107,31 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void movI(int imm, int rdst) {
-        this.writeRegister(rdst, (short) imm);
+    public void illegalOp(int fullWord) {
+        throw new RuntimeException("Process Unit: Illegal opcode: " + fullWord);
+    }
+
+    private short loadImm3(int imm3) {
+        final int full = (this.imm << 3) | imm3;
+        this.imm = 0;
+        return (short) full;
+    }
+
+    private short loadImm6(int imm6) {
+        final int full = (this.imm << 6) | imm6;
+        this.imm = 0;
+        return (short) full;
+    }
+
+    private short loadImm9(int imm9) {
+        final int full = (this.imm << 9) | imm9;
+        this.imm = 0;
+        return (short) full;
+    }
+
+    @Override
+    public void movI(int imm6, int rdst) {
+        this.writeRegister(rdst, this.loadImm6(imm6));
     }
 
     @Override
@@ -155,144 +183,144 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void addI(int imm, int rdst) {
-        final short out = (short) (this.readRegister(rdst) + imm);
+    public void addI(int imm6, int rdst) {
+        final short out = (short) (this.readRegister(rdst) + this.loadImm6(imm6));
         this.writeRegister(rdst, out);
     }
 
     @Override
-    public void subI(int imm, int rdst) {
-        final short out = (short) (this.readRegister(rdst) - imm);
+    public void subI(int imm6, int rdst) {
+        final short out = (short) (this.readRegister(rdst) - this.loadImm6(imm6));
         this.writeRegister(rdst, out);
     }
 
     @Override
-    public void rsubI(int imm, int rdst) {
-        final short out = (short) (imm - this.readRegister(rdst));
+    public void rsubI(int imm6, int rdst) {
+        final short out = (short) (this.loadImm6(imm6) - this.readRegister(rdst));
         this.writeRegister(rdst, out);
     }
 
     @Override
-    public void jabsZ(int imm, int rflag) {
+    public void jabsZ(int imm6, int rflag) {
         if (this.readRegister(rflag) == 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jabsNZ(int imm, int rflag) {
+    public void jabsNZ(int imm6, int rflag) {
         if (this.readRegister(rflag) != 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jabsGE(int imm, int rflag) {
+    public void jabsGE(int imm6, int rflag) {
         if (this.readRegister(rflag) >= 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jabsGT(int imm, int rflag) {
+    public void jabsGT(int imm6, int rflag) {
         if (this.readRegister(rflag) > 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jabsLE(int imm, int rflag) {
+    public void jabsLE(int imm6, int rflag) {
         if (this.readRegister(rflag) <= 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jabsLT(int imm, int rflag) {
+    public void jabsLT(int imm6, int rflag) {
         if (this.readRegister(rflag) < 0) {
-            this.ip = (short) imm;
+            this.ip = this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelZ(int imm, int rflag) {
+    public void jrelZ(int imm6, int rflag) {
         if (this.readRegister(rflag) == 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelNZ(int imm, int rflag) {
+    public void jrelNZ(int imm6, int rflag) {
         if (this.readRegister(rflag) != 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelGE(int imm, int rflag) {
+    public void jrelGE(int imm6, int rflag) {
         if (this.readRegister(rflag) >= 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelGT(int imm, int rflag) {
+    public void jrelGT(int imm6, int rflag) {
         if (this.readRegister(rflag) > 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelLE(int imm, int rflag) {
+    public void jrelLE(int imm6, int rflag) {
         if (this.readRegister(rflag) <= 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void jrelLT(int imm, int rflag) {
+    public void jrelLT(int imm6, int rflag) {
         if (this.readRegister(rflag) < 0) {
-            this.ip += (short) imm;
+            this.ip += this.loadImm6(imm6);
         }
     }
 
     @Override
-    public void push(int imm, int rsrc) {
-        this.push((short) (this.readRegister(rsrc) + imm));
+    public void push(int imm6, int rsrc) {
+        this.push((short) (this.readRegister(rsrc) + this.loadImm6(imm6)));
     }
 
     @Override
-    public void pop(int imm, int rdst) {
-        this.writeRegister(rdst, (short) (this.pop() - imm));
+    public void pop(int imm6, int rdst) {
+        this.writeRegister(rdst, (short) (this.pop() - this.loadImm6(imm6)));
     }
 
     @Override
-    public void mtsp(int imm, int rsrc) {
-        this.sp = (short) (this.readRegister(rsrc) + imm);
+    public void mtsp(int imm6, int rsrc) {
+        this.sp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
     }
 
     @Override
-    public void mtbp(int imm, int rsrc) {
-        this.bp = (short) (this.readRegister(rsrc) + imm);
+    public void mtbp(int imm6, int rsrc) {
+        this.bp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
     }
 
     @Override
-    public void mspt(int imm, int rdst) {
-        this.writeRegister(rdst, (short) (this.sp - imm));
+    public void mspt(int imm6, int rdst) {
+        this.writeRegister(rdst, (short) (this.sp - this.loadImm6(imm6)));
     }
 
     @Override
-    public void mbpt(int imm, int rdst) {
-        this.writeRegister(rdst, (short) (this.bp - imm));
+    public void mbpt(int imm6, int rdst) {
+        this.writeRegister(rdst, (short) (this.bp - this.loadImm6(imm6)));
     }
 
     @Override
-    public void call(int imm) {
+    public void call(int imm9) {
         // Due to how this#nextWord() is implemented, by the time this
         // instruction is actually handled here, ip would already contain the
         // address of the next instruction!
         this.push(this.ip);
-        this.ip = (short) imm;
+        this.ip = this.loadImm9(imm9);
     }
 
     @Override
@@ -301,10 +329,10 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void enter(int imm) {
+    public void enter(int imm9) {
         this.push(this.bp);
         this.bp = this.sp;
-        this.sp -= imm;
+        this.sp -= this.loadImm9(imm);
     }
 
     @Override
@@ -330,27 +358,27 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void ldW(int imm, int radj, int rdst) {
+    public void ldW(int imm3, int radj, int rdst) {
         final ByteBuffer buf = ByteBuffer.allocate(2);
-        this.memory.read(imm + this.readRegister(radj), buf);
+        this.memory.read(this.loadImm3(imm3) + this.readRegister(radj), buf);
         this.writeRegister(rdst, buf.flip().getShort());
     }
 
     @Override
-    public void stW(int imm, int radj, int rsrc) {
+    public void stW(int imm3, int radj, int rsrc) {
         final ByteBuffer buf = ByteBuffer.allocate(2);
         buf.putShort(this.readRegister(rsrc)).flip();
-        this.memory.write(imm + this.readRegister(radj), buf);
+        this.memory.write(this.loadImm3(imm3) + this.readRegister(radj), buf);
     }
 
     @Override
-    public void ldB(int imm, int radj, int rdst) {
-        this.writeRegister(rdst, this.memory.read(imm + this.readRegister(radj)));
+    public void ldB(int imm3, int radj, int rdst) {
+        this.writeRegister(rdst, this.memory.read(this.loadImm3(imm3) + this.readRegister(radj)));
     }
 
     @Override
-    public void stB(int imm, int radj, int rsrc) {
-        this.memory.write(imm + this.readRegister(radj), (byte) this.readRegister(rsrc));
+    public void stB(int imm3, int radj, int rsrc) {
+        this.memory.write(this.loadImm3(imm3) + this.readRegister(radj), (byte) this.readRegister(rsrc));
     }
 
     @Override
@@ -372,20 +400,28 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void shlI(int imm, int rdst) {
-        final short out = (short) (this.readRegister(rdst) << imm);
+    public void shlI(int imm4, int rdst) {
+        final short out = (short) (this.readRegister(rdst) << imm4);
         this.writeRegister(rdst, out);
+        this.imm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void shrI(int imm, int rdst) {
-        final short out = (short) (Short.toUnsignedInt(this.readRegister(rdst)) >> imm);
+    public void shrI(int imm4, int rdst) {
+        final short out = (short) (Short.toUnsignedInt(this.readRegister(rdst)) >> imm4);
         this.writeRegister(rdst, out);
+        this.imm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void sarI(int imm, int rdst) {
-        final short out = (short) (this.readRegister(rdst) >> imm);
+    public void sarI(int imm4, int rdst) {
+        final short out = (short) (this.readRegister(rdst) >> imm4);
         this.writeRegister(rdst, out);
+        this.imm = 0; // techinically we have used up the immediate slot
+    }
+
+    @Override
+    public void hi12(int imm12) {
+        this.imm = (short) imm12;
     }
 }

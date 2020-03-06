@@ -22,61 +22,31 @@ public final class Decoder {
     }
 
     public void decode(InstrVisitor vis) {
-        // Types of instruction formats:
-        // - Immediate-widening instruction:
-        //   1iii iiii iiii iiii
-        //   Note: even though it shows 15 significant bits, the actual amount
-        //         depends on the next instruction.
-        //
-        // - Lower immediates:
-        //   0xxx xxxi iiii iiii
-        //   Note: only the last 6 bits of widening is used
-        //
-        // - One register:
-        //   0xxx xxxi iiii iaaa
-        //   Note: only the last 9 bits of widening is used
-        //
-        // - Two registers:
-        //   0xxx xxxi iibb baaa
-        //   Note: only the last 12 bits of widening is used
-        //
-        // - Three registers:
-        //   0xxx xxxc ccbb baaa
+        /* see Opcode.java for the instruction layout */
 
-        int widen = 0;
-
-        short word = this.stream.nextWord();
-
-        // If the highest bit is set, then is a special instruction prefix to
-        // store an extended immediate value.
-        if ((word & (1 << 15)) != 0) {
-            widen = Short.toUnsignedInt(word) & ~(1 << 15);
-
-            // Need to read the next word to know the actual instruction
-            word = this.stream.nextWord();
+        // Check if the opcode is class OP0 or OP1 by checking the highest bit.
+        final int word = Short.toUnsignedInt(this.stream.nextWord());
+        if ((word & (1 << 15)) == 0) {
+            // It's a OP0 opcode
+            this.decodeOP0(word >> 9, word & 0x1FF, vis);
+        } else {
+            // It's a OP1 opcode
+            this.decodeOP1((word >> 12) & 0x07, word & 0xFFF, vis);
         }
+    }
 
-        // Sanity check: cannot have two prefixes in a row
-        if ((word & (1 << 15)) != 0) {
-            // Probably want a custom exception
-            throw new RuntimeException("Decoder: cannot have two immediate extension prefixes in a row");
-        }
+    public void decodeOP0(int op, int lo9, InstrVisitor vis) {
+        // Decode all the possible OP0 class formats:
 
-        // Not the best way, but since all the operations are cheap, we will
-        // compute all the possible parameters.
+        final int rA = (lo9 >> 0) & 0x7; // dummy shr 0 just for fmt
+        final int rB = (lo9 >> 3) & 0x7;
+        final int rC = (lo9 >> 6) & 0x7;
 
-        final int rA = getInstrRegisterA(word);
-        final int rB = getInstrRegisterB(word);
-        final int rC = getInstrRegisterC(word);
+        final int immLo = (lo9 >> 0) & 0x01FF; // dummy shr 0 just for fmt
+        final int immMi = (lo9 >> 3) & 0x3F;
+        final int immHi = (lo9 >> 6) & 0x3;
 
-        final int immLo = getInstrLowerImmediate(word, widen);
-        final int immMi = getInstrMiddleImmediate(word, widen);
-        final int immHi = getInstrUpperImmediate(word, widen);
-
-        // Actual operation is masked in 0x7E00.
-        // Note: No need to mask the highest bit because that is the immediate
-        // extension prefix that we were just testing for.
-        switch (Short.toUnsignedInt(word) >> 9) {
+        switch (op) {
             case Opcode.OP0_MOV_I:
                 vis.movI(immMi, rA);
                 break;
@@ -239,36 +209,22 @@ public final class Decoder {
                 }
                 break;
             }
+            default:
+                // Reconstruct the whole opcode
+                vis.illegalOp((op << 9) | lo9);
+                break;
         }
     }
 
-    private static int getInstrLowerImmediate(short op, int widen) {
-        // 0xxx xxxi iiii iiii
-        return Short.toUnsignedInt((short) (widen << 9)) | (Short.toUnsignedInt(op) & 0x01FF);
-    }
-
-    private static int getInstrMiddleImmediate(short op, int widen) {
-        // 0xxx xxxi iiii iaaa ==> down shift the I fields
-        return Short.toUnsignedInt((short) (widen << 6)) | ((Short.toUnsignedInt(op) & 0x01F8) >> 3);
-    }
-
-    private static int getInstrUpperImmediate(short op, int widen) {
-        // 0xxx xxxi iibb baaa ==> down shift the I fields
-        return Short.toUnsignedInt((short) (widen << 3)) | ((Short.toUnsignedInt(op) & 0x01C0) >> 6);
-    }
-
-    private static int getInstrRegisterA(short op) {
-        // 0xxx xxxc ccbb baaa
-        return Short.toUnsignedInt(op) & 0x0007;
-    }
-
-    private static int getInstrRegisterB(short op) {
-        // 0xxx xxxc ccbb baaa
-        return (Short.toUnsignedInt(op) & 0x0038) >> 3;
-    }
-
-    private static int getInstrRegisterC(short op) {
-        // 0xxx xxxc ccbb baaa
-        return (Short.toUnsignedInt(op) & 0x01C0) >> 6;
+    public void decodeOP1(int op, int lo12, InstrVisitor vis) {
+        switch (op) {
+            case Opcode.OP1_HI12:
+                vis.hi12(lo12);
+                break;
+            default:
+                // Reconstruct the whole opcode
+                vis.illegalOp((1 << 15) | (op << 12) | lo12);
+                break;
+        }
     }
 }

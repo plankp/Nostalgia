@@ -56,6 +56,11 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void illegalOp(int fullWord) {
+        this.out.printf("0x%04x     ??", fullWord);
+    }
+
+    @Override
     public void movI(int imm, int rdst) {
         this.out.printf("MOV.I      %%r%d, 0x%x", rdst, imm);
     }
@@ -283,5 +288,11 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void sarI(int imm, int rdst) {
         this.out.printf("SAR.I      %%r%d, 0x%x", imm);
+    }
+
+    @Override
+    public void hi12(int imm) {
+        // This is honestly a pretty strange opcode...
+        this.out.printf("HI12       0x%x", imm);
     }
 }

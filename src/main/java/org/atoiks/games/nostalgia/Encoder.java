@@ -55,8 +55,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1110_0000_0000;
 
         if (widen != 0) {
-            // emit an immediate extension prefix
-            this.emitShort((short) ((1 << 15) | (widen >> 9)));
+            // emit HI12
+            this.hi12(widen >> 9);
         }
 
         this.emitShort((short) (0
@@ -69,8 +69,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1111_1100_0000;
 
         if (widen != 0) {
-            // emit an immediate extension prefix
-            this.emitShort((short) ((1 << 15) | (widen >> 6)));
+            // emit HI12
+            this.hi12(widen >> 6);
         }
 
         this.emitShort((short) (0
@@ -84,8 +84,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1111_1111_1000;
 
         if (widen != 0) {
-            // emit an immediate extension prefix
-            this.emitShort((short) ((1 << 15) | (widen >> 3)));
+            // emit HI12
+            this.hi12(widen >> 3);
         }
 
         this.emitShort((short) (0
@@ -100,6 +100,11 @@ public final class Encoder implements InstrVisitor {
                 | ((rC & 0x07) << 6)
                 | ((rB & 0x07) << 3)
                 | (rA & 0x07)));
+    }
+
+    @Override
+    public void illegalOp(int op) {
+        throw new RuntimeException("Encoder: Attempt to force an illegal opcode!");
     }
 
     @Override
@@ -330,5 +335,10 @@ public final class Encoder implements InstrVisitor {
     @Override
     public void sarI(int imm, int rdst) {
         this.emitInstrIR(Opcode.OP0_SFT_I, (imm & 0x0F) | 0x30, rdst);
+    }
+
+    @Override
+    public void hi12(int imm12) {
+        this.emitShort((short) ((1 << 15) | (Opcode.OP1_HI12 << 12) | (imm12 & 0xFFF)));
     }
 }
