@@ -104,231 +104,231 @@ public final class Encoder implements InstrVisitor {
 
     @Override
     public void movI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_MOV_I, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_MOV_I, imm, rdst);
     }
 
     @Override
     public void addR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_ADD_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_ADD_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void subR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_SUB_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_SUB_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void andR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_AND_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_AND_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void orR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_OR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_OR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void xorR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_XOR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_XOR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void nandR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_NAND_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_NAND_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void norR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_NOR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_NOR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void nxorR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_NXOR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_NXOR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void addI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_ADD_I, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_ADD_I, imm, rdst);
     }
 
     @Override
     public void subI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_SUB_I, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_SUB_I, imm, rdst);
     }
 
     @Override
     public void rsubI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_RSUB_I, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_RSUB_I, imm, rdst);
     }
 
     @Override
     public void jabsZ(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_Z, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_Z, imm, rflag);
     }
 
     @Override
     public void jabsNZ(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_NZ, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_NZ, imm, rflag);
     }
 
     @Override
     public void jabsGE(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_GE, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_GE, imm, rflag);
     }
 
     @Override
     public void jabsGT(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_GT, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_GT, imm, rflag);
     }
 
     @Override
     public void jabsLE(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_LE, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_LE, imm, rflag);
     }
 
     @Override
     public void jabsLT(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JABS_LT, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JABS_LT, imm, rflag);
     }
 
     @Override
     public void jrelZ(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_Z, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_Z, imm, rflag);
     }
 
     @Override
     public void jrelNZ(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_NZ, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_NZ, imm, rflag);
     }
 
     @Override
     public void jrelGE(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_GE, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_GE, imm, rflag);
     }
 
     @Override
     public void jrelGT(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_GT, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_GT, imm, rflag);
     }
 
     @Override
     public void jrelLE(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_LE, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_LE, imm, rflag);
     }
 
     @Override
     public void jrelLT(int imm, int rflag) {
-        this.emitInstrIR(Opcode.OP_JREL_LT, imm, rflag);
+        this.emitInstrIR(Opcode.OP0_JREL_LT, imm, rflag);
     }
 
     @Override
     public void push(int imm, int rsrc) {
-        this.emitInstrIR(Opcode.OP_PUSH, imm, rsrc);
+        this.emitInstrIR(Opcode.OP0_PUSH, imm, rsrc);
     }
 
     @Override
     public void pop(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_POP, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_POP, imm, rdst);
     }
 
     @Override
     public void mtsp(int imm, int rsrc) {
-        this.emitInstrIR(Opcode.OP_MTSP, imm, rsrc);
+        this.emitInstrIR(Opcode.OP0_MTSP, imm, rsrc);
     }
 
     @Override
     public void mtbp(int imm, int rsrc) {
-        this.emitInstrIR(Opcode.OP_MTBP, imm, rsrc);
+        this.emitInstrIR(Opcode.OP0_MTBP, imm, rsrc);
     }
 
     @Override
     public void mspt(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_MSPT, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_MSPT, imm, rdst);
     }
 
     @Override
     public void mbpt(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_MBPT, imm, rdst);
+        this.emitInstrIR(Opcode.OP0_MBPT, imm, rdst);
     }
 
     @Override
     public void call(int imm) {
-        this.emitInstrI(Opcode.OP_CALL, imm);
+        this.emitInstrI(Opcode.OP0_CALL, imm);
     }
 
     @Override
     public void ret() {
-        this.emitInstrI(Opcode.OP_RET, 0);
+        this.emitInstrI(Opcode.OP0_RET, 0);
     }
 
     @Override
     public void enter(int imm) {
-        this.emitInstrI(Opcode.OP_ENTER, imm);
+        this.emitInstrI(Opcode.OP0_ENTER, imm);
     }
 
     @Override
     public void leave() {
-        this.emitInstrI(Opcode.OP_LEAVE, 0);
+        this.emitInstrI(Opcode.OP0_LEAVE, 0);
     }
 
     @Override
     public void inner(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_INNER, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_INNER, rlhs, rrhs, rdst);
     }
 
     @Override
     public void outer(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_OUTER, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_OUTER, rlhs, rrhs, rdst);
     }
 
     @Override
     public void ldW(int imm, int radj, int rdst) {
-        this.emitInstrIRR(Opcode.OP_LD_W, imm, radj, rdst);
+        this.emitInstrIRR(Opcode.OP0_LD_W, imm, radj, rdst);
     }
 
     @Override
     public void stW(int imm, int radj, int rsrc) {
-        this.emitInstrIRR(Opcode.OP_ST_W, imm, radj, rsrc);
+        this.emitInstrIRR(Opcode.OP0_ST_W, imm, radj, rsrc);
     }
 
     @Override
     public void ldB(int imm, int radj, int rdst) {
-        this.emitInstrIRR(Opcode.OP_LD_B, imm, radj, rdst);
+        this.emitInstrIRR(Opcode.OP0_LD_B, imm, radj, rdst);
     }
 
     @Override
     public void stB(int imm, int radj, int rsrc) {
-        this.emitInstrIRR(Opcode.OP_ST_B, imm, radj, rsrc);
+        this.emitInstrIRR(Opcode.OP0_ST_B, imm, radj, rsrc);
     }
 
     @Override
     public void shlR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_SHL_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_SHL_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void shrR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_SHR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_SHR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void sarR(int rlhs, int rrhs, int rdst) {
-        this.emitInstrRRR(Opcode.OP_SAR_R, rlhs, rrhs, rdst);
+        this.emitInstrRRR(Opcode.OP0_SAR_R, rlhs, rrhs, rdst);
     }
 
     @Override
     public void shlI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_SFT_I, imm & 0x0F, rdst);
+        this.emitInstrIR(Opcode.OP0_SFT_I, imm & 0x0F, rdst);
     }
 
     @Override
     public void shrI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_SFT_I, (imm & 0x0F) | 0x10, rdst);
+        this.emitInstrIR(Opcode.OP0_SFT_I, (imm & 0x0F) | 0x10, rdst);
     }
 
     @Override
     public void sarI(int imm, int rdst) {
-        this.emitInstrIR(Opcode.OP_SFT_I, (imm & 0x0F) | 0x30, rdst);
+        this.emitInstrIR(Opcode.OP0_SFT_I, (imm & 0x0F) | 0x30, rdst);
     }
 }

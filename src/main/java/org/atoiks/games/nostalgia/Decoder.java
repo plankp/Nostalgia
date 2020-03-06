@@ -77,136 +77,136 @@ public final class Decoder {
         // Note: No need to mask the highest bit because that is the immediate
         // extension prefix that we were just testing for.
         switch (Short.toUnsignedInt(word) >> 9) {
-            case Opcode.OP_MOV_I:
+            case Opcode.OP0_MOV_I:
                 vis.movI(immMi, rA);
                 break;
-            case Opcode.OP_ADD_R:
+            case Opcode.OP0_ADD_R:
                 vis.addR(rC, rB, rA);
                 break;
-            case Opcode.OP_SUB_R:
+            case Opcode.OP0_SUB_R:
                 vis.subR(rC, rB, rA);
                 break;
-            case Opcode.OP_AND_R:
+            case Opcode.OP0_AND_R:
                 vis.andR(rC, rB, rA);
                 break;
-            case Opcode.OP_OR_R:
+            case Opcode.OP0_OR_R:
                 vis.orR(rC, rB, rA);
                 break;
-            case Opcode.OP_XOR_R:
+            case Opcode.OP0_XOR_R:
                 vis.xorR(rC, rB, rA);
                 break;
-            case Opcode.OP_NAND_R:
+            case Opcode.OP0_NAND_R:
                 vis.nandR(rC, rB, rA);
                 break;
-            case Opcode.OP_NOR_R:
+            case Opcode.OP0_NOR_R:
                 vis.norR(rC, rB, rA);
                 break;
-            case Opcode.OP_NXOR_R:
+            case Opcode.OP0_NXOR_R:
                 vis.nxorR(rC, rB, rA);
                 break;
-            case Opcode.OP_ADD_I:
+            case Opcode.OP0_ADD_I:
                 vis.addI(immMi, rA);
                 break;
-            case Opcode.OP_SUB_I:
+            case Opcode.OP0_SUB_I:
                 vis.subI(immMi, rA);
                 break;
-            case Opcode.OP_RSUB_I:
+            case Opcode.OP0_RSUB_I:
                 vis.rsubI(immMi, rA);
                 break;
-            case Opcode.OP_JABS_Z:
+            case Opcode.OP0_JABS_Z:
                 vis.jabsZ(immMi, rA);
                 break;
-            case Opcode.OP_JABS_NZ:
+            case Opcode.OP0_JABS_NZ:
                 vis.jabsNZ(immMi, rA);
                 break;
-            case Opcode.OP_JABS_GE:
+            case Opcode.OP0_JABS_GE:
                 vis.jabsGE(immMi, rA);
                 break;
-            case Opcode.OP_JABS_GT:
+            case Opcode.OP0_JABS_GT:
                 vis.jabsGT(immMi, rA);
                 break;
-            case Opcode.OP_JABS_LE:
+            case Opcode.OP0_JABS_LE:
                 vis.jabsLE(immMi, rA);
                 break;
-            case Opcode.OP_JABS_LT:
+            case Opcode.OP0_JABS_LT:
                 vis.jabsLT(immMi, rA);
                 break;
-            case Opcode.OP_JREL_Z:
+            case Opcode.OP0_JREL_Z:
                 vis.jrelZ(immMi, rA);
                 break;
-            case Opcode.OP_JREL_NZ:
+            case Opcode.OP0_JREL_NZ:
                 vis.jrelNZ(immMi, rA);
                 break;
-            case Opcode.OP_JREL_GE:
+            case Opcode.OP0_JREL_GE:
                 vis.jrelGE(immMi, rA);
                 break;
-            case Opcode.OP_JREL_GT:
+            case Opcode.OP0_JREL_GT:
                 vis.jrelGT(immMi, rA);
                 break;
-            case Opcode.OP_JREL_LE:
+            case Opcode.OP0_JREL_LE:
                 vis.jrelLE(immMi, rA);
                 break;
-            case Opcode.OP_JREL_LT:
+            case Opcode.OP0_JREL_LT:
                 vis.jrelLT(immMi, rA);
                 break;
-            case Opcode.OP_PUSH:
+            case Opcode.OP0_PUSH:
                 vis.push(immMi, rA);
                 break;
-            case Opcode.OP_POP:
+            case Opcode.OP0_POP:
                 vis.pop(immMi, rA);
                 break;
-            case Opcode.OP_MTSP:
+            case Opcode.OP0_MTSP:
                 vis.mtsp(immMi, rA);
                 break;
-            case Opcode.OP_MTBP:
+            case Opcode.OP0_MTBP:
                 vis.mtbp(immMi, rA);
                 break;
-            case Opcode.OP_MSPT:
+            case Opcode.OP0_MSPT:
                 vis.mspt(immMi, rA);
                 break;
-            case Opcode.OP_MBPT:
+            case Opcode.OP0_MBPT:
                 vis.mbpt(immMi, rA);
                 break;
-            case Opcode.OP_CALL:
+            case Opcode.OP0_CALL:
                 vis.call(immLo);
                 break;
-            case Opcode.OP_RET:
+            case Opcode.OP0_RET:
                 vis.ret();
                 break;
-            case Opcode.OP_ENTER:
+            case Opcode.OP0_ENTER:
                 vis.enter(immLo);
                 break;
-            case Opcode.OP_LEAVE:
+            case Opcode.OP0_LEAVE:
                 vis.leave();
                 break;
-            case Opcode.OP_INNER:
+            case Opcode.OP0_INNER:
                 vis.inner(rC, rB, rA);
                 break;
-            case Opcode.OP_OUTER:
+            case Opcode.OP0_OUTER:
                 vis.outer(rC, rB, rA);
                 break;
-            case Opcode.OP_LD_W:
+            case Opcode.OP0_LD_W:
                 vis.ldW(immHi, rB, rA);
                 break;
-            case Opcode.OP_ST_W:
+            case Opcode.OP0_ST_W:
                 vis.stW(immHi, rB, rA);
                 break;
-            case Opcode.OP_LD_B:
+            case Opcode.OP0_LD_B:
                 vis.ldB(immHi, rB, rA);
                 break;
-            case Opcode.OP_ST_B:
+            case Opcode.OP0_ST_B:
                 vis.stB(immHi, rB, rA);
                 break;
-            case Opcode.OP_SHL_R:
+            case Opcode.OP0_SHL_R:
                 vis.shlR(rC, rB, rA);
                 break;
-            case Opcode.OP_SHR_R:
+            case Opcode.OP0_SHR_R:
                 vis.shrR(rC, rB, rA);
                 break;
-            case Opcode.OP_SAR_R:
+            case Opcode.OP0_SAR_R:
                 vis.sarR(rC, rB, rA);
                 break;
-            case Opcode.OP_SFT_I: {
+            case Opcode.OP0_SFT_I: {
                 // There is actually double-decoding for shifts with immediates:
                 //
                 // 0xxx xxxi iiii iaaa
