@@ -206,6 +206,39 @@ public final class Decoder {
             case Opcode.OP_SAR_R:
                 vis.sarR(rC, rB, rA);
                 break;
+            case Opcode.OP_SFT_I: {
+                // There is actually double-decoding for shifts with immediates:
+                //
+                // 0xxx xxxi iiii iaaa
+                //
+                // Since registers are 16 bits, we only really use 4 bits
+                // (that allows 0..15, which is plenty). This leaves us with
+                // the upper 2 bits for specifying what type of shift to do.
+                //
+                // In the end, we really have 4 (technically 3 because SHL and
+                // SAL are the same) separate instructions:
+                //
+                // Immediate bitranges:
+                // [0, 4]   => shift amount (0 to 15)
+                // [5]      => 1 = right shift, 0 = left shift
+                // [6]      => 1 = arithmetic,  0 = logical
+                //
+                // Note: Using an immediate extension prefix on this is not an
+                // error, but the 2nd decoding phase happens after immediate
+                // extension!
+                final int count  = immMi & 0x0F;
+                final boolean sr = (immMi & 0x10) != 0;
+                final boolean ar = (immMi & 0x20) != 0;
+
+                if (!sr) {
+                    vis.shlI(count, rA);
+                } else if (!ar) {
+                    vis.shrI(count, rA);
+                } else {
+                    vis.sarI(count, rA);
+                }
+                break;
+            }
         }
     }
 

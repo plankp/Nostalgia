@@ -316,4 +316,19 @@ public final class Encoder implements InstrVisitor {
     public void sarR(int rlhs, int rrhs, int rdst) {
         this.emitInstrRRR(Opcode.OP_SAR_R, rlhs, rrhs, rdst);
     }
+
+    @Override
+    public void shlI(int imm, int rdst) {
+        this.emitInstrIR(Opcode.OP_SFT_I, imm & 0x0F, rdst);
+    }
+
+    @Override
+    public void shrI(int imm, int rdst) {
+        this.emitInstrIR(Opcode.OP_SFT_I, (imm & 0x0F) | 0x10, rdst);
+    }
+
+    @Override
+    public void sarI(int imm, int rdst) {
+        this.emitInstrIR(Opcode.OP_SFT_I, (imm & 0x0F) | 0x30, rdst);
+    }
 }

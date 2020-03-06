@@ -340,6 +340,29 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.sarR(buf[0], buf[1], buf[2]);
                 break;
+            case "SHL.I":
+            case "SAL.I":
+                // semantically no distinction between arithmetic and logical left shift
+                buf = checkInstrClassIR(operands);
+                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                }
+                this.encoder.shlI(buf[0], buf[1]);
+                break;
+            case "SHR.I":
+                buf = checkInstrClassIR(operands);
+                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                }
+                this.encoder.shrI(buf[0], buf[1]);
+                break;
+            case "SAR.I":
+                buf = checkInstrClassIR(operands);
+                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                }
+                this.encoder.sarI(buf[0], buf[1]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

@@ -269,4 +269,19 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void sarR(int rlhs, int rrhs, int rdst) {
         this.out.printf("SAR.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
     }
+
+    @Override
+    public void shlI(int imm, int rdst) {
+        this.out.printf("SHL.I      %%r%d, 0x%x", imm);
+    }
+
+    @Override
+    public void shrI(int imm, int rdst) {
+        this.out.printf("SHR.I      %%r%d, 0x%x", imm);
+    }
+
+    @Override
+    public void sarI(int imm, int rdst) {
+        this.out.printf("SAR.I      %%r%d, 0x%x", imm);
+    }
 }

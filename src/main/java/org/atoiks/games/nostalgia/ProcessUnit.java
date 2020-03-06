@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
-    // TODO: ADD SHIFTS, PUSH3, POP3
+    // TODO: ADD PUSH3, POP3
 
     private static final int DATA_WIDTH = 2;
 
@@ -368,6 +368,24 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void sarR(int rlhs, int rrhs, int rdst) {
         final short out = (short) (this.readRegister(rlhs) >> this.readRegister(rrhs));
+        this.writeRegister(rdst, out);
+    }
+
+    @Override
+    public void shlI(int imm, int rdst) {
+        final short out = (short) (this.readRegister(rdst) << imm);
+        this.writeRegister(rdst, out);
+    }
+
+    @Override
+    public void shrI(int imm, int rdst) {
+        final short out = (short) (Short.toUnsignedInt(this.readRegister(rdst)) >> imm);
+        this.writeRegister(rdst, out);
+    }
+
+    @Override
+    public void sarI(int imm, int rdst) {
+        final short out = (short) (this.readRegister(rdst) >> imm);
         this.writeRegister(rdst, out);
     }
 }
