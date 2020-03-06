@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream;
 
 public final class Encoder implements InstrVisitor {
 
-    /* see Decoder#decode(InstrVisitor) on the instruction layout */
+    /* see Opcode.java for the instruction layout */
 
     private static final int MASK_INSTR_OP = 0x3F;
 

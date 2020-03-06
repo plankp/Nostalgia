@@ -7,7 +7,24 @@ public final class Opcode {
     }
 
     // All OP0 opcodes must be masked to 0x3F since the instruction only has 6
-    // bits to encode this information.
+    // bits to encode this information:
+    //
+    // Each OP0 opcode must have one of the following formats:
+    //
+    // - Lower immediates:
+    //   0xxx xxxi iiii iiii
+    //   Note: only the last 6 bits of HI12 opcode (see below) is used
+    //
+    // - One register:
+    //   0xxx xxxi iiii iaaa
+    //   Note: only the last 9 bits of HI12 opcode (see below) is used
+    //
+    // - Two registers:
+    //   0xxx xxxi iibb baaa
+    //   Note: only the last 12 bits of HI12 opcode (see below) is used
+    //
+    // - Three registers:
+    //   0xxx xxxc ccbb baaa
 
     public static final int OP0_MOV_I   = 0 & 0x3F;
     public static final int OP0_ADD_R   = 1 & 0x3F;
@@ -53,4 +70,16 @@ public final class Opcode {
     public static final int OP0_SHR_R   = 41 & 0x3F;
     public static final int OP0_SAR_R   = 42 & 0x3F;
     public static final int OP0_SFT_I   = 43 & 0x3F;
+
+    // All OP1 opcodes must be masked to 0x07 since the instruction only has 3
+    // bits to encode this information.
+    //
+    // Each OP1 opcode must have one of the following formats:
+    //
+    // - Lower immediates:
+    //   1xxx iiii iiii iiii
+    //
+    // (more to come!)
+
+    public static final int OP1_HI12    = 0 & 0x07;
 }
