@@ -42,9 +42,9 @@ public final class Decoder {
         final int rB = (lo9 >> 3) & 0x7;
         final int rC = (lo9 >> 6) & 0x7;
 
-        final int immLo = (lo9 >> 0) & 0x01FF; // dummy shr 0 just for fmt
+        final int immLo = (lo9 >> 0) & 0x1FF; // dummy shr 0 just for fmt
         final int immMi = (lo9 >> 3) & 0x3F;
-        final int immHi = (lo9 >> 6) & 0x3;
+        final int immHi = (lo9 >> 6) & 0x7; // yes, it's the same as rC
 
         switch (op) {
             case Opcode.OP0_MOV_I:
