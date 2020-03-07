@@ -301,6 +301,16 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void cmovI(int imm3, int rflag, int rdst) {
+        this.out.printf("CMOV.I     %%r%d, 0x%x, %%r%d", rdst, imm3, rflag);
+    }
+
+    @Override
+    public void cmovR(int rsrc, int rflag, int rdst) {
+        this.out.printf("CMOV.R     %%r%d, %%r%d, %%r%d", rdst, rsrc, rflag);
+    }
+
+    @Override
     public void hi12(int imm) {
         // This is honestly a pretty strange opcode...
         this.out.printf("HI12       0x%x", imm);

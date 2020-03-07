@@ -72,6 +72,8 @@ public final class Opcode {
     public static final int OP0_SFT_I   = 43 & 0x3F;
     public static final int OP0_PUSH3   = 44 & 0x3F;
     public static final int OP0_POP3    = 45 & 0x3F;
+    public static final int OP0_CMOV_I  = 46 & 0x3F;
+    public static final int OP0_CMOV_R  = 47 & 0x3F;
 
     // All OP1 opcodes must be masked to 0x07 since the instruction only has 3
     // bits to encode this information.

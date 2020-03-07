@@ -348,6 +348,16 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void cmovI(int imm3, int rflag, int rdst) {
+        this.emitInstrIRR(Opcode.OP0_CMOV_I, imm3, rflag, rdst);
+    }
+
+    @Override
+    public void cmovR(int rsrc, int rflag, int rdst) {
+        this.emitInstrRRR(Opcode.OP0_CMOV_R, rsrc, rflag, rdst);
+    }
+
+    @Override
     public void hi12(int imm12) {
         this.emitShort((short) ((1 << 15) | (Opcode.OP1_HI12 << 12) | (imm12 & 0xFFF)));
     }

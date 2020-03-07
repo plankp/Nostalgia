@@ -371,6 +371,14 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.pop3(buf[0], buf[1], buf[2]);
                 break;
+            case "CMOV.I":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.cmovI(buf[0], buf[1], buf[2]);
+                break;
+            case "CMOV.R":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.cmovR(buf[0], buf[1], buf[2]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

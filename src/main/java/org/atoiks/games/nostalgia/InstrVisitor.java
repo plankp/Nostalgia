@@ -68,6 +68,9 @@ public interface InstrVisitor {
     public void push3(int rC, int rB, int rA);
     public void pop3(int rC, int rB, int rA);
 
+    public void cmovI(int imm3, int rflag, int rdst);
+    public void cmovR(int rsrc, int rflag, int rdst);
+
     // ***** OP1 class *****
 
     public void hi12(int imm12);

@@ -433,6 +433,26 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void cmovI(int imm3, int rflag, int rdst) {
+        // The immediate slot is consumed regardless of the flag!
+
+        final short value = this.loadImm3(imm3);
+        if (this.readRegister(rflag) != 0) {
+            this.writeRegister(rdst, value);
+        }
+    }
+
+    @Override
+    public void cmovR(int rsrc, int rflag, int rdst) {
+        // The value is read from the source register regardless of the flag!
+
+        final short value = this.readRegister(rsrc);
+        if (this.readRegister(rflag) != 0) {
+            this.writeRegister(rdst, value);
+        }
+    }
+
+    @Override
     public void hi12(int imm12) {
         this.imm = (short) imm12;
     }
