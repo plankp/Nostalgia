@@ -53,8 +53,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1110_0000_0000;
 
         if (widen != 0) {
-            // emit HI12
-            this.hi12(widen >> 9);
+            // emit iex
+            this.iex(widen >> 9);
         }
 
         this.emitShort((short) (0
@@ -67,8 +67,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1111_1100_0000;
 
         if (widen != 0) {
-            // emit HI12
-            this.hi12(widen >> 6);
+            // emit iex
+            this.iex(widen >> 6);
         }
 
         this.emitShort((short) (0
@@ -82,8 +82,8 @@ public final class Encoder implements InstrVisitor {
         final int widen = imm & 0b1111_1111_1111_1000;
 
         if (widen != 0) {
-            // emit HI12
-            this.hi12(widen >> 3);
+            // emit iex
+            this.iex(widen >> 3);
         }
 
         this.emitShort((short) (0
@@ -366,12 +366,13 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void hi12(int imm12) {
+    public void iex(int imm12) {
         // This opcode is special... The other instructions that use immediates
         // can subject to auto immediate extension. This one must not because
         // it is the instruction to perform that extension!
 
-        this.emitShort((short) ((1 << 15) | (Opcode.OP1_HI12 << 12) | (imm12 & 0xFFF)));
+        this.emitShort((short) ((1 << 15) | (Opcode.OP1_IEX << 12) | (imm12 & 0xFFF)));
+    }
     }
 
     @Override

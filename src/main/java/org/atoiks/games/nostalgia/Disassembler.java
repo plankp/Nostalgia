@@ -311,7 +311,10 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void hi12(int imm) {
+    public void iex(int imm) {
+        // This is honestly a pretty strange opcode...
+        this.out.printf("IEX        0x%x", imm);
+    }
         // This is honestly a pretty strange opcode...
         this.out.printf("HI12       0x%x", imm);
     }

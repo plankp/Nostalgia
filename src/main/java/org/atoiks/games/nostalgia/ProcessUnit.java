@@ -454,7 +454,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void hi12(int imm12) {
+    public void iex(int imm12) {
         this.imm = (short) imm12;
     }
 

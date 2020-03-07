@@ -89,7 +89,7 @@ public final class Opcode {
     //
     // (more to come!)
 
-    public static final int OP1_HI12    = 0 & MASK_OP1;
+    public static final int OP1_IEX     = 0 & MASK_OP1;
     public static final int OP1_MUL     = 1 & MASK_OP1;
     public static final int OP1_DIV     = 2 & MASK_OP1;
 }

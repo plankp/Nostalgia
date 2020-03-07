@@ -73,7 +73,7 @@ public interface InstrVisitor {
 
     // ***** OP1 class *****
 
-    public void hi12(int imm12);
+    public void iex(int imm12); // prefix
     public void mul(int rlhs, int rrhs, int rdlo, int rdhi);
     public void div(int rlhs, int rrhs, int rdrem, int rdquo);
 }
