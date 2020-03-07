@@ -243,6 +243,9 @@ public final class Decoder {
             case Opcode.OP1_MUL:
                 vis.mul(rD, rC, rB, rA);
                 break;
+            case Opcode.OP1_DIV:
+                vis.div(rD, rC, rB, rA);
+                break;
             default:
                 // Reconstruct the whole opcode
                 vis.illegalOp((1 << 15) | (op << 12) | lo12);
