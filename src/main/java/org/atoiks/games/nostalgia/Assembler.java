@@ -17,6 +17,8 @@ public final class Assembler implements Closeable {
 
     private final BufferedReader reader;
 
+    private int origin;
+
     public Assembler(Reader reader) {
         this.reader = new BufferedReader(reader);
     }
@@ -89,7 +91,7 @@ public final class Assembler implements Closeable {
         }
 
         final Integer prev;
-        if ((prev = this.symtbl.putIfAbsent(label, this.encoder.size())) != null) {
+        if ((prev = this.symtbl.putIfAbsent(label, this.origin + this.encoder.size())) != null) {
             throw new RuntimeException("Assembler: Redefinition of symbol: '" + label + "' previously bound at " + prev);
         }
 
@@ -157,6 +159,10 @@ public final class Assembler implements Closeable {
                 for (final String op : operands) {
                     this.encoder.emit((byte) getConstant(op), 1);
                 }
+                break;
+            case ".ORG":
+                checkOperandCount(operands, 1);
+                this.origin = getConstant(operands[0]);
                 break;
             default:
                 throw new RuntimeException("Assembler: Illegal directive: '" + opUpcase + "'");
@@ -469,7 +475,19 @@ public final class Assembler implements Closeable {
     }
 
     public int getConstant(String str) {
-        return parseConstant(this.macroExpand(str));
+        final String exp = this.macroExpand(str);
+        try {
+            return parseConstant(exp);
+        } catch (IllegalArgumentException ex) {
+            // Try to see if it is a already existing label!
+            final Integer addr = this.symtbl.get(exp);
+            if (addr != null) {
+                return addr;
+            }
+
+            // Reaching here means it's not a label we know, rethrow!
+            throw ex;
+        }
     }
 
     public static int parseConstant(String str) {
