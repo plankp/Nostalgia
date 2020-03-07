@@ -28,10 +28,10 @@ public final class Decoder {
         final int word = Short.toUnsignedInt(this.stream.nextWord());
         if ((word & (1 << 15)) == 0) {
             // It's a OP0 opcode
-            this.decodeOP0(word >> 9, word & 0x1FF, vis);
+            this.decodeOP0((word >> 9) & Opcode.MASK_OP0, word & 0x1FF, vis);
         } else {
             // It's a OP1 opcode
-            this.decodeOP1((word >> 12) & 0x07, word & 0xFFF, vis);
+            this.decodeOP1((word >> 12) & Opcode.MASK_OP1, word & 0xFFF, vis);
         }
     }
 

@@ -8,8 +8,6 @@ public final class Encoder implements InstrVisitor {
 
     /* see Opcode.java for the instruction layout */
 
-    private static final int MASK_INSTR_OP = 0x3F;
-
     private final ByteArrayOutputStream out;
 
     public Encoder() {
@@ -60,7 +58,7 @@ public final class Encoder implements InstrVisitor {
         }
 
         this.emitShort((short) (0
-                | ((op & MASK_INSTR_OP) << 9)
+                | ((op & Opcode.MASK_OP0) << 9)
                 | lower));
     }
 
@@ -74,7 +72,7 @@ public final class Encoder implements InstrVisitor {
         }
 
         this.emitShort((short) (0
-                | ((op & MASK_INSTR_OP) << 9)
+                | ((op & Opcode.MASK_OP0) << 9)
                 | (lower << 3)
                 | (rA & 0x07)));
     }
@@ -89,21 +87,23 @@ public final class Encoder implements InstrVisitor {
         }
 
         this.emitShort((short) (0
-                | ((op & MASK_INSTR_OP) << 9)
+                | ((op & Opcode.MASK_OP0) << 9)
                 | (lower << 6)
                 | ((rB & 0x07) << 3)
                 | (rA & 0x07)));
     }
 
     private void emitInstrRRR(int op, int rC, int rB, int rA) {
-        this.emitShort((short) (((op & MASK_INSTR_OP) << 9)
+        this.emitShort((short) (0
+                | ((op & Opcode.MASK_OP0) << 9)
                 | ((rC & 0x07) << 6)
                 | ((rB & 0x07) << 3)
                 | (rA & 0x07)));
     }
 
     private void emitOp1RRRR(int op, int rD, int rC, int rB, int rA) {
-        this.emitShort((short) ((1 << 15) | ((op & Opcode.MASK_OP1) << 12)
+        this.emitShort((short) ((1 << 15)
+                | ((op & Opcode.MASK_OP1) << 12)
                 | ((rD & 0x07) << 9)
                 | ((rC & 0x07) << 6)
                 | ((rB & 0x07) << 3)
