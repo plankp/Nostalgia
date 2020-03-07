@@ -102,6 +102,14 @@ public final class Encoder implements InstrVisitor {
                 | (rA & 0x07)));
     }
 
+    private void emitOp1RRRR(int op, int rD, int rC, int rB, int rA) {
+        this.emitShort((short) ((1 << 15) | ((op & Opcode.MASK_OP1) << 12)
+                | ((rD & 0x07) << 9)
+                | ((rC & 0x07) << 6)
+                | ((rB & 0x07) << 3)
+                | ((rA & 0x07) << 0)));
+    }
+
     @Override
     public void illegalOp(int op) {
         throw new RuntimeException("Encoder: Attempt to force an illegal opcode!");
@@ -364,10 +372,11 @@ public final class Encoder implements InstrVisitor {
 
     @Override
     public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
-        this.emitShort((short) ((1 << 15) | (Opcode.OP1_MUL << 12)
-                | ((rlhs & 0x07) << 9)
-                | ((rrhs & 0x07) << 6)
-                | ((rdlo & 0x07) << 3)
-                | ((rdhi & 0x07) << 0)));
+        this.emitOp1RRRR(Opcode.OP1_MUL, rlhs, rrhs, rdlo, rdhi);
+    }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.emitOp1RRRR(Opcode.OP1_DIV, rlhs, rrhs, rdrem, rdquo);
     }
 }

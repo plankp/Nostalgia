@@ -6,6 +6,9 @@ public final class Opcode {
         /* static helper classs */
     }
 
+    public static final int MASK_OP0 = 0x3F;
+    public static final int MASK_OP1 = 0x07;
+
     // All OP0 opcodes must be masked to 0x3F since the instruction only has 6
     // bits to encode this information:
     //
@@ -90,4 +93,5 @@ public final class Opcode {
 
     public static final int OP1_HI12    = 0 & 0x07;
     public static final int OP1_MUL     = 1 & 0x07;
+    public static final int OP1_DIV     = 2 & 0x07;
 }

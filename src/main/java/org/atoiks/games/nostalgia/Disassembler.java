@@ -320,4 +320,9 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
         this.out.printf("MUL        %%r%d, %%r%d, %%r%d, %%r%d", rdhi, rdlo, rlhs, rrhs);
     }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.out.printf("DIV        %%r%d, %%r%d, %%r%d, %%r%d", rdquo, rdrem, rlhs, rrhs);
+    }
 }

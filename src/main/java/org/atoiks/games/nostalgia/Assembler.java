@@ -383,6 +383,10 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassRRRR(operands);
                 this.encoder.mul(buf[0], buf[1], buf[2], buf[3]);
                 break;
+            case "DIV":
+                buf = checkInstrClassRRRR(operands);
+                this.encoder.div(buf[0], buf[1], buf[2], buf[3]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

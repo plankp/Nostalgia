@@ -471,4 +471,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.writeRegister(rdlo, (short) (tmp >>> 0));
         this.writeRegister(rdhi, (short) (tmp >>> 16));
     }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+        final short lhs = this.readRegister(rlhs);
+        final short rhs = this.readRegister(rrhs);
+
+        // let the JVM handle crash on division by zero...
+        this.writeRegister(rdrem, (short) (lhs % rhs));
+        this.writeRegister(rdquo, (short) (lhs / rhs));
+    }
 }
