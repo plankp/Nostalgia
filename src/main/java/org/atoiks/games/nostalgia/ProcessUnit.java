@@ -71,12 +71,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     public void push(short val) {
         final ByteBuffer buf = ByteBuffer.allocate(DATA_WIDTH);
         buf.putShort(val).flip();
-        memory.write(DATA_WIDTH * Short.toUnsignedInt(--this.sp), buf);
+        this.sp -= 2;
+        memory.write(Short.toUnsignedInt(this.sp), buf);
     }
 
     public short pop() {
         final ByteBuffer buf = ByteBuffer.allocate(DATA_WIDTH);
-        memory.read(DATA_WIDTH * Short.toUnsignedInt(this.sp++), buf);
+        memory.read(Short.toUnsignedInt(this.sp), buf);
+        this.sp += 2;
         return buf.flip().getShort();
     }
 

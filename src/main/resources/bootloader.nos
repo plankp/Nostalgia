@@ -7,9 +7,8 @@
 ;;   We do a couple things here:
 ;;   - Initialize the graphics memory by turning all cells into white text on
 ;;     black.
-;;   - Set stack pointer to 0x800 (which is actually 0x1000 due to scaling).
-;;     The stack grows upwards towards 0x0000 and will eventually overwrite the
-;;     bootloader! Yay!
+;;   - Set stack pointer to 0x800. The stack grows upwards towards 0x0000 and
+;;     will eventually overwrite the bootloader! Yay!
 ;;   - Set instruction pointer to 0x2000, that means your kernel is loaded at
 ;;     0x4000 due to scaling.
 ;;
@@ -39,10 +38,11 @@
 
 ;;
 ;; Setup stack pointer:
-;;   Grows from 0x1000 upwards (towards 0x0000). Like the instruction pointer,
-;;   it is also word aligned and is scaled by 2.
+;;   Grows from 0x1000 upwards (towards 0x0000).
 ;;
-    MTSP    %R0, 0x0800         ; 0x1000 / 2 = 0x0800
+    MTSP    %R0, 0x1000
+    PUSH    %R0, 0              ; sanity check
+    POP     %R0, 0
 
 ;;
 ;; Start the kernel:
