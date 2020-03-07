@@ -6,8 +6,6 @@ import java.util.Objects;
 
 public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
-    // TODO: ADD PUSH3, POP3
-
     private static final int DATA_WIDTH = 2;
 
     // See readRegister and writeRegister (r0 is always 0)
@@ -418,6 +416,20 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final short out = (short) (this.readRegister(rdst) >> imm4);
         this.writeRegister(rdst, out);
         this.imm = 0; // techinically we have used up the immediate slot
+    }
+
+    @Override
+    public void push3(int rC, int rB, int rA) {
+        this.push(this.readRegister(rC));
+        this.push(this.readRegister(rB));
+        this.push(this.readRegister(rA));
+    }
+
+    @Override
+    public void pop3(int rC, int rB, int rA) {
+        this.writeRegister(rC, this.pop());
+        this.writeRegister(rB, this.pop());
+        this.writeRegister(rA, this.pop());
     }
 
     @Override

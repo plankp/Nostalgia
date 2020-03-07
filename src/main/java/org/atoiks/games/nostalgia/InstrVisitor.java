@@ -65,6 +65,9 @@ public interface InstrVisitor {
     public void shrI(int imm4, int rdst);
     public void sarI(int imm4, int rdst);
 
+    public void push3(int rC, int rB, int rA);
+    public void pop3(int rC, int rB, int rA);
+
     // ***** OP1 class *****
 
     public void hi12(int imm12);

@@ -291,6 +291,16 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void push3(int rC, int rB, int rA) {
+        this.out.printf("PUSH.3     %%r%d, %%r%d, %%r%d", rA, rC, rB);
+    }
+
+    @Override
+    public void pop3(int rC, int rB, int rA) {
+        this.out.printf("POP.3      %%r%d, %%r%d, %%r%d", rA, rC, rB);
+    }
+
+    @Override
     public void hi12(int imm) {
         // This is honestly a pretty strange opcode...
         this.out.printf("HI12       0x%x", imm);

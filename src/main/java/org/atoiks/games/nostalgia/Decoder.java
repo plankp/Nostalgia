@@ -209,6 +209,12 @@ public final class Decoder {
                 }
                 break;
             }
+            case Opcode.OP0_PUSH3:
+                vis.push3(rC, rB, rA);
+                break;
+            case Opcode.OP0_POP3:
+                vis.pop3(rC, rB, rA);
+                break;
             default:
                 // Reconstruct the whole opcode
                 vis.illegalOp((op << 9) | lo9);

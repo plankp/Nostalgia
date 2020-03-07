@@ -363,6 +363,14 @@ public final class Assembler implements Closeable {
                 }
                 this.encoder.sarI(buf[0], buf[1]);
                 break;
+            case "PUSH.3":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.push3(buf[0], buf[1], buf[2]);
+                break;
+            case "POP.3":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.pop3(buf[0], buf[1], buf[2]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

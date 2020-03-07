@@ -338,6 +338,16 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void push3(int rC, int rB, int rA) {
+        this.emitInstrRRR(Opcode.OP0_PUSH3, rC, rB, rA);
+    }
+
+    @Override
+    public void pop3(int rC, int rB, int rA) {
+        this.emitInstrRRR(Opcode.OP0_POP3, rC, rB, rA);
+    }
+
+    @Override
     public void hi12(int imm12) {
         this.emitShort((short) ((1 << 15) | (Opcode.OP1_HI12 << 12) | (imm12 & 0xFFF)));
     }
