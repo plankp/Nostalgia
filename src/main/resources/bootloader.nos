@@ -9,8 +9,7 @@
 ;;     black.
 ;;   - Set stack pointer to 0x800. The stack grows upwards towards 0x0000 and
 ;;     will eventually overwrite the bootloader! Yay!
-;;   - Set instruction pointer to 0x2000, that means your kernel is loaded at
-;;     0x4000 due to scaling.
+;;   - Set instruction pointer to 0x4000; that is where the kernel will be at.
 ;;
 
     .SET    VIDMEM, 0x2000
@@ -24,7 +23,7 @@
     MOV.I   %R1, 4000           ; screen has 80 * 25 cells, cells are wordsized
     SUB.I   %R1, 2              ; wordsize is 2 bytes
     ST.W    %R2, VIDMEM, %R1    ; VIDMEM[%R1] = NULCHR
-    JABS.GT %R1, 3              ; go back to the SUB.I instruction
+    JABS.GT %R1, 6              ; go back to the SUB.I instruction
                                 ; Note: at this point, %R1 = 0.
 
 ;;
@@ -34,7 +33,7 @@
     ADD.I   %R1, 1
     ST.B    %R2, VIDMEM, %R3
     ADD.I   %R3, 2
-    JABS.NZ %R2, 7              ; go back to the LD.B instruction
+    JABS.NZ %R2, 14             ; go back to the LD.B instruction
 
 ;;
 ;; Setup stack pointer:
@@ -46,14 +45,13 @@
 
 ;;
 ;; Start the kernel:
-;;   Sets the instruction pointer to 0x2000, but you actually load the kernel
-;;   at 0x4000. Note: this is not a call but a absolute jump, so *do not* call
-;;   RET from the kernel...
+;;   Sets the instruction pointer to 0x4000. Note: this is not a call but a
+;;   absolute jump, so *do not* call RET from the kernel...
 ;;
     MOV.I   %R1, 0              ; clear all general-purpose registers
     MOV.I   %R2, 0
     MOV.I   %R3, 0
-    JABS.Z  %R0, 0x2000
+    JABS.Z  %R0, 0x4000
 
 ;;
 ;; Our very shady data section:

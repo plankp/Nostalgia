@@ -14,10 +14,10 @@
 query:
     LD.B    %R5, 0x4, %R2       ; check if registered key is down
     MOV.I   %R3, 0x20           ; if false, then should display ' '
-    JREL.Z  %R5, +1             ; (part of the if statement)
+    JREL.Z  %R5, +2             ; (part of the if statement)
     MOV.I   %R3, 0x21           ; if true, then should display '!'
     ST.B    %R3, 0x0, %R1       ; write character to graphics memory
-    JABS.Z  %R0, 0x2007         ; <<query>>
+    JABS.Z  %R0, 0x400e         ; <<query>>
 
 ;;
     .UNSET VIDMEM

@@ -6,8 +6,6 @@ import java.util.Objects;
 
 public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
-    private static final int DATA_WIDTH = 2;
-
     // See readRegister and writeRegister (r0 is always 0)
     private final short[] regs = new short[7];
 
@@ -69,14 +67,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     public void push(short val) {
-        final ByteBuffer buf = ByteBuffer.allocate(DATA_WIDTH);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
         buf.putShort(val).flip();
         this.sp -= 2;
         memory.write(Short.toUnsignedInt(this.sp), buf);
     }
 
     public short pop() {
-        final ByteBuffer buf = ByteBuffer.allocate(DATA_WIDTH);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
         memory.read(Short.toUnsignedInt(this.sp), buf);
         this.sp += 2;
         return buf.flip().getShort();
@@ -101,8 +99,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public short nextWord() {
-        final ByteBuffer buf = ByteBuffer.allocate(DATA_WIDTH);
-        memory.read(DATA_WIDTH * Short.toUnsignedInt(this.ip++), buf);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
+        memory.read(Short.toUnsignedInt(this.ip), buf);
+        this.ip += 2;
         return buf.flip().getShort();
     }
 
