@@ -456,4 +456,19 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     public void hi12(int imm12) {
         this.imm = (short) imm12;
     }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        // How this instruction works:
+        // i32 tmp            = i16 rlhs * i16 rrhs
+        // i16 rdhi, i16 rdlo = unpack i32 tmp
+
+        // Also this is signed multiplication
+        final short lhs = this.readRegister(rlhs);
+        final short rhs = this.readRegister(rrhs);
+        final int tmp = lhs * rhs;
+
+        this.writeRegister(rdlo, (short) (tmp >>> 0));
+        this.writeRegister(rdhi, (short) (tmp >>> 16));
+    }
 }

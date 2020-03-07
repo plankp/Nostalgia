@@ -379,6 +379,10 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.cmovR(buf[0], buf[1], buf[2]);
                 break;
+            case "MUL":
+                buf = checkInstrClassRRRR(operands);
+                this.encoder.mul(buf[0], buf[1], buf[2], buf[3]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }
@@ -423,6 +427,18 @@ public final class Assembler implements Closeable {
         final int ru  = getRegisterIndex(operands[1]);
         final int rv  = getRegisterIndex(operands[2]);
         return new int[] { ru, rv, rx };
+    }
+
+    private int[] checkInstrClassRRRR(String[] operands) {
+        // Class RRR:   encoded as [rs1, rs2, rd2, rd1]
+        //    OP %RD1, %RD2, %RS1, %RS2
+        checkOperandCount(operands, 4);
+
+        final int rd1 = getRegisterIndex(operands[0]);
+        final int rd2 = getRegisterIndex(operands[1]);
+        final int rs1 = getRegisterIndex(operands[2]);
+        final int rs2 = getRegisterIndex(operands[3]);
+        return new int[] { rs1, rs2, rd2, rd1 };
     }
 
     private static void checkOperandCount(String[] operands, int count) {

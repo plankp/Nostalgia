@@ -229,9 +229,19 @@ public final class Decoder {
     }
 
     public void decodeOP1(int op, int lo12, InstrVisitor vis) {
+        // Decode all the possible OP1 class formats:
+
+        final int rA = (lo12 >> 0) & 0x7; // dummy shr 0 just for fmt
+        final int rB = (lo12 >> 3) & 0x7;
+        final int rC = (lo12 >> 6) & 0x7;
+        final int rD = (lo12 >> 9) & 0x7;
+
         switch (op) {
             case Opcode.OP1_HI12:
                 vis.hi12(lo12);
+                break;
+            case Opcode.OP1_MUL:
+                vis.mul(rD, rC, rB, rA);
                 break;
             default:
                 // Reconstruct the whole opcode

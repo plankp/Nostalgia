@@ -83,7 +83,11 @@ public final class Opcode {
     // - Lower immediates:
     //   1xxx iiii iiii iiii
     //
+    // - Four registers:
+    //   1xxx dddc ccbb baaa
+    //
     // (more to come!)
 
     public static final int OP1_HI12    = 0 & 0x07;
+    public static final int OP1_MUL     = 1 & 0x07;
 }

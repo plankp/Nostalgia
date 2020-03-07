@@ -74,4 +74,5 @@ public interface InstrVisitor {
     // ***** OP1 class *****
 
     public void hi12(int imm12);
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi);
 }

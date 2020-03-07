@@ -361,4 +361,13 @@ public final class Encoder implements InstrVisitor {
     public void hi12(int imm12) {
         this.emitShort((short) ((1 << 15) | (Opcode.OP1_HI12 << 12) | (imm12 & 0xFFF)));
     }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.emitShort((short) ((1 << 15) | (Opcode.OP1_MUL << 12)
+                | ((rlhs & 0x07) << 9)
+                | ((rrhs & 0x07) << 6)
+                | ((rdlo & 0x07) << 3)
+                | ((rdhi & 0x07) << 0)));
+    }
 }

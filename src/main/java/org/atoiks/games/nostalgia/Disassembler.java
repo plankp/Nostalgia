@@ -315,4 +315,9 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         // This is honestly a pretty strange opcode...
         this.out.printf("HI12       0x%x", imm);
     }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.out.printf("MUL        %%r%d, %%r%d, %%r%d, %%r%d", rdhi, rdlo, rlhs, rrhs);
+    }
 }
