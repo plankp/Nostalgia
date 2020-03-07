@@ -13,8 +13,12 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     private short sp;
     private short bp;
 
-    // This is a secret register (it doesn't even show up in toString!)
+    // These are secret registers (it doesn't even show up in toString!)
     private short imm;
+    private byte rexRA;
+    private byte rexRB;
+    private byte rexRC;
+    private byte rexRD;
 
     // Super random, but can we get a counter register lulz!?
 
@@ -60,6 +64,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.bp = 0;
 
         this.imm = 0;
+        this.resetREX();
+    }
+
+    private void resetREX() {
+        this.rexRA = 0;
+        this.rexRB = 0;
+        this.rexRC = 0;
+        this.rexRD = 0;
     }
 
     public void setIP(int ip) {
@@ -456,6 +468,14 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void iex(int imm12) {
         this.imm = (short) imm12;
+    }
+
+    @Override
+    public void rex(int rD, int rC, int rB, int rA) {
+        this.rexRA = (byte) rA;
+        this.rexRB = (byte) rB;
+        this.rexRC = (byte) rC;
+        this.rexRD = (byte) rD;
     }
 
     @Override

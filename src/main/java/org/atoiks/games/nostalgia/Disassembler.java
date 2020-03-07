@@ -315,8 +315,14 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         // This is honestly a pretty strange opcode...
         this.out.printf("IEX        0x%x", imm);
     }
+
+    @Override
+    public void rex(int rD, int rC, int rB, int rA) {
         // This is honestly a pretty strange opcode...
-        this.out.printf("HI12       0x%x", imm);
+
+        // Consider not actually emitting this instruction, but instead have it
+        // affect the next opcode! (same for the immediate extension prefix!)
+        this.out.printf("REX        %%r%d, %%r%d, %%r%d, %%r%d", rA, rB, rD, rC);
     }
 
     @Override

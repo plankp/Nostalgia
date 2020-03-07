@@ -373,6 +373,14 @@ public final class Encoder implements InstrVisitor {
 
         this.emitShort((short) ((1 << 15) | (Opcode.OP1_IEX << 12) | (imm12 & 0xFFF)));
     }
+
+    @Override
+    public void rex(int rD, int rC, int rB, int rA) {
+        // This opcode is special... these are not actually registers, but
+        // instead are register extensions (similar to HI12 which is an
+        // immediate extension, not the actual immediate value).
+
+        this.emitOp1RRRR(Opcode.OP1_REX, rD, rC, rB, rA);
     }
 
     @Override
