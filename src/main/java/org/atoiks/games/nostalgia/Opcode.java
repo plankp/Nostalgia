@@ -88,8 +88,17 @@ public final class Opcode {
     //
     // (more to come!)
 
-    public static final int OP1_IEX     = 0 & MASK_OP1;
+    public static final int OP1_REX     = 0 & MASK_OP1;
     public static final int OP1_MUL     = 1 & MASK_OP1;
     public static final int OP1_DIV     = 2 & MASK_OP1;
-    public static final int OP1_REX     = 3 & MASK_OP1;
+    // Skipped 3 slots:
+    //   3 & MASK_OP1;
+    //   4 & MASK_OP1;
+    //   5 & MASK_OP1;
+
+    // If you are wondering why there is IEX.0 and IEX.1, it's because I messed
+    // up the bit calculation: you actually need 13 bits (not 12) to encode a
+    // 16 bit immediate value... (oops...)
+    public static final int OP1_IEX_0   = 6 & MASK_OP1;
+    public static final int OP1_IEX_1   = 7 & MASK_OP1;
 }

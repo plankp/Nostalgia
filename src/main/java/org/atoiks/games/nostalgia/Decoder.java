@@ -225,8 +225,8 @@ public final class Decoder {
         final int rD = (lo12 >> 9) & 0x7;
 
         switch (op) {
-            case Opcode.OP1_IEX:
-                vis.iex(lo12);
+            case Opcode.OP1_REX:
+                vis.rex(rD, rC, rB, rA);
                 break;
             case Opcode.OP1_MUL:
                 vis.mul(rD, rC, rB, rA);
@@ -234,8 +234,12 @@ public final class Decoder {
             case Opcode.OP1_DIV:
                 vis.div(rD, rC, rB, rA);
                 break;
-            case Opcode.OP1_REX:
-                vis.rex(rD, rC, rB, rA);
+            case Opcode.OP1_IEX_0:
+                vis.iex(lo12);
+                break;
+            case Opcode.OP1_IEX_1:
+                // hack around my mistake (see Opcode.java): we add the high bit back to the extended immediate
+                vis.iex((1 << 12) | lo12);
                 break;
             default:
                 // Reconstruct the whole opcode

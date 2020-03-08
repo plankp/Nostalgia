@@ -376,12 +376,14 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void iex(int imm12) {
+    public void iex(int imm13) {
         // This opcode is special... The other instructions that use immediates
         // can subject to auto immediate extension. This one must not because
         // it is the instruction to perform that extension!
 
-        this.emitShort((short) ((1 << 15) | (Opcode.OP1_IEX << 12) | (imm12 & 0xFFF)));
+        // Note: the handling of IEX.0 and IEX.1 can be removed by preserving
+        // the 13th bit of the immediate and always using IEX.0.
+        this.emitShort((short) ((1 << 15) | (Opcode.OP1_IEX_0 << 12) | (imm13 & 0x1FFF)));
     }
 
     @Override
