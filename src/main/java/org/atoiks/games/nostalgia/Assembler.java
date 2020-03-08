@@ -516,31 +516,180 @@ public final class Assembler implements Closeable {
     }
 
     public static int parseRegisterIndex(String str) {
-        switch (str) {
-            case "%r0":
+        // See ProcessUnit.java for how REX extensions work.
+        // But in short, we have 3 bits from the REX and 3 bits encoded by the
+        // instruction itself. Due to the way it is encoded, we can instead of
+        // doing:
+        //      (0bxyz << 3) | 0babc
+        //      where xy  is the register width
+        //            z   is the high bit (allows R8 to R15 access)
+        //            abc is the part encoded in the instruction (not the REX)
+        //
+        // Do this directly:
+        //      (0bxy << 4) | 0bzabc
+
+        switch (str.toUpperCase()) {
             case "%R0":
+            case "%R0W":
+            case "%R0L":
+            case "%R0H":
+            case "%R0D":
+                // We don't actually emit REX's for R0 since it's always 0...
+                // (it would be pretty wasteful to do so!)
                 return 0;
-            case "%r1":
+
             case "%R1":
+            case "%R1W":
                 return 1;
-            case "%r2":
+            case "%R1L":
+                return (0b01 << 4) | 1;
+            case "%R1H":
+                return (0b10 << 4) | 1;
+            case "%R1D":
+                return (0b11 << 4) | 1;
+
             case "%R2":
+            case "%R2W":
                 return 2;
-            case "%r3":
+            case "%R2L":
+                return (0b01 << 4) | 2;
+            case "%R2H":
+                return (0b10 << 4) | 2;
+            case "%R2D":
+                return (0b11 << 4) | 2;
+
             case "%R3":
+            case "%R3W":
                 return 3;
-            case "%r4":
+            case "%R3L":
+                return (0b01 << 4) | 3;
+            case "%R3H":
+                return (0b10 << 4) | 3;
+            case "%R3D":
+                return (0b11 << 4) | 3;
+
             case "%R4":
+            case "%R4W":
                 return 4;
-            case "%r5":
+            case "%R4L":
+                return (0b01 << 4) | 4;
+            case "%R4H":
+                return (0b10 << 4) | 4;
+            case "%R4D":
+                return (0b11 << 4) | 4;
+
             case "%R5":
+            case "%R5W":
                 return 5;
-            case "%r6":
+            case "%R5L":
+                return (0b01 << 4) | 5;
+            case "%R5H":
+                return (0b10 << 4) | 5;
+            case "%R5D":
+                return (0b11 << 4) | 5;
+
             case "%R6":
+            case "%R6W":
                 return 6;
-            case "%r7":
+            case "%R6L":
+                return (0b01 << 4) | 6;
+            case "%R6H":
+                return (0b10 << 4) | 6;
+            case "%R6D":
+                return (0b11 << 4) | 6;
+
             case "%R7":
+            case "%R7W":
                 return 7;
+            case "%R7L":
+                return (0b01 << 4) | 7;
+            case "%R7H":
+                return (0b10 << 4) | 7;
+            case "%R7D":
+                return (0b11 << 4) | 7;
+
+            case "%R8":
+            case "%R8W":
+                return 8;
+            case "%R8L":
+                return (0b01 << 4) | 8;
+            case "%R8H":
+                return (0b10 << 4) | 8;
+            case "%R8D":
+            case "%SP": // Note: SP is always dword access
+                return (0b11 << 4) | 8;
+
+            case "%R9":
+            case "%R9W":
+                return 9;
+            case "%R9L":
+                return (0b01 << 4) | 9;
+            case "%R9H":
+                return (0b10 << 4) | 9;
+            case "%R9D":
+            case "%BP": // Note: BP is always dword access
+                return (0b11 << 4) | 9;
+
+            case "%R10":
+            case "%R10W":
+                return 10;
+            case "%R10L":
+                return (0b01 << 4) | 10;
+            case "%R10H":
+                return (0b10 << 4) | 10;
+            case "%R10D":
+                return (0b11 << 4) | 10;
+
+            case "%R11":
+            case "%R11W":
+                return 11;
+            case "%R11L":
+                return (0b01 << 4) | 11;
+            case "%R11H":
+                return (0b10 << 4) | 11;
+            case "%R11D":
+                return (0b11 << 4) | 11;
+
+            case "%R12":
+            case "%R12W":
+                return 12;
+            case "%R12L":
+                return (0b01 << 4) | 12;
+            case "%R12H":
+                return (0b10 << 4) | 12;
+            case "%R12D":
+                return (0b11 << 4) | 12;
+
+            case "%R13":
+            case "%R13W":
+                return 13;
+            case "%R13L":
+                return (0b01 << 4) | 13;
+            case "%R13H":
+                return (0b10 << 4) | 13;
+            case "%R13D":
+                return (0b11 << 4) | 13;
+
+            case "%R14":
+            case "%R14W":
+                return 14;
+            case "%R14L":
+                return (0b01 << 4) | 14;
+            case "%R14H":
+                return (0b10 << 4) | 14;
+            case "%R14D":
+                return (0b11 << 4) | 14;
+
+            case "%R15":
+            case "%R15W":
+                return 15;
+            case "%R15L":
+                return (0b01 << 4) | 15;
+            case "%R15H":
+                return (0b10 << 4) | 15;
+            case "%R15D":
+                return (0b11 << 4) | 15;
+
             default:
                 throw new IllegalArgumentException("Assembler: Illegal register name: '" + str + "'");
         }

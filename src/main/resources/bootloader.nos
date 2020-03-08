@@ -39,7 +39,7 @@
 ;; Setup stack pointer:
 ;;   Grows from 0x1000 upwards (towards 0x0000).
 ;;
-    MTSP    %R0, 0x1000
+    MOV.I   %SP, 0x1000
     PUSH    %R0, 0              ; sanity check
     POP     %R0, 0
 

@@ -71,6 +71,12 @@ public final class Encoder implements InstrVisitor {
             this.iex(widen >> 6);
         }
 
+        final int rexRA = (rA & 0b11_1000) >> 3;
+        if (rexRA != 0) {
+            // emit rex
+            this.rex(0, 0, 0, rexRA);
+        }
+
         this.emitShort((short) (0
                 | ((op & Opcode.MASK_OP0) << 9)
                 | (lower << 3)
@@ -86,6 +92,13 @@ public final class Encoder implements InstrVisitor {
             this.iex(widen >> 3);
         }
 
+        final int rexRA = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rA & 0b11_1000) >> 3;
+        if (rexRA != 0 || rexRB != 0) {
+            // emit rex
+            this.rex(0, 0, rexRB, rexRA);
+        }
+
         this.emitShort((short) (0
                 | ((op & Opcode.MASK_OP0) << 9)
                 | (lower << 6)
@@ -94,6 +107,14 @@ public final class Encoder implements InstrVisitor {
     }
 
     private void emitOp0RRR(int op, int rC, int rB, int rA) {
+        final int rexRA = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rA & 0b11_1000) >> 3;
+        final int rexRC = (rA & 0b11_1000) >> 3;
+        if (rexRA != 0 || rexRB != 0 || rexRC != 0) {
+            // emit rex
+            this.rex(0, rexRC, rexRB, rexRA);
+        }
+
         this.emitShort((short) (0
                 | ((op & Opcode.MASK_OP0) << 9)
                 | ((rC & 0x07) << 6)
@@ -102,6 +123,15 @@ public final class Encoder implements InstrVisitor {
     }
 
     private void emitOp1RRRR(int op, int rD, int rC, int rB, int rA) {
+        final int rexRA = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rA & 0b11_1000) >> 3;
+        final int rexRC = (rA & 0b11_1000) >> 3;
+        final int rexRD = (rA & 0b11_1000) >> 3;
+        if (rexRA != 0 || rexRB != 0 || rexRC != 0 || rexRD != 0) {
+            // emit rex
+            this.rex(rexRD, rexRC, rexRB, rexRA);
+        }
+
         this.emitShort((short) ((1 << 15)
                 | ((op & Opcode.MASK_OP1) << 12)
                 | ((rD & 0x07) << 9)
@@ -377,10 +407,10 @@ public final class Encoder implements InstrVisitor {
     @Override
     public void rex(int rD, int rC, int rB, int rA) {
         // This opcode is special... these are not actually registers, but
-        // instead are register extensions (similar to HI12 which is an
+        // instead are register extensions (similar to IEX which is an
         // immediate extension, not the actual immediate value).
 
-        this.emitOp1RRRR(Opcode.OP1_REX, rD, rC, rB, rA);
+        this.emitOp1RRRR(Opcode.OP1_REX, rD & 0x07, rC & 0x07, rB & 0x07, rA & 0x07);
     }
 
     @Override
