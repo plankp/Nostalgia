@@ -515,12 +515,13 @@ public final class Assembler implements Closeable {
         switch (str.toUpperCase()) {
             case "%R0":
             case "%R0W":
-            case "%R0L":
-            case "%R0H":
-            case "%R0D":
-                // We don't actually emit REX's for R0 since it's always 0...
-                // (it would be pretty wasteful to do so!)
                 return 0;
+            case "%R0L":
+                return (0b01 << 4) | 0;
+            case "%R0H":
+                return (0b10 << 4) | 0;
+            case "%R0D":
+                return (0b11 << 4) | 0;
 
             case "%R1":
             case "%R1W":
