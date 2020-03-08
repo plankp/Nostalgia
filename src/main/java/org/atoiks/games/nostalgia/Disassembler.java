@@ -491,25 +491,25 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void iex(int imm) {
-        // This is honestly a pretty strange opcode...
-
-        this.out.printf("<<IEX>>");
+        // This is a prefix. Decode the next word after setting some fields.
 
         this.iexImm = (short) imm;
+
+        this.decoder.decode(this);
     }
 
     @Override
     public void rex(int rD, int rC, int rB, int rA) {
-        // This is honestly a pretty strange opcode...
+        // This is a prefix. Decode the next word after setting some fields.
         // ProcessUnit.java gives an explaination of how this extension prefix
         // works.
-
-        this.out.printf("<<REX>>");
 
         this.rexRA = (byte) rA;
         this.rexRB = (byte) rB;
         this.rexRC = (byte) rC;
         this.rexRD = (byte) rD;
+
+        this.decoder.decode(this);
     }
 
     @Override
