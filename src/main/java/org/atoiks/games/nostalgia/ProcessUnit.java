@@ -619,24 +619,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.regs[REG_SLOT_BP] = this.popDword();
     }
 
-    @Override
-    public void inner(int rlhs, int rrhs, int rdst) {
-    //     final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0x00FF;
-    //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0xFF00;
-    //     final short out = (short) ((hi << 8) | (lo >> 8));
-    //     this.writeRegister(rdst, out);
-        this.resetREX();
-    }
-
-    @Override
-    public void outer(int rlhs, int rrhs, int rdst) {
-    //     final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0xFF00;
-    //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0x00FF;
-    //     final short out = (short) (hi | lo);
-    //     this.writeRegister(rdst, out);
-        this.resetREX();
-    }
-
     // LD.D and ST.D coming soon!
 
     @Override

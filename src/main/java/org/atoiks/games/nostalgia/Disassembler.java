@@ -328,24 +328,6 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void inner(int rlhs, int rrhs, int rdst) {
-        this.out.printf("INNER      %s, %s, %s",
-                this.rexSynthRegister(this.rexRA, rdst),
-                this.rexSynthRegister(this.rexRC, rlhs),
-                this.rexSynthRegister(this.rexRB, rrhs));
-        this.resetREX();
-    }
-
-    @Override
-    public void outer(int rlhs, int rrhs, int rdst) {
-        this.out.printf("OUTER      %s, %s, %s",
-                this.rexSynthRegister(this.rexRA, rdst),
-                this.rexSynthRegister(this.rexRC, rlhs),
-                this.rexSynthRegister(this.rexRB, rrhs));
-        this.resetREX();
-    }
-
-    @Override
     public void ldW(int imm, int radj, int rdst) {
         this.out.printf("LD.W       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),

@@ -43,9 +43,6 @@ public interface InstrVisitor {
     public void enter(int imm9);
     public void leave();
 
-    public void inner(int rlhs, int rrhs, int rdst);
-    public void outer(int rlhs, int rrhs, int rdst);
-
     public void ldW(int imm3, int radj, int rdst);
     public void stW(int imm3, int radj, int rsrc);
     public void ldB(int imm3, int radj, int rdst);

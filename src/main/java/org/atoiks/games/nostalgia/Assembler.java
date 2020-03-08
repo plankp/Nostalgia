@@ -292,14 +292,6 @@ public final class Assembler implements Closeable {
                 checkOperandCount(operands, 0);
                 this.encoder.leave();
                 break;
-            case "INNER":
-                buf = checkInstrClassRRR(operands);
-                this.encoder.inner(buf[0], buf[1], buf[2]);
-                break;
-            case "OUTER":
-                buf = checkInstrClassRRR(operands);
-                this.encoder.outer(buf[0], buf[1], buf[2]);
-                break;
             case "LD.W":
                 buf = checkInstrClassIRR(operands);
                 this.encoder.ldW(buf[0], buf[1], buf[2]);
