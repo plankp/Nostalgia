@@ -54,9 +54,9 @@ public final class Opcode {
     public static final int OP0_JREL_LT = 23 & MASK_OP0;
     public static final int OP0_PUSH    = 24 & MASK_OP0;
     public static final int OP0_POP     = 25 & MASK_OP0;
-    // Skipped 4 slots:
-    //   26 & MASK_OP0;
-    //   27 & MASK_OP0;
+    public static final int OP0_PUSH3   = 26 & MASK_OP0;
+    public static final int OP0_POP3    = 27 & MASK_OP0;
+    // Skipped 2 slots:
     //   28 & MASK_OP0;
     //   29 & MASK_OP0;
     public static final int OP0_CALL    = 30 & MASK_OP0;
@@ -73,10 +73,8 @@ public final class Opcode {
     public static final int OP0_SHR_R   = 41 & MASK_OP0;
     public static final int OP0_SAR_R   = 42 & MASK_OP0;
     public static final int OP0_SFT_I   = 43 & MASK_OP0;
-    public static final int OP0_PUSH3   = 44 & MASK_OP0;
-    public static final int OP0_POP3    = 45 & MASK_OP0;
-    public static final int OP0_CMOV_I  = 46 & MASK_OP0;
-    public static final int OP0_CMOV_R  = 47 & MASK_OP0;
+    public static final int OP0_CMOV_I  = 44 & MASK_OP0;
+    public static final int OP0_CMOV_R  = 45 & MASK_OP0;
 
     // All OP1 opcodes must be masked to MASK_OP1!
     //
