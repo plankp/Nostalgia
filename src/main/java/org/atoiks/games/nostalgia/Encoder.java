@@ -296,6 +296,16 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void ldD(int imm, int radj, int rdst) {
+        this.emitOp0IRR(Opcode.OP0_LD_D, imm, radj, rdst);
+    }
+
+    @Override
+    public void stD(int imm, int radj, int rsrc) {
+        this.emitOp0IRR(Opcode.OP0_ST_D, imm, radj, rsrc);
+    }
+
+    @Override
     public void ldW(int imm, int radj, int rdst) {
         this.emitOp0IRR(Opcode.OP0_LD_W, imm, radj, rdst);
     }

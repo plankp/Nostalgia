@@ -619,7 +619,33 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.regs[REG_SLOT_BP] = this.popDword();
     }
 
-    // LD.D and ST.D coming soon!
+    @Override
+    public void ldD(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+        this.memory.read(address, buf);
+
+        this.rexWrite(rdst, this.rexRA, buf.flip().getInt());
+        this.resetREX();
+    }
+
+    @Override
+    public void stD(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rsrc = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.putInt(this.rexReadSigned(rsrc, this.rexRA)).flip();
+
+        this.memory.write(address, buf);
+        this.resetREX();
+    }
 
     @Override
     public void ldW(int imm3, int rB, int rA) {

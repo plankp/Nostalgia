@@ -137,6 +137,12 @@ public final class Decoder {
             case Opcode.OP0_LEAVE:
                 vis.leave();
                 break;
+            case Opcode.OP0_LD_D:
+                vis.ldD(immHi, rB, rA);
+                break;
+            case Opcode.OP0_ST_D:
+                vis.stD(immHi, rB, rA);
+                break;
             case Opcode.OP0_LD_W:
                 vis.ldW(immHi, rB, rA);
                 break;

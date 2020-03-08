@@ -63,9 +63,8 @@ public final class Opcode {
     public static final int OP0_RET     = 31 & MASK_OP0;
     public static final int OP0_ENTER   = 32 & MASK_OP0;
     public static final int OP0_LEAVE   = 33 & MASK_OP0;
-    // Skipped 2 slots:
-    //   34 & MASK_OP0;
-    //   35 & MASK_OP0;
+    public static final int OP0_LD_D    = 34 & MASK_OP0;
+    public static final int OP0_ST_D    = 35 & MASK_OP0;
     public static final int OP0_LD_W    = 36 & MASK_OP0;
     public static final int OP0_ST_W    = 37 & MASK_OP0;
     public static final int OP0_LD_B    = 38 & MASK_OP0;
