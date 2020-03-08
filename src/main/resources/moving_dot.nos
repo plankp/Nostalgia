@@ -1,0 +1,100 @@
+    .ORG 0x4000                 ; Kernel starts at 0x4000
+    JABS.Z  %R0, 0x4030         ; jump to the process loop
+
+;;
+;; Data section!
+;;
+POS_COORD:
+    .EMIT   40                  ; x-coordinate
+    .EMIT   12                  ; y-coordinate
+
+;;
+;; Displays a character on the screen
+;;
+;; %R1 = character being displayed
+;; %R6 = x coordinate
+;; %R7 = y coordinate
+;;
+DISP_CHAR:
+    PUSH    %R2, 0              ; we will be destroying %R2
+
+    MOV.I   %R2, 80             ; compute the memory location on screen
+    MUL     %R0, %R2, %R2, %R7  ; the formula is 2 * (y * 80 + x)
+    ADD.R   %R2, %R2, %R6
+    SHL.I   %R2, 1
+
+    ST.B    %R1, 0x2000, %R2    ; write it to the screen
+
+    POP     %R2, 0              ; here we restore %R2
+    RET                         ; end of function
+
+;;
+;; Checks if the specified key is pressed
+;;
+;; %R3 = the keycode
+;; %R3 <- 1 if pressed, 0 otherwise
+;;
+CHK_DOWN:
+    ST.W    %R3, 0x1002, %R0    ; register the specified keycode
+    LD.B    %R3, 0x1004, %R0    ; check if it's pressed
+    RET
+
+;;
+;; Actual process loop
+;;
+    .ZERO   0x30
+
+    .SET K_UP,      38
+    .SET K_DOWN,    40
+    .SET K_LEFT,    37
+    .SET K_RIGHT,   39
+
+    MOV.I   %R2, POS_COORD
+    MOV.I   %R4, 0              ; reset the velocity (x:y high:low)
+LOOP:
+    ; compute the velocity based on keyboard input
+    ; Note: up + right only moves right (think snake!)
+    MOV.I   %R3, K_UP
+    CALL    CHK_DOWN
+    CMOV.I  %R4, 0x00FF, %R3    ; (x:y) should be (0:-1)
+
+    MOV.I   %R3, K_DOWN
+    CALL    CHK_DOWN
+    CMOV.I  %R4, 0x0001, %R3    ; (x:y) should be (0:+1)
+
+    MOV.I   %R3, K_LEFT
+    CALL    CHK_DOWN
+    CMOV.I  %R4, 0xFF00, %R3    ; (x:y) should be (-1:0)
+
+    MOV.I   %R3, K_RIGHT
+    CALL    CHK_DOWN
+    CMOV.I  %R4, 0x0100, %R3    ; (x:y) should be (+1:0)
+
+    ; clear the original stuff
+    LD.B    %R6, 0, %R2         ; R6 = (old) x-coordinate
+    LD.B    %R7, 1, %R2         ; R7 = (old) y-coordinate
+
+    MOV.I   %R1, 0x20           ; display ' ' at the original spot
+    CALL    DISP_CHAR           ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
+
+    ; compute the new position
+    ADD.R   %R6, %R6, %R4H
+    ADD.R   %R7, %R7, %R4L
+
+    MOV.I   %R3, 80             ; wrap the x coordinate
+    ADD.R   %R6, %R6, %R3
+    DIV     %R0, %R6, %R6, %R3
+
+    MOV.I   %R3, 25             ; wrap the y coordinate
+    ADD.R   %R7, %R7, %R3
+    DIV     %R0, %R7, %R7, %R3
+
+    ; draw the new stuff
+    ST.B    %R6, 0, %R2         ; x-coordinate = R6
+    ST.B    %R7, 1, %R2         ; y-coordinate = R7
+
+    MOV.I   %R1, 0x01           ; display a smiley face at the new spot
+    CALL    DISP_CHAR           ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
+
+    ; THIS LINE IS VERY IMPORTANT
+    JABS.Z  %R0, LOOP           ; jump to the process loop
