@@ -6,15 +6,17 @@ import java.util.Objects;
 
 public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
-    // See readRegister and writeRegister (r0 is always 0)
-    private final short[] regs = new short[7];
+    // Keep this in sync with Assembler.java!
+    private static final int REG_SLOT_SP = 7;   // R8
+    private static final int REG_SLOT_BP = 8;   // R9
 
-    private short ip;
-    private short sp;
-    private short bp;
+    // R0 is always 0 (writing to it causes the value to be discarded)
+    private final int[] regs = new int[15];
+
+    private int ip;
 
     // These are secret registers (it doesn't even show up in toString!)
-    private short imm;
+    private short iexImm;
     private byte rexRA;
     private byte rexRB;
     private byte rexRC;
@@ -42,28 +44,12 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         }
     }
 
-    public short readRegister(int offset) {
-        if (offset == 0) {
-            return 0;
-        }
-
-        return this.regs[offset - 1];
-    }
-
-    public void writeRegister(int offset, short value) {
-        if (offset != 0) {
-            this.regs[offset - 1] = value;
-        }
-    }
-
     public void reset() {
         Arrays.fill(this.regs, (short) 0);
 
         this.ip = 0;
-        this.sp = 0;
-        this.bp = 0;
 
-        this.imm = 0;
+        this.iexImm = 0;
         this.resetREX();
     }
 
@@ -75,36 +61,53 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     public void setIP(int ip) {
-        this.ip = (short) ip;
+        this.ip = ip;
     }
 
-    public void push(short val) {
-        final ByteBuffer buf = ByteBuffer.allocate(2);
-        buf.putShort(val).flip();
-        this.sp -= 2;
-        memory.write(Short.toUnsignedInt(this.sp), buf);
+    public void pushDword(int val) {
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.putInt(val).flip();
+        this.push(buf);
     }
 
-    public short pop() {
+    public void pushWord(int val) {
         final ByteBuffer buf = ByteBuffer.allocate(2);
-        memory.read(Short.toUnsignedInt(this.sp), buf);
-        this.sp += 2;
+        buf.putShort((short) val).flip();
+        this.push(buf);
+    }
+
+    private void push(final ByteBuffer buf) {
+        this.regs[REG_SLOT_SP] -= buf.capacity();
+        memory.write(this.regs[REG_SLOT_SP], buf);
+    }
+
+    public int popDword() {
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+        this.pop(buf);
+        return buf.flip().getInt();
+    }
+
+    public short popWord() {
+        final ByteBuffer buf = ByteBuffer.allocate(2);
+        this.pop(buf);
         return buf.flip().getShort();
+    }
+
+    private void pop(final ByteBuffer buf) {
+        memory.read(this.regs[REG_SLOT_SP], buf);
+        this.regs[REG_SLOT_SP] += buf.capacity();
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 8; ++i) {
-            sb.append('R').append(i)
-                    .append(": 0x").append(String.format("%04x", this.readRegister(i)))
-                    .append(' ');
+        sb.append("R0: 0x00000000");
+        for (int i = 0; i < this.regs.length; ++i) {
+            sb.append(' ').append('R').append(i + 1).append(": 0x")
+                    .append(String.format("%08x", this.regs[i]));
         }
 
-        sb.append('\n')
-                .append("ip: 0x").append(String.format("%04x", this.ip)).append('\n')
-                .append("sp: 0x").append(String.format("%04x", this.sp)).append('\n')
-                .append("bp: 0x").append(String.format("%04x", this.bp)).append('\n');
+        sb.append('\n').append("ip: 0x").append(String.format("%08x", this.ip));
 
         return sb.toString();
     }
@@ -112,7 +115,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     @Override
     public short nextWord() {
         final ByteBuffer buf = ByteBuffer.allocate(2);
-        memory.read(Short.toUnsignedInt(this.ip), buf);
+        memory.read(this.ip, buf);
         this.ip += 2;
         return buf.flip().getShort();
     }
@@ -123,206 +126,452 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     private short loadImm3(int imm3) {
-        final int full = (this.imm << 3) | imm3;
-        this.imm = 0;
+        final int full = (this.iexImm << 3) | imm3;
+        this.iexImm = 0;
         return (short) full;
     }
 
     private short loadImm6(int imm6) {
-        final int full = (this.imm << 6) | imm6;
-        this.imm = 0;
+        final int full = (this.iexImm << 6) | imm6;
+        this.iexImm = 0;
         return (short) full;
     }
 
     private short loadImm9(int imm9) {
-        final int full = (this.imm << 9) | imm9;
-        this.imm = 0;
+        final int full = (this.iexImm << 9) | imm9;
+        this.iexImm = 0;
         return (short) full;
     }
 
-    @Override
-    public void movI(int imm6, int rdst) {
-        this.writeRegister(rdst, this.loadImm6(imm6));
+    public void writeRegDword(int slot, int val) {
+        if (slot == 0) {
+            return;
+        }
+
+        this.regs[slot - 1] = val;
     }
 
-    @Override
-    public void addR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) + this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void writeRegWord(int slot, int val) {
+        if (slot == 0) {
+            return;
+        }
+
+        this.regs[slot - 1] &= 0xFFFF0000;
+        this.regs[slot - 1] |= 0x0000FFFF & val;
     }
 
-    @Override
-    public void subR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) - this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void writeRegHighByte(int slot, int val) {
+        if (slot == 0) {
+            return;
+        }
+
+        this.regs[slot - 1] &= (0xFFFF00FF);
+        this.regs[slot - 1] |= (0x000000FF & val) << 8;
     }
 
-    @Override
-    public void andR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) & this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void writeRegLowByte(int slot, int val) {
+        if (slot == 0) {
+            return;
+        }
+
+        this.regs[slot - 1] &= 0xFFFFFF00;
+        this.regs[slot - 1] |= 0x000000FF & val;
     }
 
-    @Override
-    public void orR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) | this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public int readRegDword(int slot) {
+        if (slot == 0) {
+            return 0;
+        }
+
+        return this.regs[slot - 1];
     }
 
-    @Override
-    public void xorR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) ^ this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public short readRegWord(int slot) {
+        if (slot == 0) {
+            return 0;
+        }
+
+        return (short) this.regs[slot - 1];
     }
 
-    @Override
-    public void nandR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) ~(this.readRegister(rlhs) & this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public byte readRegHighByte(int slot) {
+        if (slot == 0) {
+            return 0;
+        }
+
+        // Must be logical right shift!
+        return (byte) (this.regs[slot - 1] >>> 8);
     }
 
-    @Override
-    public void norR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) ~(this.readRegister(rlhs) | this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public byte readRegLowByte(int slot) {
+        if (slot == 0) {
+            return 0;
+        }
+
+        return (byte) this.regs[slot - 1];
     }
 
-    @Override
-    public void nxorR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) ~(this.readRegister(rlhs) ^ this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    private void rexWrite(int slot, int rex, int val) {
+        switch ((rex >> 1) & 0x3) {
+            case 0:     this.writeRegWord(slot, val); break;
+            case 1:     this.writeRegLowByte(slot, val); break;
+            case 2:     this.writeRegHighByte(slot, val); break;
+            case 3:     this.writeRegDword(slot, val); break;
+            default:    throw new AssertionError("Wtf illegal math mask with 3 produced a value out of 1..3?");
+        }
     }
 
-    @Override
-    public void addI(int imm6, int rdst) {
-        final short out = (short) (this.readRegister(rdst) + this.loadImm6(imm6));
-        this.writeRegister(rdst, out);
+    private int rexReadSigned(int slot, int rex) {
+        // Java does sign extension by default, so just return the values.
+        switch ((rex >> 1) & 0x3) {
+            case 0:     return this.readRegWord(slot);
+            case 1:     return this.readRegLowByte(slot);
+            case 2:     return this.readRegHighByte(slot);
+            case 3:     return this.readRegDword(slot);
+            default:    throw new AssertionError("Wtf illegal math mask with 3 produced a value out of 1..3?");
+        }
     }
 
-    @Override
-    public void subI(int imm6, int rdst) {
-        final short out = (short) (this.readRegister(rdst) - this.loadImm6(imm6));
-        this.writeRegister(rdst, out);
-    }
-
-    @Override
-    public void rsubI(int imm6, int rdst) {
-        final short out = (short) (this.loadImm6(imm6) - this.readRegister(rdst));
-        this.writeRegister(rdst, out);
-    }
-
-    @Override
-    public void jabsZ(int imm6, int rflag) {
-        if (this.readRegister(rflag) == 0) {
-            this.ip = this.loadImm6(imm6);
+    private int rexReadUnsigned(int slot, int rex) {
+        switch ((rex >> 1) & 0x3) {
+            case 0:     return Short.toUnsignedInt(this.readRegWord(slot));
+            case 1:     return Byte.toUnsignedInt(this.readRegLowByte(slot));
+            case 2:     return Byte.toUnsignedInt(this.readRegHighByte(slot));
+            case 3:     return this.readRegDword(slot);
+            default:    throw new AssertionError("Wtf illegal math mask with 3 produced a value out of 1..3?");
         }
     }
 
     @Override
-    public void jabsNZ(int imm6, int rflag) {
-        if (this.readRegister(rflag) != 0) {
-            this.ip = this.loadImm6(imm6);
-        }
+    public void movI(int imm6, int rA) {
+        // Since immediates are at most 16 bits, it undergoes sign extension
+        // (not zero extension!) when destination is through a dword access.
+
+        final int imm  = this.loadImm6(imm6);
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        this.rexWrite(rdst, this.rexRA, imm);
+        this.resetREX();
     }
 
     @Override
-    public void jabsGE(int imm6, int rflag) {
-        if (this.readRegister(rflag) >= 0) {
-            this.ip = this.loadImm6(imm6);
-        }
+    public void addR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs + rhs);
+        this.resetREX();
     }
 
     @Override
-    public void jabsGT(int imm6, int rflag) {
-        if (this.readRegister(rflag) > 0) {
-            this.ip = this.loadImm6(imm6);
-        }
+    public void subR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs - rhs);
+        this.resetREX();
     }
 
     @Override
-    public void jabsLE(int imm6, int rflag) {
-        if (this.readRegister(rflag) <= 0) {
-            this.ip = this.loadImm6(imm6);
-        }
+    public void andR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs & rhs);
+        this.resetREX();
     }
 
     @Override
-    public void jabsLT(int imm6, int rflag) {
-        if (this.readRegister(rflag) < 0) {
-            this.ip = this.loadImm6(imm6);
-        }
+    public void orR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs | rhs);
+        this.resetREX();
     }
 
     @Override
-    public void jrelZ(int imm6, int rflag) {
-        if (this.readRegister(rflag) == 0) {
-            this.ip += this.loadImm6(imm6);
-        }
+    public void xorR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs ^ rhs);
+        this.resetREX();
     }
 
     @Override
-    public void jrelNZ(int imm6, int rflag) {
-        if (this.readRegister(rflag) != 0) {
-            this.ip += this.loadImm6(imm6);
-        }
+    public void nandR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, ~(lhs & rhs));
+        this.resetREX();
     }
 
     @Override
-    public void jrelGE(int imm6, int rflag) {
-        if (this.readRegister(rflag) >= 0) {
-            this.ip += this.loadImm6(imm6);
-        }
+    public void norR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, ~(lhs | rhs));
+        this.resetREX();
     }
 
     @Override
-    public void jrelGT(int imm6, int rflag) {
-        if (this.readRegister(rflag) > 0) {
-            this.ip += this.loadImm6(imm6);
-        }
+    public void nxorR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, ~(lhs ^ rhs));
+        this.resetREX();
     }
 
     @Override
-    public void jrelLE(int imm6, int rflag) {
-        if (this.readRegister(rflag) <= 0) {
-            this.ip += this.loadImm6(imm6);
-        }
+    public void addI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadSigned(rsd, this.rexRA) + imm;
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
     }
 
     @Override
-    public void jrelLT(int imm6, int rflag) {
-        if (this.readRegister(rflag) < 0) {
-            this.ip += this.loadImm6(imm6);
+    public void subI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadSigned(rsd, this.rexRA) - imm;
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
+    }
+
+    @Override
+    public void rsubI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = imm - this.rexReadSigned(rsd, this.rexRA);
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsZ(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) == 0) {
+            this.ip = imm;
         }
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsNZ(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) != 0) {
+            this.ip = imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsGE(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) >= 0) {
+            this.ip = imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsGT(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) > 0) {
+            this.ip = imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsLE(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) <= 0) {
+            this.ip = imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jabsLT(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) < 0) {
+            this.ip = imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelZ(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) == 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelNZ(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) != 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelGE(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) >= 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelGT(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) > 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelLE(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) <= 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void jrelLT(int imm6, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm6(imm6);
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) < 0) {
+            this.ip += imm;
+        }
+        this.resetREX();
     }
 
     @Override
     public void push(int imm6, int rsrc) {
-        this.push((short) (this.readRegister(rsrc) + this.loadImm6(imm6)));
+    //     this.push((short) (this.readRegister(rsrc) + this.loadImm6(imm6)));
     }
 
     @Override
     public void pop(int imm6, int rdst) {
-        this.writeRegister(rdst, (short) (this.pop() - this.loadImm6(imm6)));
+    //     this.writeRegister(rdst, (short) (this.pop() - this.loadImm6(imm6)));
     }
 
     @Override
     public void mtsp(int imm6, int rsrc) {
-        this.sp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
+    //     this.sp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
     }
 
     @Override
     public void mtbp(int imm6, int rsrc) {
-        this.bp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
+    //     this.bp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
     }
 
     @Override
     public void mspt(int imm6, int rdst) {
-        this.writeRegister(rdst, (short) (this.sp - this.loadImm6(imm6)));
+    //     this.writeRegister(rdst, (short) (this.sp - this.loadImm6(imm6)));
     }
 
     @Override
     public void mbpt(int imm6, int rdst) {
-        this.writeRegister(rdst, (short) (this.bp - this.loadImm6(imm6)));
+    //     this.writeRegister(rdst, (short) (this.bp - this.loadImm6(imm6)));
     }
 
     @Override
@@ -330,148 +579,235 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         // Due to how this#nextWord() is implemented, by the time this
         // instruction is actually handled here, ip would already contain the
         // address of the next instruction!
-        this.push(this.ip);
+
+        this.pushDword(this.ip);
         this.ip = this.loadImm9(imm9);
     }
 
     @Override
     public void ret() {
-        this.ip = this.pop();
+        this.ip = this.popDword();
     }
 
     @Override
     public void enter(int imm9) {
-        this.push(this.bp);
-        this.bp = this.sp;
-        this.sp -= this.loadImm9(imm);
+        this.pushDword(this.regs[REG_SLOT_BP]);
+        this.regs[REG_SLOT_BP] = this.regs[REG_SLOT_SP];
+        this.regs[REG_SLOT_SP] -= this.loadImm9(imm9);
     }
 
     @Override
     public void leave() {
-        this.sp = this.bp;
-        this.bp = this.pop();
+        this.regs[REG_SLOT_SP] = this.regs[REG_SLOT_BP];
+        this.regs[REG_SLOT_BP] = this.popDword();
     }
 
     @Override
     public void inner(int rlhs, int rrhs, int rdst) {
-        final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0x00FF;
-        final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0xFF00;
-        final short out = (short) ((hi << 8) | (lo >> 8));
-        this.writeRegister(rdst, out);
+    //     final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0x00FF;
+    //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0xFF00;
+    //     final short out = (short) ((hi << 8) | (lo >> 8));
+    //     this.writeRegister(rdst, out);
     }
 
     @Override
     public void outer(int rlhs, int rrhs, int rdst) {
-        final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0xFF00;
-        final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0x00FF;
-        final short out = (short) (hi | lo);
-        this.writeRegister(rdst, out);
+    //     final int hi = Short.toUnsignedInt(this.readRegister(rlhs)) & 0xFF00;
+    //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0x00FF;
+    //     final short out = (short) (hi | lo);
+    //     this.writeRegister(rdst, out);
     }
 
+    // LD.D and ST.D coming soon!
+
     @Override
-    public void ldW(int imm3, int radj, int rdst) {
+    public void ldW(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
         final ByteBuffer buf = ByteBuffer.allocate(2);
-        this.memory.read(this.loadImm3(imm3) + this.readRegister(radj), buf);
-        this.writeRegister(rdst, buf.flip().getShort());
+        this.memory.read(address, buf);
+
+        this.rexWrite(rdst, this.rexRA, buf.flip().getShort());
+        this.resetREX();
     }
 
     @Override
-    public void stW(int imm3, int radj, int rsrc) {
+    public void stW(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rsrc = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
         final ByteBuffer buf = ByteBuffer.allocate(2);
-        buf.putShort(this.readRegister(rsrc)).flip();
-        this.memory.write(this.loadImm3(imm3) + this.readRegister(radj), buf);
+        buf.putShort((short) this.rexReadSigned(rsrc, this.rexRA)).flip();
+
+        this.memory.write(address, buf);
+        this.resetREX();
     }
 
     @Override
-    public void ldB(int imm3, int radj, int rdst) {
-        this.writeRegister(rdst, this.memory.read(this.loadImm3(imm3) + this.readRegister(radj)));
+    public void ldB(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
+        final byte out = this.memory.read(address);
+
+        this.rexWrite(rdst, this.rexRA, out);
+        this.resetREX();
     }
 
     @Override
-    public void stB(int imm3, int radj, int rsrc) {
-        this.memory.write(this.loadImm3(imm3) + this.readRegister(radj), (byte) this.readRegister(rsrc));
+    public void stB(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rsrc = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int address = imm + this.rexReadSigned(radj, this.rexRB);
+        final byte out = (byte) this.rexReadSigned(rsrc, this.rexRA);
+
+        this.memory.write(address, out);
+        this.resetREX();
     }
 
     @Override
-    public void shlR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) << this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void shlR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs << rhs);
+        this.resetREX();
     }
 
     @Override
-    public void shrR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (Short.toUnsignedInt(this.readRegister(rlhs)) >> this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void shrR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs >>> rhs);
+        this.resetREX();
     }
 
     @Override
-    public void sarR(int rlhs, int rrhs, int rdst) {
-        final short out = (short) (this.readRegister(rlhs) >> this.readRegister(rrhs));
-        this.writeRegister(rdst, out);
+    public void sarR(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        this.rexWrite(rdst, this.rexRA, lhs >> rhs);
+        this.resetREX();
     }
 
     @Override
-    public void shlI(int imm4, int rdst) {
-        final short out = (short) (this.readRegister(rdst) << imm4);
-        this.writeRegister(rdst, out);
-        this.imm = 0; // techinically we have used up the immediate slot
+    public void shlI(int imm4, int rA) {
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) << imm4;
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void shrI(int imm4, int rdst) {
-        final short out = (short) (Short.toUnsignedInt(this.readRegister(rdst)) >> imm4);
-        this.writeRegister(rdst, out);
-        this.imm = 0; // techinically we have used up the immediate slot
+    public void shrI(int imm4, int rA) {
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) >>> imm4;
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void sarI(int imm4, int rdst) {
-        final short out = (short) (this.readRegister(rdst) >> imm4);
-        this.writeRegister(rdst, out);
-        this.imm = 0; // techinically we have used up the immediate slot
+    public void sarI(int imm4, int rA) {
+        final int rsd = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) >> imm4;
+        this.rexWrite(rsd, this.rexRA, out);
+        this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
     public void push3(int rC, int rB, int rA) {
-        this.push(this.readRegister(rC));
-        this.push(this.readRegister(rB));
-        this.push(this.readRegister(rA));
+    //     this.push(this.readRegister(rC));
+    //     this.push(this.readRegister(rB));
+    //     this.push(this.readRegister(rA));
     }
 
     @Override
     public void pop3(int rC, int rB, int rA) {
-        this.writeRegister(rC, this.pop());
-        this.writeRegister(rB, this.pop());
-        this.writeRegister(rA, this.pop());
+    //     this.writeRegister(rC, this.pop());
+    //     this.writeRegister(rB, this.pop());
+    //     this.writeRegister(rA, this.pop());
     }
 
     @Override
-    public void cmovI(int imm3, int rflag, int rdst) {
+    public void cmovI(int imm3, int rB, int rA) {
         // The immediate slot is consumed regardless of the flag!
 
-        final short value = this.loadImm3(imm3);
-        if (this.readRegister(rflag) != 0) {
-            this.writeRegister(rdst, value);
+        final int imm = this.loadImm3(imm3);
+        final int rflag = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRB) != 0) {
+            this.rexWrite(rdst, this.rexRA, imm);
         }
+        this.resetREX();
     }
 
     @Override
-    public void cmovR(int rsrc, int rflag, int rdst) {
+    public void cmovR(int rC, int rB, int rA) {
         // The value is read from the source register regardless of the flag!
 
-        final short value = this.readRegister(rsrc);
-        if (this.readRegister(rflag) != 0) {
-            this.writeRegister(rdst, value);
+        final int rsrc = ((this.rexRC & 0x1) << 3) | rC;
+        final int rflag = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int out = this.rexReadSigned(rsrc, this.rexRC);
+        if (this.rexReadSigned(rflag, this.rexRB) != 0) {
+            this.rexWrite(rdst, this.rexRA, out);
         }
+        this.resetREX();
     }
 
     @Override
     public void iex(int imm12) {
-        this.imm = (short) imm12;
+        // Note: we save all 12 bits, but not all 12 bits are used.
+        // See loadImm3/6/9 or the instruction format in Opcode.java for more.
+
+        this.iexImm = (short) imm12;
     }
 
     @Override
     public void rex(int rD, int rC, int rB, int rA) {
+        // Note: REX prefixes are each 3 bits long.
+        //
+        // The bit ranges:
+        // 0    => Prepended to the register slot for registers R8 to R15.
+        // 1, 2 => Defines the register width. Can be either 0, 1, 2, or 3.
+        //         0 - word access (legacy reasons), bit widths [0, 15]
+        //         1 - low byte access             , bit widths [0,  7]
+        //         2 - high byte access            , bit widths [8, 15]
+        //         3 - dword access                , bit widths [0, 31]
+        //     31 --------- 15 ----- 7 ----- 0
+        //         Anything out of the bit widths is not touched!
+
         this.rexRA = (byte) rA;
         this.rexRB = (byte) rB;
         this.rexRC = (byte) rC;
@@ -479,27 +815,92 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
-        // How this instruction works:
-        // i32 tmp            = i16 rlhs * i16 rrhs
-        // i16 rdhi, i16 rdlo = unpack i32 tmp
+    public void mul(int rD, int rC, int rB, int rA) {
+        // Note: if two destination registers are the same, then the value it
+        // contains is undefined. Except if the registers were both R0, in
+        // which case both high and low parts of the product are discarded.
 
-        // Also this is signed multiplication
-        final short lhs = this.readRegister(rlhs);
-        final short rhs = this.readRegister(rrhs);
-        final int tmp = lhs * rhs;
+        final int rlhs = ((this.rexRD & 0x1) << 3) | rD;
+        final int rrhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rdlo = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdhi = ((this.rexRA & 0x1) << 3) | rA;
 
-        this.writeRegister(rdlo, (short) (tmp >>> 0));
-        this.writeRegister(rdhi, (short) (tmp >>> 16));
+        final int lhs = this.rexReadSigned(rlhs, this.rexRD);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRC);
+
+        // Note: tmp is long type because i32 * i32 -> i64
+        final long tmp = (long) lhs * (long) rhs;
+
+        // Now we need to partition tmp. Here is how it works:
+        //
+        // for rdlo:
+        //   byte  => take [ 0,  7]
+        //   word  => take [ 0, 15]
+        //   dword => take [ 0, 31]
+        //
+        // for rdhi:
+        //   byte  => take [ 8, 15]
+        //   word  => take [16, 31]
+        //   dword => take [32, 64]
+        //
+        // As you can see, it's highly recommended to use the same REX prefix
+        // for both destinations registers. (It was either this or UB!)
+
+        // rdlo
+        switch ((this.rexRB >> 1) & 0x3) {
+            case 0:
+                this.writeRegWord(rdlo, (int) tmp);
+                break;
+            case 1:
+                this.writeRegLowByte(rdlo, (int) tmp);
+                break;
+            case 2:
+                this.writeRegHighByte(rdlo, (int) tmp);
+                break;
+            case 3:
+                this.writeRegDword(rdlo, (int) tmp);
+                break;
+        }
+
+        // rdhi
+        switch ((this.rexRA >> 1) & 0x3) {
+            case 0:
+                this.writeRegWord(rdhi, (int) (tmp >>> 16));
+                break;
+            case 1:
+                this.writeRegLowByte(rdhi, (int) (tmp >>> 8));
+                break;
+            case 2:
+                this.writeRegHighByte(rdhi, (int) (tmp >>> 8));
+                break;
+            case 3:
+                this.writeRegDword(rdhi, (int) (tmp >>> 32));
+                break;
+        }
+
+        this.resetREX();
     }
 
     @Override
-    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
-        final short lhs = this.readRegister(rlhs);
-        final short rhs = this.readRegister(rrhs);
+    public void div(int rD, int rC, int rB, int rA) {
+        // Note: if two destination registers are the same, then the value it
+        // contains is undefined. Except if the registers were both R0, in
+        // which case both quotient and remainder are discarded.
+
+        final int rlhs  = ((this.rexRD & 0x1) << 3) | rD;
+        final int rrhs  = ((this.rexRC & 0x1) << 3) | rC;
+        final int rdrem = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdquo = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int lhs = this.rexReadSigned(rlhs, this.rexRD);
+        final int rhs = this.rexReadSigned(rrhs, this.rexRC);
 
         // let the JVM handle crash on division by zero...
-        this.writeRegister(rdrem, (short) (lhs % rhs));
-        this.writeRegister(rdquo, (short) (lhs / rhs));
+        final int quo = lhs / rhs;
+        final int rem = lhs % rhs;
+
+        this.rexWrite(rdrem, this.rexRB, rem);
+        this.rexWrite(rdquo, this.rexRB, quo);
+        this.resetREX();
     }
 }
