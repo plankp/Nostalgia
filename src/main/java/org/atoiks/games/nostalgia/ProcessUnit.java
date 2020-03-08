@@ -547,11 +547,13 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void push(int imm6, int rsrc) {
     //     this.push((short) (this.readRegister(rsrc) + this.loadImm6(imm6)));
+        this.resetREX();
     }
 
     @Override
     public void pop(int imm6, int rdst) {
     //     this.writeRegister(rdst, (short) (this.pop() - this.loadImm6(imm6)));
+        this.resetREX();
     }
 
     @Override
@@ -588,6 +590,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0xFF00;
     //     final short out = (short) ((hi << 8) | (lo >> 8));
     //     this.writeRegister(rdst, out);
+        this.resetREX();
     }
 
     @Override
@@ -596,6 +599,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     //     final int lo = Short.toUnsignedInt(this.readRegister(rrhs)) & 0x00FF;
     //     final short out = (short) (hi | lo);
     //     this.writeRegister(rdst, out);
+        this.resetREX();
     }
 
     // LD.D and ST.D coming soon!
@@ -728,6 +732,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     //     this.push(this.readRegister(rC));
     //     this.push(this.readRegister(rB));
     //     this.push(this.readRegister(rA));
+        this.resetREX();
     }
 
     @Override
@@ -735,6 +740,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     //     this.writeRegister(rC, this.pop());
     //     this.writeRegister(rB, this.pop());
     //     this.writeRegister(rA, this.pop());
+        this.resetREX();
     }
 
     @Override
