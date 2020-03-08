@@ -10,6 +10,14 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     private final ByteBuffer buf;
     private final Decoder decoder;
 
+    // Basically do what ProcessUnit.java is doing: Reconstruct the intended
+    // code. Actually not sure about IEX, but REX we should totally do this!
+    private short iexImm;
+    private byte rexRA;
+    private byte rexRB;
+    private byte rexRC;
+    private byte rexRD;
+
     public Disassembler(PrintStream out, ByteBuffer buf) {
         this.out = Objects.requireNonNull(out);
         this.buf = Objects.requireNonNull(buf);
@@ -55,6 +63,29 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         return buf.getShort();
     }
 
+    private void resetREX() {
+        this.rexRA = 0;
+        this.rexRB = 0;
+        this.rexRC = 0;
+        this.rexRD = 0;
+    }
+
+    private String rexSynthRegister(int rex, int inst) {
+        // Only need a 5 char buffer...
+        final StringBuilder sb = new StringBuilder(5);
+        sb.append("%R").append(((rex & 0x1) << 3) | inst);
+
+        switch ((rex >> 1) & 0x3) {
+            case 0:     sb.append('W'); break;
+            case 1:     sb.append('L'); break;
+            case 2:     sb.append('H'); break;
+            case 3:     sb.append('D'); break;
+            default:    throw new AssertionError("Wtf illegal math mask with 3 produced a value out of 1..3?");
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public void illegalOp(int fullWord) {
         this.out.printf("0x%04x     ??", fullWord);
@@ -62,132 +93,218 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void movI(int imm, int rdst) {
-        this.out.printf("MOV.I      %%r%d, 0x%x", rdst, imm);
+        this.out.printf("MOV.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void addR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("ADD.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("ADD.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void subR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("SUB.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("SUB.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void andR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("AND.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("AND.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void orR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("OR.R       %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("OR.R       %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void xorR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("XOR.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("XOR.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void nandR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("NAND.R     %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("NAND.R     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void norR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("NOR.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("NOR.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void nxorR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("NXOR.R     %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("NXOR.R     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void addI(int imm, int rdst) {
-        this.out.printf("ADD.I      %%r%d, 0x%x", rdst, imm);
+        this.out.printf("ADD.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void subI(int imm, int rdst) {
-        this.out.printf("SUB.I      %%r%d, 0x%x", rdst, imm);
+        this.out.printf("SUB.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void rsubI(int imm, int rdst) {
-        this.out.printf("RSUB.I     %%r%d, 0x%x", rdst, imm);
+        this.out.printf("RSUB.I     %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsZ(int imm, int rflag) {
-        this.out.printf("JABS.Z     %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.Z     %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsNZ(int imm, int rflag) {
-        this.out.printf("JABS.NZ    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.NZ    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsGE(int imm, int rflag) {
-        this.out.printf("JABS.GE    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.GE    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsGT(int imm, int rflag) {
-        this.out.printf("JABS.GT    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.GT    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsLE(int imm, int rflag) {
-        this.out.printf("JABS.LE    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.LE    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jabsLT(int imm, int rflag) {
-        this.out.printf("JABS.LT    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JABS.LT    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelZ(int imm, int rflag) {
-        this.out.printf("JREL.Z     %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.Z     %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelNZ(int imm, int rflag) {
-        this.out.printf("JREL.NZ    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.NZ    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelGE(int imm, int rflag) {
-        this.out.printf("JREL.GE    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.GE    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelGT(int imm, int rflag) {
-        this.out.printf("JREL.GT    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.GT    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelLE(int imm, int rflag) {
-        this.out.printf("JREL.LE    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.LE    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void jrelLT(int imm, int rflag) {
-        this.out.printf("JREL.LT    %%r%d, 0x%x", rflag, imm);
+        this.out.printf("JREL.LT    %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rflag),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void push(int imm, int rsrc) {
-        this.out.printf("PUSH       %%r%d, 0x%x", rsrc, imm);
+        this.out.printf("PUSH       %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rsrc),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void pop(int imm, int rdst) {
-        this.out.printf("POP        %%r%d, 0x%x", rdst, imm);
+        this.out.printf("POP        %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
@@ -212,82 +329,143 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void inner(int rlhs, int rrhs, int rdst) {
-        this.out.printf("INNER      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("INNER      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void outer(int rlhs, int rrhs, int rdst) {
-        this.out.printf("OUTER      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("OUTER      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void ldW(int imm, int radj, int rdst) {
-        this.out.printf("LD.W       %%r%d, 0x%x, %%r%d", rdst, imm, radj);
+        this.out.printf("LD.W       %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm,
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
     }
 
     @Override
     public void stW(int imm, int radj, int rsrc) {
-        this.out.printf("ST.W       %%r%d, 0x%x, %%r%d", rsrc, imm, radj);
+        this.out.printf("ST.W       %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rsrc),
+                imm,
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
     }
 
     @Override
     public void ldB(int imm, int radj, int rdst) {
-        this.out.printf("LD.B       %%r%d, 0x%x, %%r%d", rdst, imm, radj);
+        this.out.printf("LD.B       %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm,
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
     }
 
     @Override
     public void stB(int imm, int radj, int rsrc) {
-        this.out.printf("ST.B       %%r%d, 0x%x, %%r%d", rsrc, imm, radj);
+        this.out.printf("ST.B       %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rsrc),
+                imm,
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
     }
 
     @Override
     public void shlR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("SHL.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("SHL.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void shrR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("SHR.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("SHR.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void sarR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("SAR.R      %%r%d, %%r%d, %%r%d", rdst, rlhs, rrhs);
+        this.out.printf("SAR.R      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rlhs),
+                this.rexSynthRegister(this.rexRB, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void shlI(int imm, int rdst) {
-        this.out.printf("SHL.I      %%r%d, 0x%x", imm);
+        this.out.printf("SHL.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void shrI(int imm, int rdst) {
-        this.out.printf("SHR.I      %%r%d, 0x%x", imm);
+        this.out.printf("SHR.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void sarI(int imm, int rdst) {
-        this.out.printf("SAR.I      %%r%d, 0x%x", imm);
+        this.out.printf("SAR.I      %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm);
+        this.resetREX();
     }
 
     @Override
     public void push3(int rC, int rB, int rA) {
-        this.out.printf("PUSH.3     %%r%d, %%r%d, %%r%d", rA, rC, rB);
+        this.out.printf("PUSH.3     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rA),
+                this.rexSynthRegister(this.rexRC, rC),
+                this.rexSynthRegister(this.rexRB, rB));
+        this.resetREX();
     }
 
     @Override
     public void pop3(int rC, int rB, int rA) {
-        this.out.printf("POP.3      %%r%d, %%r%d, %%r%d", rA, rC, rB);
+        this.out.printf("POP.3      %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rA),
+                this.rexSynthRegister(this.rexRC, rC),
+                this.rexSynthRegister(this.rexRB, rB));
+        this.resetREX();
     }
 
     @Override
     public void cmovI(int imm3, int rflag, int rdst) {
-        this.out.printf("CMOV.I     %%r%d, 0x%x, %%r%d", rdst, imm3, rflag);
+        this.out.printf("CMOV.I     %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                imm3,
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
     }
 
     @Override
     public void cmovR(int rsrc, int rflag, int rdst) {
-        this.out.printf("CMOV.R     %%r%d, %%r%d, %%r%d", rdst, rsrc, rflag);
+        this.out.printf("CMOV.R     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rsrc),
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
     }
 
     @Override
@@ -299,19 +477,34 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void rex(int rD, int rC, int rB, int rA) {
         // This is honestly a pretty strange opcode...
+        // ProcessUnit.java gives an explaination of how this extension prefix
+        // works.
 
-        // Consider not actually emitting this instruction, but instead have it
-        // affect the next opcode! (same for the immediate extension prefix!)
-        this.out.printf("REX        %%r%d, %%r%d, %%r%d, %%r%d", rA, rB, rD, rC);
+        this.out.printf("<<REX>>");
+
+        this.rexRA = (byte) rA;
+        this.rexRB = (byte) rB;
+        this.rexRC = (byte) rC;
+        this.rexRD = (byte) rD;
     }
 
     @Override
     public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
-        this.out.printf("MUL        %%r%d, %%r%d, %%r%d, %%r%d", rdhi, rdlo, rlhs, rrhs);
+        this.out.printf("MUL        %s, %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdhi),
+                this.rexSynthRegister(this.rexRB, rdlo),
+                this.rexSynthRegister(this.rexRD, rlhs),
+                this.rexSynthRegister(this.rexRC, rrhs));
+        this.resetREX();
     }
 
     @Override
     public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
-        this.out.printf("DIV        %%r%d, %%r%d, %%r%d, %%r%d", rdquo, rdrem, rlhs, rrhs);
+        this.out.printf("DIV        %s, %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdquo),
+                this.rexSynthRegister(this.rexRB, rdrem),
+                this.rexSynthRegister(this.rexRD, rlhs),
+                this.rexSynthRegister(this.rexRC, rrhs));
+        this.resetREX();
     }
 }
