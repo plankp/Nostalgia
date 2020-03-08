@@ -18,6 +18,8 @@ Run `gradlew build` to build it or `gradlew run` to run after building
 
 You code assembler! Maybe some people like this...
 
+![Proof of Concept](./sample.gif)
+
 ## Asssets Used
 
 * Super authentic [VGA-ROM font](https://github.com/spacerace/romfont)
