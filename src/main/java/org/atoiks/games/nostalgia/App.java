@@ -24,8 +24,9 @@ public class App {
         try {
             while (true) {
                 proc.executeNext();
+                Thread.sleep(1);
             }
-        } catch (RuntimeException ex) {
+        } catch (RuntimeException | InterruptedException ex) {
             System.out.println(ex.getMessage());
             System.out.println(proc);
         }
