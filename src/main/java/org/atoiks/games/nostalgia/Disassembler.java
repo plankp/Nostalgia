@@ -86,6 +86,24 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         return sb.toString();
     }
 
+    private short loadImm3(int imm3) {
+        final int full = (this.iexImm << 3) | imm3;
+        this.iexImm = 0;
+        return (short) full;
+    }
+
+    private short loadImm6(int imm6) {
+        final int full = (this.iexImm << 6) | imm6;
+        this.iexImm = 0;
+        return (short) full;
+    }
+
+    private short loadImm9(int imm9) {
+        final int full = (this.iexImm << 9) | imm9;
+        this.iexImm = 0;
+        return (short) full;
+    }
+
     @Override
     public void illegalOp(int fullWord) {
         this.out.printf("0x%04x     ??", fullWord);
@@ -95,7 +113,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void movI(int imm, int rdst) {
         this.out.printf("MOV.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -175,7 +193,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void addI(int imm, int rdst) {
         this.out.printf("ADD.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -183,7 +201,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void subI(int imm, int rdst) {
         this.out.printf("SUB.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -191,7 +209,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void rsubI(int imm, int rdst) {
         this.out.printf("RSUB.I     %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -199,7 +217,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsZ(int imm, int rflag) {
         this.out.printf("JABS.Z     %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -207,7 +225,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsNZ(int imm, int rflag) {
         this.out.printf("JABS.NZ    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -215,7 +233,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsGE(int imm, int rflag) {
         this.out.printf("JABS.GE    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -223,7 +241,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsGT(int imm, int rflag) {
         this.out.printf("JABS.GT    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -231,7 +249,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsLE(int imm, int rflag) {
         this.out.printf("JABS.LE    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -239,7 +257,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jabsLT(int imm, int rflag) {
         this.out.printf("JABS.LT    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -247,7 +265,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelZ(int imm, int rflag) {
         this.out.printf("JREL.Z     %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -255,7 +273,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelNZ(int imm, int rflag) {
         this.out.printf("JREL.NZ    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -263,7 +281,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelGE(int imm, int rflag) {
         this.out.printf("JREL.GE    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -271,7 +289,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelGT(int imm, int rflag) {
         this.out.printf("JREL.GT    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -279,7 +297,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelLE(int imm, int rflag) {
         this.out.printf("JREL.LE    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -287,7 +305,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void jrelLT(int imm, int rflag) {
         this.out.printf("JREL.LT    %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rflag),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -295,7 +313,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void push(int imm, int rsrc) {
         this.out.printf("PUSH       %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rsrc),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
@@ -303,13 +321,13 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void pop(int imm, int rdst) {
         this.out.printf("POP        %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
     }
 
     @Override
     public void call(int imm) {
-        this.out.printf("CALL       0x%x", imm);
+        this.out.printf("CALL       0x%x", this.loadImm9(imm));
     }
 
     @Override
@@ -319,7 +337,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void enter(int imm) {
-        this.out.printf("ENTER      0x%x", imm);
+        this.out.printf("ENTER      0x%x", this.loadImm9(imm));
     }
 
     @Override
@@ -331,7 +349,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void ldD(int imm, int radj, int rdst) {
         this.out.printf("LD.D       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -340,7 +358,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void stD(int imm, int radj, int rsrc) {
         this.out.printf("ST.D       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rsrc),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -349,7 +367,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void ldW(int imm, int radj, int rdst) {
         this.out.printf("LD.W       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -358,7 +376,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void stW(int imm, int radj, int rsrc) {
         this.out.printf("ST.W       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rsrc),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -367,7 +385,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void ldB(int imm, int radj, int rdst) {
         this.out.printf("LD.B       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -376,7 +394,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void stB(int imm, int radj, int rsrc) {
         this.out.printf("ST.B       %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rsrc),
-                imm,
+                this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
@@ -414,6 +432,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRA, rdst),
                 imm);
         this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
@@ -422,6 +441,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRA, rdst),
                 imm);
         this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
@@ -430,6 +450,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRA, rdst),
                 imm);
         this.resetREX();
+        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
@@ -454,7 +475,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void cmovI(int imm3, int rflag, int rdst) {
         this.out.printf("CMOV.I     %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm3,
+                this.loadImm3(imm3),
                 this.rexSynthRegister(this.rexRB, rflag));
         this.resetREX();
     }
@@ -471,7 +492,10 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void iex(int imm) {
         // This is honestly a pretty strange opcode...
-        this.out.printf("IEX        0x%x", imm);
+
+        this.out.printf("<<IEX>>");
+
+        this.iexImm = (short) imm;
     }
 
     @Override
