@@ -93,7 +93,7 @@ public final class Encoder implements InstrVisitor {
         }
 
         final int rexRA = (rA & 0b11_1000) >> 3;
-        final int rexRB = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rB & 0b11_1000) >> 3;
         if (rexRA != 0 || rexRB != 0) {
             // emit rex
             this.rex(0, 0, rexRB, rexRA);
@@ -108,8 +108,8 @@ public final class Encoder implements InstrVisitor {
 
     private void emitOp0RRR(int op, int rC, int rB, int rA) {
         final int rexRA = (rA & 0b11_1000) >> 3;
-        final int rexRB = (rA & 0b11_1000) >> 3;
-        final int rexRC = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rB & 0b11_1000) >> 3;
+        final int rexRC = (rC & 0b11_1000) >> 3;
         if (rexRA != 0 || rexRB != 0 || rexRC != 0) {
             // emit rex
             this.rex(0, rexRC, rexRB, rexRA);
@@ -124,9 +124,9 @@ public final class Encoder implements InstrVisitor {
 
     private void emitOp1RRRR(int op, int rD, int rC, int rB, int rA) {
         final int rexRA = (rA & 0b11_1000) >> 3;
-        final int rexRB = (rA & 0b11_1000) >> 3;
-        final int rexRC = (rA & 0b11_1000) >> 3;
-        final int rexRD = (rA & 0b11_1000) >> 3;
+        final int rexRB = (rB & 0b11_1000) >> 3;
+        final int rexRC = (rC & 0b11_1000) >> 3;
+        final int rexRD = (rD & 0b11_1000) >> 3;
         if (rexRA != 0 || rexRB != 0 || rexRC != 0 || rexRD != 0) {
             // emit rex
             this.rex(rexRD, rexRC, rexRB, rexRA);
