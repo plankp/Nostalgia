@@ -545,15 +545,50 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void push(int imm6, int rsrc) {
-    //     this.push((short) (this.readRegister(rsrc) + this.loadImm6(imm6)));
+    public void push(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
+
+        this.internalPush(this.rexRA, rA, imm);
         this.resetREX();
     }
 
+    private void internalPush(int rex, int reg, int immediate) {
+        // Note: byte values are promoted to word before the push. In other
+        // words, each push consumes either a word size or a dword size.
+
+        final int rsrc = ((rex & 0x1) << 3) | reg;
+        final int value = this.rexReadSigned(rsrc, rex) + immediate;
+
+        if (((rex >> 1) & 0x3) == 3) {
+            this.pushDword(value);
+        } else {
+            this.pushWord((short) value);
+        }
+    }
+
     @Override
-    public void pop(int imm6, int rdst) {
-    //     this.writeRegister(rdst, (short) (this.pop() - this.loadImm6(imm6)));
+    public void pop(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
+
+        this.internalPop(this.rexRA, rA, imm);
         this.resetREX();
+    }
+
+    private void internalPop(int rex, int reg, int immediate) {
+        // Note: the amount of stack space restored is dependent on the REX
+        // prefix. Also, like the push instruction, byte pops are actually word
+        // pops.
+
+        final int rdst = ((rex & 0x1) << 3) | reg;
+
+        final int value;
+        if (((rex >> 1) & 0x3) == 3) {
+            value = this.popDword();
+        } else {
+            value = this.popWord();
+        }
+
+        this.rexWrite(rdst, rex, value - immediate);
     }
 
     @Override
@@ -729,17 +764,19 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void push3(int rC, int rB, int rA) {
-    //     this.push(this.readRegister(rC));
-    //     this.push(this.readRegister(rB));
-    //     this.push(this.readRegister(rA));
+        this.internalPush(this.rexRC, rC, 0);
+        this.internalPush(this.rexRB, rB, 0);
+        this.internalPush(this.rexRA, rA, 0);
+
         this.resetREX();
     }
 
     @Override
     public void pop3(int rC, int rB, int rA) {
-    //     this.writeRegister(rC, this.pop());
-    //     this.writeRegister(rB, this.pop());
-    //     this.writeRegister(rA, this.pop());
+        this.internalPop(this.rexRA, rA, 0);
+        this.internalPop(this.rexRB, rB, 0);
+        this.internalPop(this.rexRC, rC, 0);
+
         this.resetREX();
     }
 
