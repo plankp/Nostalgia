@@ -276,22 +276,6 @@ public final class Assembler implements Closeable {
                 buf = checkInstrClassIR(operands);
                 this.encoder.pop(buf[0], buf[1]);
                 break;
-            case "MTSP":
-                buf = checkInstrClassIR(operands);
-                this.encoder.mtsp(buf[0], buf[1]);
-                break;
-            case "MTBP":
-                buf = checkInstrClassIR(operands);
-                this.encoder.mtbp(buf[0], buf[1]);
-                break;
-            case "MSPT":
-                buf = checkInstrClassIR(operands);
-                this.encoder.mspt(buf[0], buf[1]);
-                break;
-            case "MBPT":
-                buf = checkInstrClassIR(operands);
-                this.encoder.mbpt(buf[0], buf[1]);
-                break;
             case "CALL":
                 buf = checkInstrClassI(operands);
                 this.encoder.call(buf[0]);

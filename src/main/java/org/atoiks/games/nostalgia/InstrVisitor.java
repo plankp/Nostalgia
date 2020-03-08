@@ -38,12 +38,6 @@ public interface InstrVisitor {
     public void push(int imm6, int rsrc);
     public void pop(int imm6, int rdst);
 
-    public void mtsp(int imm6, int rsrc);
-    public void mtbp(int imm6, int rsrc);
-
-    public void mspt(int imm6, int rdst);
-    public void mbpt(int imm6, int rdst);
-
     public void call(int imm9);
     public void ret();
     public void enter(int imm9);

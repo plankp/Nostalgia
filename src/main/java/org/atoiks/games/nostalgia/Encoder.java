@@ -276,26 +276,6 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void mtsp(int imm, int rsrc) {
-        this.emitOp0IR(Opcode.OP0_MTSP, imm, rsrc);
-    }
-
-    @Override
-    public void mtbp(int imm, int rsrc) {
-        this.emitOp0IR(Opcode.OP0_MTBP, imm, rsrc);
-    }
-
-    @Override
-    public void mspt(int imm, int rdst) {
-        this.emitOp0IR(Opcode.OP0_MSPT, imm, rdst);
-    }
-
-    @Override
-    public void mbpt(int imm, int rdst) {
-        this.emitOp0IR(Opcode.OP0_MBPT, imm, rdst);
-    }
-
-    @Override
     public void call(int imm) {
         this.emitOp0I(Opcode.OP0_CALL, imm);
     }

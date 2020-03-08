@@ -125,18 +125,6 @@ public final class Decoder {
             case Opcode.OP0_POP:
                 vis.pop(immMi, rA);
                 break;
-            case Opcode.OP0_MTSP:
-                vis.mtsp(immMi, rA);
-                break;
-            case Opcode.OP0_MTBP:
-                vis.mtbp(immMi, rA);
-                break;
-            case Opcode.OP0_MSPT:
-                vis.mspt(immMi, rA);
-                break;
-            case Opcode.OP0_MBPT:
-                vis.mbpt(immMi, rA);
-                break;
             case Opcode.OP0_CALL:
                 vis.call(immLo);
                 break;

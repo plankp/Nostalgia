@@ -191,26 +191,6 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void mtsp(int imm, int rsrc) {
-        this.out.printf("MTSP       %%r%d, 0x%x", rsrc, imm);
-    }
-
-    @Override
-    public void mtbp(int imm, int rsrc) {
-        this.out.printf("MTBP       %%r%d, 0x%x", rsrc, imm);
-    }
-
-    @Override
-    public void mspt(int imm, int rdst) {
-        this.out.printf("MSPT       %%r%d, 0x%x", rdst, imm);
-    }
-
-    @Override
-    public void mbpt(int imm, int rdst) {
-        this.out.printf("MBPT       %%r%d, 0x%x", rdst, imm);
-    }
-
-    @Override
     public void call(int imm) {
         this.out.printf("CALL       0x%x", imm);
     }

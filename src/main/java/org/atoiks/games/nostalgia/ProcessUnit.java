@@ -555,26 +555,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void mtsp(int imm6, int rsrc) {
-    //     this.sp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
-    }
-
-    @Override
-    public void mtbp(int imm6, int rsrc) {
-    //     this.bp = (short) (this.readRegister(rsrc) + this.loadImm6(imm6));
-    }
-
-    @Override
-    public void mspt(int imm6, int rdst) {
-    //     this.writeRegister(rdst, (short) (this.sp - this.loadImm6(imm6)));
-    }
-
-    @Override
-    public void mbpt(int imm6, int rdst) {
-    //     this.writeRegister(rdst, (short) (this.bp - this.loadImm6(imm6)));
-    }
-
-    @Override
     public void call(int imm9) {
         // Due to how this#nextWord() is implemented, by the time this
         // instruction is actually handled here, ip would already contain the

@@ -54,10 +54,11 @@ public final class Opcode {
     public static final int OP0_JREL_LT = 23 & MASK_OP0;
     public static final int OP0_PUSH    = 24 & MASK_OP0;
     public static final int OP0_POP     = 25 & MASK_OP0;
-    public static final int OP0_MTSP    = 26 & MASK_OP0;
-    public static final int OP0_MTBP    = 27 & MASK_OP0;
-    public static final int OP0_MSPT    = 28 & MASK_OP0;
-    public static final int OP0_MBPT    = 29 & MASK_OP0;
+    // Skipped 4 slots:
+    //   26 & MASK_OP0;
+    //   27 & MASK_OP0;
+    //   28 & MASK_OP0;
+    //   29 & MASK_OP0;
     public static final int OP0_CALL    = 30 & MASK_OP0;
     public static final int OP0_RET     = 31 & MASK_OP0;
     public static final int OP0_ENTER   = 32 & MASK_OP0;
