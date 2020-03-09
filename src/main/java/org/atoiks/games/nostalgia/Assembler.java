@@ -11,6 +11,8 @@ public final class Assembler implements Closeable {
         // That way there's no generic parameter
     }
 
+    private final HashMap<Integer, String> patchtbl = new HashMap<>();
+
     private final HashMap<String, Integer> symtbl = new HashMap<>();
     private final HashMap<String, String> subtbl = new HashMap<>();
     private final Encoder encoder = new Encoder();
@@ -28,11 +30,7 @@ public final class Assembler implements Closeable {
         this.reader.close();
     }
 
-    public Encoder getEncoder() {
-        return this.encoder;
-    }
-
-    public boolean assembleNext() throws IOException {
+    private boolean assembleNext() throws IOException {
         final String line = this.reader.readLine();
         if (line == null) {
             // No more lines
@@ -57,10 +55,66 @@ public final class Assembler implements Closeable {
         return true;
     }
 
-    public void assembleAll() throws IOException {
+    public byte[] assembleAll() throws IOException {
         while (this.assembleNext()) {
             // do nothing
         }
+
+        final byte[] bytes = this.encoder.getBytes();
+
+        for (final Map.Entry<Integer, String> entry : this.patchtbl.entrySet()) {
+            final String label = entry.getValue();
+            final Integer repl = this.symtbl.get(label);
+            if (repl == null) {
+                throw new BadConstantException(label);
+            }
+
+            // Perform the back-patch!
+            //
+            // Two possibilities:
+            // Either we have IEX+opcode
+            // Or we have IEX+REX+opcode.
+            // Note: It's never REX+IEX+opcode because the encoder doesn't emit that way!
+
+            final int addrIEX = entry.getKey();
+            final int addrOpc;
+            if ((Byte.toUnsignedInt(bytes[addrIEX + 2]) >> 4) == ((1 << 3) | Opcode.OP1_REX)) {
+                // Need to skip the REX prefix.
+                addrOpc = addrIEX + 4;
+            } else {
+                addrOpc = addrIEX + 2;
+            }
+
+            // Note: When back-patching, you are not allowed to delete any dead
+            // IEX's!
+
+            // Note: This only works with OP0 class opcodes (OP1 class only has
+            // IEX carrying immediates anyway so we are good for now...)
+            int opcode = Byte.toUnsignedInt(bytes[addrOpc]) >> 1;
+            switch (opcode) {
+                case Opcode.OP0_JABS_Z: {
+                    // All the OP0IR handling is like this
+                    final int lower = repl & 0b0000_0000_0011_1111;
+                    final int widen = repl & 0b1111_1111_1100_0000;
+
+                    // Re-emit the value corrected IEX
+                    final int fixedIEX = (widen >> 6) & 0x1FFF;
+                    bytes[addrIEX + 0] = (byte) ((1 << 7) | (Opcode.OP1_IEX_0 << 4) | (fixedIEX >> 8));
+                    bytes[addrIEX + 1] = (byte) (fixedIEX);
+
+                    // Fix the remaining immediate encoded by the opcode itself
+                    bytes[addrOpc + 0] = (byte) ((bytes[addrOpc + 0] & 0xFE) | (lower >> 5));
+                    bytes[addrOpc + 1] = (byte) ((bytes[addrOpc + 1] & 0x03) | ((lower & 0x1F) << 3));
+
+                    break;
+                }
+                default:
+                    throw new AssertionError("Assembler: Illegal back-patch on opcode: " + opcode);
+            }
+        }
+        this.patchtbl.clear();
+
+        return bytes;
     }
 
     private String processComment(String line) {
@@ -379,8 +433,15 @@ public final class Assembler implements Closeable {
         //    OP IMM
         checkOperandCount(operands, 1);
 
-        final int imm = getConstant(operands[0]);
-        return new int[] { imm };
+        try {
+            final int imm = getConstant(operands[0]);
+            return new int[] { imm };
+        } catch (BadConstantException ex) {
+            this.patchtbl.put(this.encoder.size(), ex.constant);
+
+            // Force an IEX (and -1 is the largest unsigned int)
+            return new int[] { -1 };
+        }
     }
 
     private int[] checkInstrClassIR(String[] operands) {
@@ -389,8 +450,15 @@ public final class Assembler implements Closeable {
         checkOperandCount(operands, 2);
 
         final int rx  = getRegisterIndex(operands[0]);
-        final int imm = getConstant(operands[1]);
-        return new int[] { imm, rx };
+        try {
+            final int imm = getConstant(operands[1]);
+            return new int[] { imm, rx };
+        } catch (BadConstantException ex) {
+            this.patchtbl.put(this.encoder.size(), ex.constant);
+
+            // Force an IEX (and -1 is the largest unsigned int)
+            return new int[] { -1, rx };
+        }
     }
 
     private int[] checkInstrClassIRR(String[] operands) {
@@ -399,9 +467,16 @@ public final class Assembler implements Closeable {
         checkOperandCount(operands, 3);
 
         final int rx  = getRegisterIndex(operands[0]);
-        final int imm = getConstant(operands[1]);
         final int rk  = getRegisterIndex(operands[2]);
-        return new int[] { imm, rk, rx };
+        try {
+            final int imm = getConstant(operands[1]);
+            return new int[] { imm, rk, rx };
+        } catch (BadConstantException ex) {
+            this.patchtbl.put(this.encoder.size(), ex.constant);
+
+            // Force an IEX (and -1 is the largest unsigned int)
+            return new int[] { -1, rk, rx };
+        }
     }
 
     private int[] checkInstrClassRRR(String[] operands) {
@@ -454,7 +529,7 @@ public final class Assembler implements Closeable {
         final String exp = this.macroExpand(str);
         try {
             return parseConstant(exp);
-        } catch (IllegalArgumentException ex) {
+        } catch (BadConstantException ex) {
             // Try to see if it is a already existing label!
             final Integer addr = this.symtbl.get(exp);
             if (addr != null) {
@@ -474,7 +549,7 @@ public final class Assembler implements Closeable {
                     case 'c':   return Integer.parseInt(str.substring(2), 8);
                     case 'd':   return Integer.parseInt(str.substring(2), 10);
                     case 'x':   return Integer.parseInt(str.substring(2), 16);
-                    default:    throw new IllegalArgumentException("Assembler: Illegal constant: '" + str + "'");
+                    default:    throw new BadConstantException(str);
                 }
             }
         }
@@ -483,7 +558,7 @@ public final class Assembler implements Closeable {
             // parse as base 10
             return Integer.parseInt(str);
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Assembler: Illegal constant: '" + str + "'");
+            throw new BadConstantException(str);
         }
     }
 
@@ -702,5 +777,15 @@ public final class Assembler implements Closeable {
 
         // Not found, return -1 like every other Java search method.
         return -1;
+    }
+}
+
+class BadConstantException extends IllegalArgumentException {
+
+    public final String constant;
+
+    public BadConstantException(String constant) {
+        super("Assembler: Illegal constant: '" + constant + "'");
+        this.constant = constant;
     }
 }
