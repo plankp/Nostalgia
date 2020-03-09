@@ -92,8 +92,43 @@ public final class Assembler implements Closeable {
             // IEX carrying immediates anyway so we are good for now...)
             int opcode = Byte.toUnsignedInt(bytes[addrOpc]) >> 1;
             switch (opcode) {
-                case Opcode.OP0_JABS_Z: {
-                    // All the OP0IR handling is like this
+                case Opcode.OP0_CALL:       // OP0 I class opcodes
+                case Opcode.OP0_ENTER:
+                {
+                    final int lower = repl & 0b0000_0001_1111_1111;
+                    final int widen = repl & 0b1111_1110_0000_0000;
+
+                    // Re-emit the value corrected IEX
+                    final int fixedIEX = (widen >> 9) & 0x1FFF;
+                    bytes[addrIEX + 0] = (byte) ((1 << 7) | (Opcode.OP1_IEX_0 << 4) | (fixedIEX >> 8));
+                    bytes[addrIEX + 1] = (byte) (fixedIEX);
+
+                    // Fix the remaining immediate encoded by the opcode itself
+                    bytes[addrOpc + 0] = (byte) ((bytes[addrOpc + 0] & 0xFE) | (lower >> 8));
+                    bytes[addrOpc + 1] = (byte) (lower & 0xFF);
+
+                    break;
+                }
+                case Opcode.OP0_MOV_I:      // OP0 IR class opcodes
+                case Opcode.OP0_ADD_I:
+                case Opcode.OP0_SUB_I:
+                case Opcode.OP0_RSUB_I:
+                case Opcode.OP0_JABS_Z:
+                case Opcode.OP0_JABS_NZ:
+                case Opcode.OP0_JABS_GE:
+                case Opcode.OP0_JABS_GT:
+                case Opcode.OP0_JABS_LE:
+                case Opcode.OP0_JABS_LT:
+                case Opcode.OP0_JREL_Z:
+                case Opcode.OP0_JREL_NZ:
+                case Opcode.OP0_JREL_GE:
+                case Opcode.OP0_JREL_GT:
+                case Opcode.OP0_JREL_LE:
+                case Opcode.OP0_JREL_LT:
+                case Opcode.OP0_PUSH:
+                case Opcode.OP0_POP:
+                // Note: we intentionally *not* handle immediate shifts!
+                {
                     final int lower = repl & 0b0000_0000_0011_1111;
                     final int widen = repl & 0b1111_1111_1100_0000;
 
@@ -105,6 +140,28 @@ public final class Assembler implements Closeable {
                     // Fix the remaining immediate encoded by the opcode itself
                     bytes[addrOpc + 0] = (byte) ((bytes[addrOpc + 0] & 0xFE) | (lower >> 5));
                     bytes[addrOpc + 1] = (byte) ((bytes[addrOpc + 1] & 0x03) | ((lower & 0x1F) << 3));
+
+                    break;
+                }
+                case Opcode.OP0_LD_D:       // OP0 IRR class opcodes
+                case Opcode.OP0_ST_D:
+                case Opcode.OP0_LD_W:
+                case Opcode.OP0_ST_W:
+                case Opcode.OP0_LD_B:
+                case Opcode.OP0_ST_B:
+                case Opcode.OP0_CMOV_I:
+                {
+                    final int lower = repl & 0b0000_0000_0000_0111;
+                    final int widen = repl & 0b1111_1111_1111_1000;
+
+                    // Re-emit the value corrected IEX
+                    final int fixedIEX = (widen >> 3) & 0x1FFF;
+                    bytes[addrIEX + 0] = (byte) ((1 << 7) | (Opcode.OP1_IEX_0 << 4) | (fixedIEX >> 8));
+                    bytes[addrIEX + 1] = (byte) (fixedIEX);
+
+                    // Fix the remaining immediate encoded by the opcode itself
+                    bytes[addrOpc + 0] = (byte) ((bytes[addrOpc + 0] & 0xFE) | (lower >> 2));
+                    bytes[addrOpc + 1] = (byte) ((bytes[addrOpc + 1] & 0x3F) | ((lower & 0x3) << 6));
 
                     break;
                 }
@@ -345,6 +402,14 @@ public final class Assembler implements Closeable {
             case "LEAVE":
                 checkOperandCount(operands, 0);
                 this.encoder.leave();
+                break;
+            case "LD.D":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.ldD(buf[0], buf[1], buf[2]);
+                break;
+            case "ST.D":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.stD(buf[0], buf[1], buf[2]);
                 break;
             case "LD.W":
                 buf = checkInstrClassIRR(operands);
