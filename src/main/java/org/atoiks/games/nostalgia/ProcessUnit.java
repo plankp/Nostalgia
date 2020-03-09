@@ -823,6 +823,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         // See loadImm3/6/9 or the instruction format in Opcode.java for more.
 
         this.iexImm = (short) imm12;
+
+        this.decoder.decode(this);
     }
 
     @Override
@@ -843,6 +845,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.rexRB = (byte) rB;
         this.rexRC = (byte) rC;
         this.rexRD = (byte) rD;
+
+        this.decoder.decode(this);
     }
 
     @Override
