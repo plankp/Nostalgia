@@ -213,4 +213,10 @@ GAME_LOOP:
     ST.W    %R12, P1_COORD, %R0
     ST.W    %R13, P2_COORD, %R0
 
+    ; change the smiley face into a square block (too many smiley faces look
+    ; gross...)
+    MOV.I   %R1, 0xFE
+    ST.B    %R1, 0, %R6
+    ST.B    %R1, 0, %R7
+
     JABS.Z  %R0, GAME_LOOP
