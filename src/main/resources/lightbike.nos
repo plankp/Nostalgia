@@ -1,0 +1,188 @@
+;;
+;; And since I tried making a virtual machine, might as well try making a game
+;; in this virtual machine. (Am I right though!?)
+;;
+;; Anyway. To be honest, I originally wanted to recreate snake (Hungry snake?).
+;; Then I gave pong a shot (which didn't really work?)...
+;;
+;; Here I am trying to make lightbike! I mean, it really is the one that fits
+;; the nostalgia theme the best because this is the first game I've made on the
+;; TI-84 Plus calculator (we used those back in highschool) with TI-Basic.
+;;
+
+    .ORG    0x4000
+    JABS.Z  %R0, 0x4100
+
+;;
+;; Data section!
+;;
+P1_COORD:                       ; (x,y) byte pairs
+    .EMIT   4
+    .EMIT   12
+P2_COORD:                       ; (x,y) byte pairs
+    .EMIT   75
+    .EMIT   12
+
+;;
+;; Calculates the video memory offset (you can ldst the result address directly
+;; no problem!)
+;;
+;; %R2H = x coordinate
+;; %R2L = y coordinate
+;;
+;; %R3 <- calculated address
+;;
+VID_OFFSET:
+    MOV.I   %R3, 80             ; compute the memory location on screen
+    MUL     %R0, %R3, %R3, %R2L ; the formula is 2 * (y * 80 + x)
+    ADD.R   %R3, %R3, %R2H
+    SHL.I   %R3, 1
+    ADD.I   %R3, 0x2000
+    RET
+
+;;
+;; Displays a character on the screen
+;;
+;; %R1L = character being displayed
+;; %R2H = x coordinate
+;; %R2L = y coordinate
+;;
+DISP_CHAR:
+    PUSH    %R3, 0              ; VID_OFFSET will destroy %R3
+
+    CALL    VID_OFFSET          ; calculate the video address offset
+    ST.B    %R1L, 0, %R3        ; write it to the screen
+
+    POP     %R3, 0              ; here we restore %R3
+    RET                         ; end of function
+
+;;
+;; Checks if the specified key is pressed
+;;
+;; %R3 = the keycode
+;; %R3 <- 1 if pressed, 0 otherwise
+;;
+CHK_DOWN:
+    ST.W    %R3, 0x1002, %R0    ; register the specified keycode
+    LD.B    %R3, 0x1004, %R0    ; check if it's pressed
+    RET
+
+;;
+;; Screen wrap. It does handle one level of negative numbers!
+;;
+;; %R3 = x coordinate
+;; %R4 = y coordinate
+;;
+;; %R2H <- wrapped x coordinate
+;; %R2L <- wrapped y coordinate
+;;
+VID_WRAP:
+    PUSH.3  %R5, %R3, %R4
+
+    MOV.I   %R5, 80             ; wrap x
+    ADD.R   %R3, %R3, %R5
+    DIV     %R0, %R2H, %R3, %R5
+
+    MOV.I   %R5, 25             ; wrap y
+    ADD.R   %R4, %R4, %R5
+    DIV     %R0, %R2L, %R4, %R5
+
+    POP.3   %R5, %R3, %R4
+    RET
+
+GAME_END:
+    JREL.Z  %R0, -4             ; hang
+
+    .SET    P1_ICON, 0x01
+    .SET    P2_ICON, 0x02
+
+    .ZERO   0x100
+GAME_START:
+    MOV.I   %R10, 0x00FF        ; p1 velocity (x,y)
+    MOV.I   %R11, 0x00FF        ; p2 velocity (x,y)
+GAME_LOOP:
+    LD.W    %R6, P1_COORD, %R0  ; %R6 = p1 (x,y)
+    LD.W    %R7, P2_COORD, %R0  ; %R7 = p2 (x,y)
+
+    ; copy the player locations
+    OR.R    %R12, %R6, %R0
+    OR.R    %R13, %R7, %R0
+
+    ; check if the two players collide (which is obviously bad and should be a
+    ; game over)
+    SUB.R   %R3, %R6, %R7
+    JABS.Z  %R3, GAME_END
+
+    ; check if we are currently on any track. Note: this only works because we
+    ; have not painted the players yet!
+    OR.R    %R2, %R6, %R0
+    CALL    VID_OFFSET
+    OR.R    %R6, %R3, %R0       ; %R6 is where p1 will be (in vidmem)
+
+    OR.R    %R2, %R7, %R0
+    CALL    VID_OFFSET
+    OR.R    %R7, %R3, %R0       ; %R7 is where p1 will be (in vidmem)
+
+    ; if we are on a track, then since the video memory was initialized to null
+    ; bytes, the value loaded from vidmem will not be zero!
+    LD.B    %R3, 0, %R6
+    JABS.NZ %R3, GAME_END
+    LD.B    %R3, 0, %R7
+    JABS.NZ %R3, GAME_END
+
+    ; we are not a track, so we fill ourselves in!
+    MOV.I   %R1, P1_ICON
+    ST.B    %R1, 0, %R6
+
+    MOV.I   %R1, P2_ICON
+    ST.B    %R1, 0, %R7
+
+    ; check for keyboard input. Note: only one direction per update frame
+    MOV.I   %R3, 87             ; 'W'
+    CALL    CHK_DOWN
+    CMOV.I  %R10, 0x00FF, %R3
+
+    MOV.I   %R3, 83             ; 'S'
+    CALL    CHK_DOWN
+    CMOV.I  %R10, 0x0001, %R3
+
+    MOV.I   %R3, 65             ; 'A'
+    CALL    CHK_DOWN
+    CMOV.I  %R10, 0xFF00, %R3
+
+    MOV.I   %R3, 68             ; 'D'
+    CALL    CHK_DOWN
+    CMOV.I  %R10, 0x0100, %R3
+
+    MOV.I   %R3, 73             ; 'I'
+    CALL    CHK_DOWN
+    CMOV.I  %R11, 0x00FF, %R3
+
+    MOV.I   %R3, 75             ; 'K'
+    CALL    CHK_DOWN
+    CMOV.I  %R11, 0x0001, %R3
+
+    MOV.I   %R3, 74             ; 'J'
+    CALL    CHK_DOWN
+    CMOV.I  %R11, 0xFF00, %R3
+
+    MOV.I   %R3, 76             ; 'L'
+    CALL    CHK_DOWN
+    CMOV.I  %R11, 0x0100, %R3
+
+    ; compute the new position
+    ADD.R   %R3, %R12H, %R10H
+    ADD.R   %R4, %R12L, %R10L
+    CALL    VID_WRAP
+    OR.R    %R12, %R2, %R0
+
+    ADD.R   %R3, %R13H, %R11H
+    ADD.R   %R4, %R13L, %R11L
+    CALL    VID_WRAP
+    OR.R    %R13, %R2, %R0
+
+    ; save it back into memory
+    ST.W    %R12, P1_COORD, %R0
+    ST.W    %R13, P2_COORD, %R0
+
+    JABS.Z  %R0, GAME_LOOP

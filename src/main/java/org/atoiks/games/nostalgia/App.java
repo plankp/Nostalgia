@@ -15,7 +15,7 @@ public class App {
         final ByteBuffer loader = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/bootloader.nos")));
 
         System.out.println("===== Assembling kernel =====");
-        final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/moving_dot.nos")));
+        final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/lightbike.nos")));
 
         mem.mapHandler(0, new GenericMemory(loader));
         mem.mapHandler(0x4000, new GenericMemory(kernel.duplicate()));
