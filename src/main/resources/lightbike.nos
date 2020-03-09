@@ -22,6 +22,38 @@ P1_COORD:                       ; (x,y) byte pairs
 P2_COORD:                       ; (x,y) byte pairs
     .EMIT   75
     .EMIT   12
+TXT_GAMEOVER:                   ; length=10
+    .EMIT 0x47,0x41,0x4d,0x45,0x20,0x4f,0x56,0x45,0x52,0x21
+    .EMIT 0x00                  ; in case there are null terminated API
+DUMMY_BUFFER:                   ; length=30
+    .EMIT 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+    .EMIT 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+    .EMIT 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+
+;;
+;; It's very similar to C's memcpy, but the destination memory can have a
+;; non-zero stride. It still works on bytes only though!
+;;
+;; Exercise caution if your source and destination memory overlaps!
+;;
+;; %R1 = stride. Remark: if zero, then good luck...
+;; %R2 = starting destination address (modified)
+;; %R3 = count. (modified) Remark: not affected by stride.
+;; %R4 = starting source address (modified) Remark: not affected by stride.
+;;
+MEMCPY:
+    PUSH    %R5, 0
+MEMCPY_LOOP:
+    JREL.GT %R3, +4
+    POP     %R5, 0
+    RET
+
+    LD.B    %R5, 0, %R4
+    ST.B    %R5, 0, %R2
+    ADD.I   %R4, 1
+    ADD.R   %R2, %R2, %R1
+    SUB.I   %R3, 1
+    JABS.Z  %R0, MEMCPY_LOOP
 
 ;;
 ;; Calculates the video memory offset (you can ldst the result address directly
@@ -39,22 +71,6 @@ VID_OFFSET:
     SHL.I   %R3, 1
     ADD.I   %R3, 0x2000
     RET
-
-;;
-;; Displays a character on the screen
-;;
-;; %R1L = character being displayed
-;; %R2H = x coordinate
-;; %R2L = y coordinate
-;;
-DISP_CHAR:
-    PUSH    %R3, 0              ; VID_OFFSET will destroy %R3
-
-    CALL    VID_OFFSET          ; calculate the video address offset
-    ST.B    %R1L, 0, %R3        ; write it to the screen
-
-    POP     %R3, 0              ; here we restore %R3
-    RET                         ; end of function
 
 ;;
 ;; Checks if the specified key is pressed
@@ -91,6 +107,12 @@ VID_WRAP:
     RET
 
 GAME_END:
+    MOV.I   %R1, 2
+    MOV.I   %R2, 0x2000
+    MOV.I   %R3, 10
+    MOV.I   %R4, TXT_GAMEOVER
+    CALL    MEMCPY
+
     JREL.Z  %R0, -4             ; hang
 
     .SET    P1_ICON, 0x01
@@ -98,6 +120,12 @@ GAME_END:
 
     .ZERO   0x100
 GAME_START:
+    MOV.I   %R1, 2
+    MOV.I   %R2, 0x2000
+    MOV.I   %R3, 30
+    MOV.I   %R4, DUMMY_BUFFER
+    CALL    MEMCPY
+
     MOV.I   %R10, 0x00FF        ; p1 velocity (x,y)
     MOV.I   %R11, 0x00FF        ; p2 velocity (x,y)
 GAME_LOOP:
