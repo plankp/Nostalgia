@@ -23,8 +23,8 @@ public class App {
         if (args.length == 1) {
             try {
                 kernel = assembleProgram(System.out, new FileReader(args[0]));
-            } catch (RuntimeException ex) {
-                errMsg = ex.getMessage();
+            } catch (RuntimeException | IOException ex) {
+                errMsg = new StringBuilder("File: ").append(args[0]).append('\n').append(ex.getMessage()).toString();
             }
         }
 
