@@ -10,7 +10,13 @@ Jokes aside, this is a simulator of an imaginary computer system.
 
 You need jdk 8 or above.
 
-Run `gradlew build` to build it or `gradlew run` to run after building
+Run `gradlew build` to build it or `gradlew run` to run after building.
+
+You probably want to supply the path to the kernel also. For example:
+
+```bash
+$ ./gradlew run --args ./src/main/resources/moving_dot.nos
+```
 
 ## Game Instructions
 
