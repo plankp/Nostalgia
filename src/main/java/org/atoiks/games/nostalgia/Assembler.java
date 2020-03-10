@@ -139,7 +139,7 @@ public final class Assembler implements Closeable {
 
                     // Fix the remaining immediate encoded by the opcode itself
                     bytes[addrOpc + 0] = (byte) ((bytes[addrOpc + 0] & 0xFE) | (lower >> 5));
-                    bytes[addrOpc + 1] = (byte) ((bytes[addrOpc + 1] & 0x03) | ((lower & 0x1F) << 3));
+                    bytes[addrOpc + 1] = (byte) ((bytes[addrOpc + 1] & 0x07) | ((lower & 0x1F) << 3));
 
                     break;
                 }
