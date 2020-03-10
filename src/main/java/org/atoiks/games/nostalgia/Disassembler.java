@@ -31,14 +31,20 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     public void disassemble(int limit) {
-        for (int i = 0; i < limit && this.buf.hasRemaining(); ++i) {
-            this.disassembleNext();
+        try {
+            for (int i = 0; i < limit && this.buf.hasRemaining(); ++i) {
+                this.disassembleNext();
+            }
+        } catch (RuntimeException ex) {
         }
     }
 
     public void disassembleAll() {
-        while (this.buf.hasRemaining()) {
-            this.disassembleNext();
+        try {
+            while (this.buf.hasRemaining()) {
+                this.disassembleNext();
+            }
+        } catch (RuntimeException ex) {
         }
     }
 
