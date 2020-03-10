@@ -54,9 +54,9 @@ public interface InstrVisitor {
     public void shrR(int rlhs, int rrhs, int rdst);
     public void sarR(int rlhs, int rrhs, int rdst);
 
-    public void shlI(int imm4, int rdst);
-    public void shrI(int imm4, int rdst);
-    public void sarI(int imm4, int rdst);
+    public void shlI(int imm6, int rdst);
+    public void shrI(int imm6, int rdst);
+    public void sarI(int imm6, int rdst);
 
     public void push3(int rC, int rB, int rA);
     public void pop3(int rC, int rB, int rA);

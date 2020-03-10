@@ -342,17 +342,17 @@ public final class Encoder implements InstrVisitor {
 
     @Override
     public void shlI(int imm, int rdst) {
-        this.emitOp0IR(Opcode.OP0_SFT_I, imm & 0x0F, rdst);
+        this.emitOp0IR(Opcode.OP0_SHL_I, imm, rdst);
     }
 
     @Override
     public void shrI(int imm, int rdst) {
-        this.emitOp0IR(Opcode.OP0_SFT_I, (imm & 0x0F) | 0x10, rdst);
+        this.emitOp0IR(Opcode.OP0_SHR_I, imm, rdst);
     }
 
     @Override
     public void sarI(int imm, int rdst) {
-        this.emitOp0IR(Opcode.OP0_SFT_I, (imm & 0x0F) | 0x30, rdst);
+        this.emitOp0IR(Opcode.OP0_SAR_I, imm, rdst);
     }
 
     @Override

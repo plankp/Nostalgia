@@ -69,7 +69,9 @@ public final class Opcode {
     public static final int OP0_SHL_R   = 38 & MASK_OP0;
     public static final int OP0_SHR_R   = 39 & MASK_OP0;
     public static final int OP0_SAR_R   = 40 & MASK_OP0;
-    public static final int OP0_SFT_I   = 43 & MASK_OP0;
+    public static final int OP0_SHL_I   = 41 & MASK_OP0;
+    public static final int OP0_SHR_I   = 42 & MASK_OP0;
+    public static final int OP0_SAR_I   = 43 & MASK_OP0;
     public static final int OP0_CMOV_I  = 44 & MASK_OP0;
     public static final int OP0_CMOV_R  = 45 & MASK_OP0;
 

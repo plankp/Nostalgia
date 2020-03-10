@@ -127,7 +127,9 @@ public final class Assembler implements Closeable {
                 case Opcode.OP0_JREL_LT:
                 case Opcode.OP0_PUSH:
                 case Opcode.OP0_POP:
-                // Note: we intentionally *not* handle immediate shifts!
+                case Opcode.OP0_SHL_I:
+                case Opcode.OP0_SHR_I:
+                case Opcode.OP0_SAR_I:
                 {
                     final int lower = repl & 0b0000_0000_0011_1111;
                     final int widen = repl & 0b1111_1111_1100_0000;
