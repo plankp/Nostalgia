@@ -26,6 +26,6 @@ You code assembler! Maybe some people like this...
 
 ![Proof of Concept](./sample.gif)
 
-## Asssets Used
+## Assets Used
 
 * Super authentic [VGA-ROM font](https://github.com/spacerace/romfont)
