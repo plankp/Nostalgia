@@ -741,33 +741,33 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void shlI(int imm4, int rA) {
+    public void shlI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
         final int rsd = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int out = this.rexReadUnsigned(rsd, this.rexRA) << imm4;
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) << imm;
         this.rexWrite(rsd, this.rexRA, out);
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void shrI(int imm4, int rA) {
+    public void shrI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
         final int rsd = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int out = this.rexReadUnsigned(rsd, this.rexRA) >>> imm4;
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) >>> imm;
         this.rexWrite(rsd, this.rexRA, out);
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
-    public void sarI(int imm4, int rA) {
+    public void sarI(int imm6, int rA) {
+        final int imm = this.loadImm6(imm6);
         final int rsd = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int out = this.rexReadUnsigned(rsd, this.rexRA) >> imm4;
+        final int out = this.rexReadUnsigned(rsd, this.rexRA) >> imm;
         this.rexWrite(rsd, this.rexRA, out);
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override

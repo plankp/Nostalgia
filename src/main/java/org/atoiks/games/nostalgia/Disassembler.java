@@ -436,27 +436,24 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     public void shlI(int imm, int rdst) {
         this.out.printf("SHL.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
     public void shrI(int imm, int rdst) {
         this.out.printf("SHR.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
     public void sarI(int imm, int rdst) {
         this.out.printf("SAR.I      %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),
-                imm);
+                this.loadImm6(imm));
         this.resetREX();
-        this.iexImm = 0; // techinically we have used up the immediate slot
     }
 
     @Override
