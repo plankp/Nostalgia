@@ -15,8 +15,31 @@ public class App {
         final ByteBuffer loader = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/bootloader.nos")));
 
         System.out.println("===== Assembling kernel =====");
-        // final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/lightbike.nos")));
-        final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/dummy_kernel.nos")));
+
+        ByteBuffer kernel = null;
+        String errMsg =
+                "Hmm... Looks like you haven't loaded a kernel yet!\n" +
+                "(You should do that) \1"; // \1 is the smiley face
+        if (args.length == 1) {
+            try {
+                kernel = assembleProgram(System.out, new FileReader(args[0]));
+            } catch (RuntimeException ex) {
+                errMsg = ex.getMessage();
+            }
+        }
+
+        if (kernel == null) {
+            kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/dummy_kernel.nos")));
+
+            // flash the error message into 0x4200
+            final byte[] msgBytes = new StringBuilder()
+                    .append("Atoiks Games - Nostalgia...\n\n")
+                    .append(errMsg)
+                    .append('\0') // null terminated strings (like C)!
+                    .toString()
+                    .getBytes("US-ASCII");
+            mem.mapHandler(0x4200, new GenericMemory(msgBytes));
+        }
 
         mem.mapHandler(0, new GenericMemory(loader));
         mem.mapHandler(0x4000, new GenericMemory(kernel.duplicate()));
