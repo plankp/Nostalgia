@@ -15,7 +15,8 @@ public class App {
         final ByteBuffer loader = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/bootloader.nos")));
 
         System.out.println("===== Assembling kernel =====");
-        final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/lightbike.nos")));
+        // final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/lightbike.nos")));
+        final ByteBuffer kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/dummy_kernel.nos")));
 
         mem.mapHandler(0, new GenericMemory(loader));
         mem.mapHandler(0x4000, new GenericMemory(kernel.duplicate()));
@@ -35,9 +36,7 @@ public class App {
     // Will close the stream after read!
     public static ByteBuffer assembleProgram(PrintStream debugDis, Reader src) throws IOException {
         try (final Assembler asm = new Assembler(src)) {
-            asm.assembleAll();
-
-            final ByteBuffer buffer = ByteBuffer.wrap(asm.getEncoder().getBytes());
+            final ByteBuffer buffer = ByteBuffer.wrap(asm.assembleAll());
 
             if (debugDis != null) {
                 new Disassembler(debugDis, buffer.duplicate()).disassembleAll();
