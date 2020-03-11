@@ -37,6 +37,7 @@ TXT_GAMEOVER:                   ; length=10
 ;; %R3 = count. (modified) Remark: not affected by stride.
 ;; %R4 = starting source address (modified) Remark: not affected by stride.
 ;;
+    .ALIGN  2
 MEMCPY:
     PUSH    %R5, 0
 MEMCPY_LOOP:
@@ -60,6 +61,7 @@ MEMCPY_LOOP:
 ;;
 ;; %R3 <- calculated address
 ;;
+    .ALIGN  2
 VID_OFFSET:
     MOV.I   %R3, 80             ; compute the memory location on screen
     MUL     %R0, %R3, %R3, %R2L ; the formula is 2 * (y * 80 + x)
@@ -74,6 +76,7 @@ VID_OFFSET:
 ;; %R3 = the keycode
 ;; %R3 <- 1 if pressed, 0 otherwise
 ;;
+    .ALIGN  2
 CHK_DOWN:
     ST.W    %R3, 0x1002, %R0    ; register the specified keycode
     LD.B    %R3, 0x1004, %R0    ; check if it's pressed
@@ -88,6 +91,7 @@ CHK_DOWN:
 ;; %R2H <- wrapped x coordinate
 ;; %R2L <- wrapped y coordinate
 ;;
+    .ALIGN  2
 VID_WRAP:
     PUSH.3  %R5, %R3, %R4
 
@@ -102,6 +106,7 @@ VID_WRAP:
     POP.3   %R5, %R3, %R4
     RET
 
+    .ALIGN  2
 GAME_END:
     MOV.I   %R1, 2
     MOV.I   %R2, 0x2000
@@ -115,6 +120,7 @@ GAME_END:
     .SET    P2_ICON, 0x02
 
     .ZERO   0x100
+    .ALIGN  2
 GAME_START:
     MOV.I   %R10, 0x00FF        ; p1 velocity (x,y)
     MOV.I   %R11, 0x00FF        ; p2 velocity (x,y)

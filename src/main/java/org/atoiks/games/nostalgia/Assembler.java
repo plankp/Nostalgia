@@ -264,6 +264,12 @@ public final class Assembler implements Closeable {
                 checkOperandCount(operands, 1);
                 this.subtbl.remove(operands[0]);
                 break;
+            case ".ALIGN": {
+                checkOperandCount(operands, 1);
+                final int value = getConstant(operands[0]);
+                this.encoder.emit((byte) 0, value - this.encoder.size() % value);
+                break;
+            }
             case ".ZERO":
                 checkOperandCount(operands, 1);
                 this.encoder.emit((byte) 0, getConstant(operands[0]) - this.encoder.size());
