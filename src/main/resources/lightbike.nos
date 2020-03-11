@@ -11,7 +11,7 @@
 ;;
 
     .ORG    0x4000
-    JABS.Z  %R0, 0x4100
+    JABS.Z  %R0, GAME_START
 
 ;;
 ;; Data section!
@@ -119,7 +119,6 @@ GAME_END:
     .SET    P1_ICON, 0x01
     .SET    P2_ICON, 0x02
 
-    .ZERO   0x100
     .ALIGN  2
 GAME_START:
     MOV.I   %R10, 0x00FF        ; p1 velocity (x,y)
