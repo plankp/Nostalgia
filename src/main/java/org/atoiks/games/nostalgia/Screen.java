@@ -239,39 +239,73 @@ public final class Screen extends JFrame {
 
     private final class KeyboardMemory extends KeyAdapter implements MemoryHandler {
 
-        private final ByteBuffer bytes = ByteBuffer.allocate(4);
+        private final ByteBuffer bytes = ByteBuffer.allocate(6); // [ kc0, kc1, kc2, kc3, ch0, ch1 ]
         private final BitSet set = new BitSet();
+        private final CircularCharBuffer ring = new CircularCharBuffer(24);
+
+        private boolean dropChars = false;
 
         @Override
         public int getCapacity() {
-            return 5;
+            return 7;
         }
 
         @Override
         public byte readOffset(final int offset) {
-            if (offset < 4) {
-                return this.bytes.get(offset);
+            switch (offset) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    return this.bytes.get(offset);
+                case 4:
+                    // in which case we check if key is down
+                    return this.set.get(this.bytes.getInt(0)) ? (byte) 1 : 0;
+                case 5:
+                case 6:
+                    return this.bytes.get(offset - 1);
+                default:
+                    throw new RuntimeException("Keyboard Memory: Illegal read at offset: " + Integer.toString(offset, 16));
             }
-
-            // offset must be 4, in which case we check if key is down
-            return this.set.get(this.bytes.getInt(0)) ? (byte) 1 : 0;
         }
 
         @Override
         public void writeOffset(int offset, byte b) {
-            if (offset < 4) {
-                this.bytes.put(offset, b);
-                return;
+            switch (offset) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    this.bytes.put(offset, b);
+                    return;
+                case 4:
+                    // b controls keyPressed/keyReleased stuff
+
+                    if ((b & 1) != 0) this.bytes.put(0, (byte) 0);
+                    if ((b & 2) != 0) this.bytes.put(1, (byte) 0);
+                    if ((b & 4) != 0) this.bytes.put(2, (byte) 0);
+                    if ((b & 8) != 0) this.bytes.put(3, (byte) 0);
+
+                    if ((b & 16) != 0) this.set.clear();
+
+                    // Ignore everything else...
+                    return;
+                case 5:
+                    // b controls keyTyped stuff
+
+                    this.dropChars = (b & 1) != 0;
+
+                    if ((b & 2) != 0) this.bytes.putShort(4, (short) this.ring.take());
+                    if ((b & 4) != 0) this.bytes.put(4, (byte) 0);
+                    if ((b & 8) != 0) this.bytes.put(5, (byte) 0);
+
+                    if ((b & 16) != 0) this.ring.clear();
+
+                    // Ignore everything else...
+                    return;
+                default:
+                    throw new RuntimeException("Keyboard Memory: Illegal write to offset: " + Integer.toString(offset, 16));
             }
-
-            // offset must be 4, b is a like a control bit.
-
-            if ((b & 1) != 0) this.bytes.put(0, (byte) 0);
-            if ((b & 2) != 0) this.bytes.put(1, (byte) 0);
-            if ((b & 4) != 0) this.bytes.put(2, (byte) 0);
-            if ((b & 8) != 0) this.bytes.put(3, (byte) 0);
-
-            // Ignore everything else...
         }
 
         @Override
@@ -282,6 +316,13 @@ public final class Screen extends JFrame {
         @Override
         public void keyReleased(KeyEvent e) {
             this.set.clear(e.getKeyCode());
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            if (!this.dropChars) {
+                this.ring.offer(e.getKeyChar());
+            }
         }
     }
 }
