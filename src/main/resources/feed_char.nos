@@ -1,0 +1,39 @@
+;;
+;; Just making sure character based input is actually handled properly...
+;;
+;; Maybe this is a limitation (I don't know?), but because internally it uses
+;; keyTyped, this can only retrieve valid characters.
+;;
+;; Also, the internal input buffer (a ring buffer) can only hold 24 characters.
+;; If the key inputs come flooding in, then it will start to overwrite the
+;; buffer!
+;;
+
+    .ORG    0x4000
+
+    MOV.I   %R1, 0x1000         ; start of keyboard memory
+    MOV.I   %R4, 0x2000         ; start of graphics memory
+    MOV.I   %R5, 0x2FA0         ; end of graphics memory
+    MOV.I   %R2, 0b10           ; ctrl bit for *read me a character*
+
+LOOP:
+    ; It just takes whatever character it reads and slaps it onto the screen.
+    ; (first step to getting a text-based shell!?)
+
+FILL_CHAR:
+    ST.B    %R2, 0x5, %R1       ; ask input buffer to feed us the next char
+    LD.W    %R3, 0x5, %R1       ; and (non-blocking) store that char in R3
+    JABS.Z  %R3, FILL_CHAR      ; if buffer was empty, we fetch again
+    ; On that note: when are we getting relative jumps? HUH!?
+
+    ; at this point, R3 has the character typed.
+    ; we slap it onto the screen directly
+    ST.B    %R3, 0, %R4
+    ADD.I   %R4, 2
+
+    ; perform screen wrap (don't want to crash when user types too much)
+    SUB.R   %R6, %R4, %R5
+    JREL.LT %R6, +4
+    MOV.I   %R4, 0x2000
+
+    JABS.Z  %R0, LOOP
