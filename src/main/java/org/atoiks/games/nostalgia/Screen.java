@@ -179,6 +179,8 @@ public final class Screen extends JFrame {
         });
 
         super.addKeyListener(this.memKeyboard);
+        // we want all the keys (there's nothing to traverse anyway)
+        super.setFocusTraversalKeysEnabled(false);
     }
 
     public void setupMemory(MemoryUnit mem) {
