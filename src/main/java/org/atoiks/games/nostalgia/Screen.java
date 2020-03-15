@@ -235,7 +235,7 @@ public final class Screen extends JFrame {
         @Override
         public void writeOffset(final int offset, byte b) {
             Screen.this.internalWrite(offset, b);
-            Screen.this.repaint();
+            Screen.this.flush();
         }
     }
 
