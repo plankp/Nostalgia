@@ -935,7 +935,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rem = lhs % rhs;
 
         this.rexWrite(rdrem, this.rexRB, rem);
-        this.rexWrite(rdquo, this.rexRB, quo);
+        this.rexWrite(rdquo, this.rexRA, quo);
         this.resetREX();
     }
 }
