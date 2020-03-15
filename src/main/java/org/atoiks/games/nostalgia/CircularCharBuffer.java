@@ -43,7 +43,13 @@ public final class CircularCharBuffer {
         final char ch = this.buffer[this.tail++];
         this.tail %= this.buffer.length;
 
-        this.alive = Math.max(0, this.alive - 1);
+        final int rem = Math.max(0, this.alive - 1);
+        this.alive = rem;
+
+        if (rem == 0) {
+            // resync head and tail position
+            this.tail = this.head;
+        }
         return ch;
     }
 }
