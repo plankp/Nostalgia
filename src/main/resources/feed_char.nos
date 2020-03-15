@@ -12,10 +12,11 @@
     .ORG    0x4000
 
     MOV.I   %R1, 0x1000         ; start of keyboard memory
-    MOV.I   %R4, 0x2000         ; start of graphics memory
-    MOV.I   %R5, 0x2FA0         ; end of graphics memory
+    MOV.I   %R4, 0              ; start of graphics memory
+    MOV.I   %R5, 0xFA0          ; end of graphics memory
     MOV.I   %R2, 0b10           ; ctrl bit for *read me a character*
 
+    .ALIGN  2
 LOOP:
     ; It just takes whatever character it reads and slaps it onto the screen.
     ; (first step to getting a text-based shell!?)
@@ -26,14 +27,74 @@ FILL_CHAR:
     JABS.Z  %R3, FILL_CHAR      ; if buffer was empty, we fetch again
     ; On that note: when are we getting relative jumps? HUH!?
 
+    ; check for some special characters
+    MOV.I   %R6, 0x0A
+    SUB.R   %R6, %R6, %R3
+    JABS.Z  %R6, PRINT_NEWLINE
+
+PRINT_CHAR:
     ; at this point, R3 has the character typed.
     ; we slap it onto the screen directly
-    ST.B    %R3, 0, %R4
+    ST.B    %R3, 0x2000, %R4
     ADD.I   %R4, 2
+    JABS.Z  %R0, POST_INC
+PRINT_NEWLINE:
+    MOV.I   %R6, 160            ; 80 * 2
+    DIV     %R4, %R0, %R4, %R6
+    ADD.I   %R4, 1
+    MUL     %R0, %R4, %R4, %R6
 
-    ; perform screen wrap (don't want to crash when user types too much)
+POST_INC:
+    ; scroll the screen if we reach the end
     SUB.R   %R6, %R4, %R5
-    JREL.LT %R6, +4
-    MOV.I   %R4, 0x2000
+    JREL.LT %R6, +8
+    CALL    TERM_SCROLL
+    SUB.I   %R4, 160
 
     JABS.Z  %R0, LOOP
+
+;;
+;; See memcpy in <string.h>
+;;
+;; %R1 = MODIFIED byte *dst
+;; %R2 = MODIFIED byte *src
+;; %R3 = MODIFIED uint32 cnt
+;;
+    .ALIGN  2
+MEMCPY:
+    PUSH    %R5, 0
+MEMCPY_LOOP:
+    JREL.NZ %R3, +4
+    POP     %R5, 0
+    RET
+
+    LD.B    %R5, 0, %R2
+    ST.B    %R5, 0, %R1
+    ADD.I   %R2, 1
+    ADD.I   %R1, 1
+    SUB.I   %R3, 1
+    JABS.Z  %R0, MEMCPY_LOOP
+
+;;
+;; Scrolls the screen up by one line
+;;
+    .ALIGN  2
+TERM_SCROLL:
+    PUSH.3  %R1, %R2, %R3
+
+    MOV.I   %R1, 0x2000         ; start of graphics memory (line 0)
+    MOV.I   %R2, 0x20A0         ; start of graphics memory (line 1)
+    MOV.I   %R3, 0xF00          ; cells from line 1 to end of graphics memory
+    CALL    MEMCPY
+
+    ; due to MEMCPY's implementation, %R1 is 0x2F00
+    MOV.I   %R2, 0x20           ; space
+    MOV.I   %R3, 80             ; a line
+CLR_LINE_LOOP:
+    ST.B    %R2, 0, %R1
+    ADD.I   %R1, 2
+    SUB.I   %R3, 1
+    JABS.NZ %R3, CLR_LINE_LOOP
+
+    POP.3   %R1, %R2, %R3
+    RET
