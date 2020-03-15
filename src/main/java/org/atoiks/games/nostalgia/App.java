@@ -47,7 +47,7 @@ public class App {
 
         try {
             while (true) {
-                proc.executeNext();
+                proc.executeNextQuanta();
                 Thread.sleep(1);
             }
         } catch (RuntimeException | InterruptedException ex) {

@@ -22,6 +22,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     private byte rexRC;
     private byte rexRD;
 
+    private final InstrTiming timing = new InstrTiming();
+    private int quanta; // just models instruction timing
+
     // Super random, but can we get a counter register lulz!?
 
     private final MemoryUnit memory;
@@ -32,9 +35,48 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.decoder = new Decoder(this);
     }
 
+    private void adjustQuanta() {
+        // It is tempting to just reset the quanta. DO NOT DO THAT! We need to
+        // take the remaining time from the last operation into account.
+
+        this.quanta = (this.quanta % 6) + 6;
+    }
+
+    public void executeNextQuanta() {
+        this.adjustQuanta();
+
+        while (true) {
+            // Perform a double decoding:
+            final int save = this.ip;
+
+            // Check if we have enough quanta to execute the next instruction
+            int cost = 0;
+            while (cost == 0) {
+                // bypass the instruction prefixes
+                this.decoder.decode(this.timing);
+                cost = this.timing.getTiming();
+            }
+
+            // Restore the ip (modified by the first decode)
+            this.ip = save;
+
+            // If it's too costly, then we do not execute the instruction.
+            if (cost > this.quanta) {
+                break;
+            }
+
+            // Adjust the quanta
+            this.quanta -= cost;
+
+            // Then execute the actual instruction
+            this.executeNext();
+        }
+    }
+
     public void executeNext() {
         // Then the eflags will be very easy to implement:
         // Just catch the exceptions and handle them. Done!
+
         this.decoder.decode(this);
     }
 
@@ -51,6 +93,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
         this.iexImm = 0;
         this.resetREX();
+
+        this.quanta = 0;
     }
 
     private void resetREX() {
@@ -823,8 +867,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         // See loadImm3/6/9 or the instruction format in Opcode.java for more.
 
         this.iexImm = (short) imm12;
-
-        this.decoder.decode(this);
     }
 
     @Override
@@ -845,8 +887,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.rexRB = (byte) rB;
         this.rexRC = (byte) rC;
         this.rexRD = (byte) rD;
-
-        this.decoder.decode(this);
     }
 
     @Override
@@ -937,5 +977,303 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.rexWrite(rdrem, this.rexRB, rem);
         this.rexWrite(rdquo, this.rexRA, quo);
         this.resetREX();
+    }
+}
+
+final class InstrTiming implements InstrVisitor {
+
+    private int timingBank;
+
+    public int getTiming() {
+        return this.timingBank;
+    }
+
+    @Override
+    public void illegalOp(int fullWord) {
+        // Operation is illega anyway, timing is irrelevant. We give it 0
+        // meaning if it did something, it took no time!
+        this.timingBank = 0;
+    }
+
+    @Override
+    public void movI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void addR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void subR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void andR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void orR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void xorR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void nandR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void norR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void nxorR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void addI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void subI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void rsubI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void jabsZ(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jabsNZ(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jabsGE(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jabsGT(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jabsLE(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jabsLT(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelZ(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelNZ(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelGE(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelGT(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelLE(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void jrelLT(int imm6, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void push(int imm6, int rsrc) {
+        // Treat like an ordinary load store
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void pop(int imm6, int rdst) {
+        // Treat like an ordinary load store
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void call(int imm9) {
+        // Most of the cost comes from the implicit push
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void ret() {
+        // Most of the cost comes from the implicit pop
+        this.timingBank = 5;
+    }
+
+    @Override
+    public void enter(int imm9) {
+        this.timingBank = 5;
+    }
+
+    @Override
+    public void leave() {
+        this.timingBank = 5;
+    }
+
+    @Override
+    public void ldD(int imm3, int radj, int rdst) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void stD(int imm3, int radj, int rsrc) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void ldW(int imm3, int radj, int rdst) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void stW(int imm3, int radj, int rsrc) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void ldB(int imm3, int radj, int rdst) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void stB(int imm3, int radj, int rsrc) {
+        this.timingBank = 4;
+    }
+
+    @Override
+    public void shlR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void shrR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void sarR(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void shlI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void shrI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void sarI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void push3(int rC, int rB, int rA) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void pop3(int rC, int rB, int rA) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void cmovI(int imm3, int rflag, int rdst) {
+        // Faster than using a branch
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void cmovR(int rsrc, int rflag, int rdst) {
+        // Faster than using a branch
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void iex(int imm12) {
+        // Instruction prefixes: assume they take no time to decode.
+        this.timingBank = 0;
+    }
+
+    @Override
+    public void rex(int rD, int rC, int rB, int rA) {
+        // Instruction prefixes: assume they take no time to decode.
+        this.timingBank = 0;
+    }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.timingBank = 2;
+    }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.timingBank = 3;
     }
 }
