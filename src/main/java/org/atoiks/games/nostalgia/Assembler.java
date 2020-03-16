@@ -23,6 +23,12 @@ public final class Assembler {
 
     // We do not provide a loadBuffer(String) method. Just use a StringReader.
 
+    public void loadSource(String path) throws IOException {
+        try (final FileReader fr = new FileReader(path)) {
+            this.loadSource(fr);
+        }
+    }
+
     public void loadSource(Reader reader) throws IOException {
         final BufferedReader br = new BufferedReader(reader);
         final ArrayDeque<String> buffer = new ArrayDeque<>();
@@ -44,7 +50,7 @@ public final class Assembler {
         return this.lines.pollFirst();
     }
 
-    private boolean assembleNext() throws IOException {
+    private boolean assembleNext() {
         final String line = this.nextLine();
         if (line == null) {
             // No more lines
@@ -69,7 +75,7 @@ public final class Assembler {
         return true;
     }
 
-    public byte[] assembleAll() throws IOException {
+    public byte[] assembleAll() {
         while (this.assembleNext()) {
             // do nothing
         }
@@ -296,6 +302,17 @@ public final class Assembler {
             case ".ORG":
                 checkOperandCount(operands, 1);
                 this.origin = getConstant(operands[0]);
+                break;
+            case ".INC":
+                // Note: due to how operands are splitted, current path names
+                // cannot contain commas (that should be ok for most cases?)
+                checkOperandCount(operands, 1);
+                tmp = this.macroExpand(operands[0]);
+                try {
+                    this.loadSource(tmp);
+                } catch (IOException ex) {
+                    throw new RuntimeException("Assembler: Cannot load file: " + tmp);
+                }
                 break;
             default:
                 throw new RuntimeException("Assembler: Illegal directive: '" + opUpcase + "'");
