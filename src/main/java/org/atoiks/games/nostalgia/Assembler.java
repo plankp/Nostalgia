@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-public final class Assembler implements Closeable {
+public final class Assembler {
 
     private static interface StringTransformer extends UnaryOperator<String> {
 
@@ -17,21 +17,35 @@ public final class Assembler implements Closeable {
     private final HashMap<String, String> subtbl = new HashMap<>();
     private final Encoder encoder = new Encoder();
 
-    private final BufferedReader reader;
+    private final ArrayDeque<String> lines = new ArrayDeque<>();
 
     private int origin;
 
-    public Assembler(Reader reader) {
-        this.reader = new BufferedReader(reader);
+    // We do not provide a loadBuffer(String) method. Just use a StringReader.
+
+    public void loadSource(Reader reader) throws IOException {
+        final BufferedReader br = new BufferedReader(reader);
+        final ArrayDeque<String> buffer = new ArrayDeque<>();
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            buffer.addLast(line);
+        }
+
+        // Think of the `#include` preprocessor macro/directive in C. It would
+        // expand the file in place. We do the same
+
+        while ((line = buffer.pollLast()) != null) {
+            this.lines.addFirst(line);
+        }
     }
 
-    @Override
-    public void close() throws IOException {
-        this.reader.close();
+    private String nextLine() {
+        return this.lines.pollFirst();
     }
 
     private boolean assembleNext() throws IOException {
-        final String line = this.reader.readLine();
+        final String line = this.nextLine();
         if (line == null) {
             // No more lines
             return false;

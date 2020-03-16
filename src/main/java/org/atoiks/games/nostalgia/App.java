@@ -58,14 +58,18 @@ public class App {
 
     // Will close the stream after read!
     public static ByteBuffer assembleProgram(PrintStream debugDis, Reader src) throws IOException {
-        try (final Assembler asm = new Assembler(src)) {
-            final ByteBuffer buffer = ByteBuffer.wrap(asm.assembleAll());
+        final Assembler asm = new Assembler();
 
-            if (debugDis != null) {
-                new Disassembler(debugDis, buffer.duplicate()).disassembleAll();
-            }
-
-            return buffer;
+        try (final BufferedReader br = new BufferedReader(src)) {
+            asm.loadSource(br);
         }
+
+        final ByteBuffer buffer = ByteBuffer.wrap(asm.assembleAll());
+
+        if (debugDis != null) {
+            new Disassembler(debugDis, buffer.duplicate()).disassembleAll();
+        }
+
+        return buffer;
     }
 }
