@@ -303,7 +303,7 @@ public final class Assembler {
                 checkOperandCount(operands, 1);
                 this.origin = getConstant(operands[0]);
                 break;
-            case ".INC":
+            case ".INCLUDE":
                 // Note: due to how operands are splitted, current path names
                 // cannot contain commas (that should be ok for most cases?)
                 checkOperandCount(operands, 1);
