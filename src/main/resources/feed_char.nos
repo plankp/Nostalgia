@@ -53,27 +53,7 @@ POST_INC:
 
     JABS.Z  %R0, LOOP
 
-;;
-;; See memcpy in <string.h>
-;;
-;; %R1 = MODIFIED byte *dst
-;; %R2 = MODIFIED byte *src
-;; %R3 = MODIFIED uint32 cnt
-;;
-    .ALIGN  2
-MEMCPY:
-    PUSH    %R5, 0
-MEMCPY_LOOP:
-    JREL.NZ %R3, +4
-    POP     %R5, 0
-    RET
-
-    LD.B    %R5, 0, %R2
-    ST.B    %R5, 0, %R1
-    ADD.I   %R2, 1
-    ADD.I   %R1, 1
-    SUB.I   %R3, 1
-    JABS.Z  %R0, MEMCPY_LOOP
+    .IMPORT    ./utils/memcpy.nos
 
 ;;
 ;; Scrolls the screen up by one line
