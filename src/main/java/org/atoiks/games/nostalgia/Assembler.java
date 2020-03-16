@@ -17,6 +17,7 @@ public final class Assembler {
     private final HashMap<String, String> subtbl = new HashMap<>();
     private final Encoder encoder = new Encoder();
 
+    private final HashSet<String> imports = new HashSet<>();
     private final ArrayDeque<String> lines = new ArrayDeque<>();
 
     private int origin;
@@ -309,7 +310,22 @@ public final class Assembler {
                 checkOperandCount(operands, 1);
                 tmp = this.macroExpand(operands[0]);
                 try {
+                    tmp = new File(tmp).getCanonicalPath();
                     this.loadSource(tmp);
+                } catch (IOException ex) {
+                    throw new RuntimeException("Assembler: Cannot load file: " + tmp);
+                }
+                break;
+            case ".IMPORT":
+                // Note: due to how operands are splitted, current path names
+                // cannot contain commas (that should be ok for most cases?)
+                checkOperandCount(operands, 1);
+                tmp = this.macroExpand(operands[0]);
+                try {
+                    tmp = new File(tmp).getCanonicalPath();
+                    if (this.imports.add(tmp)) {
+                        this.loadSource(tmp);
+                    }
                 } catch (IOException ex) {
                     throw new RuntimeException("Assembler: Cannot load file: " + tmp);
                 }
