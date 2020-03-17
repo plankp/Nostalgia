@@ -24,6 +24,8 @@ $ ./gradlew run --args ./src/main/resources/moving_dot.nos
 
 You code assembler! Maybe some people like this...
 
+The list of mnemonics and how the environment works is described in [utils](./utils).
+
 ![Proof of Concept](./sample.gif)
 
 ## Assets Used
