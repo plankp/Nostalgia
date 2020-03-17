@@ -53,7 +53,7 @@ POST_INC:
 
     JABS.Z  %R0, LOOP
 
-    .IMPORT    ./utils/memcpy.nos
+    .IMPORT    ./src/dist/memcpy.nos
 
 ;;
 ;; Scrolls the screen up by one line
