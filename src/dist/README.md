@@ -116,7 +116,7 @@ Note: Due to unfortunate Java reasons, it's currently signed... (We'll fix it...
 
 ## Environment
 
-### [Bootloader](../src/main/resources/bootloader.nos)
+### [Bootloader](/src/main/resources/bootloader.nos)
 
 You do not control this part (not even if you write self-modifying hacky code).
 It is loaded at address 0.
@@ -132,7 +132,7 @@ This is where your kernel goes...
 This will be loaded at `0x4000`.
 Use `.ORG 0x4000` to make address calculations less painful!
 
-If you do not provide a kernel, your kernel has issues, or the assembler decided to crash for no reason, the [dummy kernel](../src/main/resources/dummy_kernel.nos) will report that to you!
+If you do not provide a kernel, your kernel has issues, or the assembler decided to crash for no reason, the [dummy kernel](/src/main/resources/dummy_kernel.nos) will report that to you!
 
 ### Keyboard Memory
 
@@ -173,7 +173,7 @@ This is located at `0x2000` and ends at `0x2FA0`.
 The screen is divided into cells (80 by 25) which each cell being word sized.
 The memory is linear, row major: `0x2000` is cell (0, 0), `0x2002` is cell (1, 0), ... (0, 0) is the top left corner.
 
-The low byte (even number addresses) hold the [glyph](../src/main/resources/zoomed_seabios8x16.png) to render.
+The low byte (even number addresses) hold the [glyph](/src/main/resources/zoomed_seabios8x16.png) to render.
 For those who know the Windows codepages by heart, it's Code page 437.
 
 The high byte (odd number addresses) hold the rendering style:
