@@ -35,7 +35,7 @@ public final class Assembler {
         final ArrayDeque<String> buffer = new ArrayDeque<>();
 
         String line;
-        while ((line = br.readLine()) != null) {
+        while ((line = readNextLogicalLine(br)) != null) {
             buffer.addLast(line);
         }
 
@@ -45,6 +45,34 @@ public final class Assembler {
         while ((line = buffer.pollLast()) != null) {
             this.lines.addFirst(line);
         }
+    }
+
+    private static String readNextLogicalLine(BufferedReader br) throws IOException {
+        final StringBuilder sb = new StringBuilder();
+        while (true) {
+            final String line = br.readLine();
+            if (line == null) {
+                if (sb.length() == 0) {
+                    return null;
+                }
+                break;
+            }
+
+            if (line.isEmpty()) {
+                break;
+            }
+
+            sb.append(line);
+
+            final int far = sb.length() - 1;
+            if (sb.charAt(far) != '\\') {
+                break;
+            }
+
+            sb.deleteCharAt(far);
+        }
+
+        return sb.toString();
     }
 
     private String nextLine() {
