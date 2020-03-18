@@ -11,31 +11,25 @@
 
     .ORG    0x4000
 
-    MOV.I   %R1, 0x1000         ; start of keyboard memory
     MOV.I   %R4, 0              ; start of graphics memory
     MOV.I   %R5, 0xFA0          ; end of graphics memory
-    MOV.I   %R2, 0b10           ; ctrl bit for *read me a character*
 
     .ALIGN  2
 LOOP:
     ; It just takes whatever character it reads and slaps it onto the screen.
     ; (first step to getting a text-based shell!?)
 
-FILL_CHAR:
-    ST.B    %R2, 0x5, %R1       ; ask input buffer to feed us the next char
-    LD.W    %R3, 0x5, %R1       ; and (non-blocking) store that char in R3
-    JABS.Z  %R3, FILL_CHAR      ; if buffer was empty, we fetch again
-    ; On that note: when are we getting relative jumps? HUH!?
+    CALL    READCH
 
     ; check for some special characters
     MOV.I   %R6, 0x0A
-    SUB.R   %R6, %R6, %R3
+    SUB.R   %R6, %R6, %R1
     JABS.Z  %R6, PRINT_NEWLINE
 
 PRINT_CHAR:
-    ; at this point, R3 has the character typed.
+    ; at this point, R1 has the character typed.
     ; we slap it onto the screen directly
-    ST.B    %R3, 0x2000, %R4
+    ST.B    %R1, 0x2000, %R4
     ADD.I   %R4, 2
     JABS.Z  %R0, POST_INC
 PRINT_NEWLINE:
@@ -53,7 +47,8 @@ POST_INC:
 
     JABS.Z  %R0, LOOP
 
-    .IMPORT    ./src/dist/memcpy.nos
+    .IMPORT ./src/dist/memcpy.nos
+    .IMPORT ./src/dist/readch.nos
 
 ;;
 ;; Scrolls the screen up by one line
