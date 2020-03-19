@@ -4,36 +4,7 @@
 ;; Note: Do not compile this alone. Always include it as part of another file.
 ;;
 
-;;
-;; Calculates the video memory offset (so you can ldst the result and it will
-;; access the corresponding cell directly!). If the memory is illegal, then 0
-;; is returned!
-;;
-;; %R1H = MODIFIED x coordinate
-;; %R1L = MODIFIED y coordinate
-;;
-;; %R1  = RETURN
-;;
-    .ALIGN  2
-VID_OFFSET:
-    PUSH    %R3, 0
-
-    MOV.I   %R3, 80             ; 2 * (y * 80 + x)
-    MUL     %R0, %R3, %R3, %R1L
-    ADD.R   %R3, %R3, %R1H
-    SHL.I   %R3, 1
-
-    ; At this point, %R3 can only be valid if it's within 0 and 0xFA0.
-    OR.R    %R1, %R3, %R0       ; copy %R3 to %R1
-    JREL.LT %R3, +12            ; if %R3 < 0
-    SUB.I   %R3, 0xFA0          ; if %R3 >= 0xFA0
-    JREL.GE %R3, +6
-    ADD.I   %R1, 0x2000         ; rebase %R1 (old %R3) to graphics buffer
-    JREL.Z  %R0, +2
-    MOV.I   %R1, 0              ; %R3 was invalid, return 0
-
-    POP     %R3, 0
-    RET
+    .IMPORT ./src/dist/vid_offset.nos
 
 ;;
 ;; Draws a glyph onto the screen at the given location. This is not the same as
