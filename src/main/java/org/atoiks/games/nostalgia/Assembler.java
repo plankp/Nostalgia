@@ -563,6 +563,22 @@ public final class Assembler {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.cmovR(buf[0], buf[1], buf[2]);
                 break;
+            case "PADD.W":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.paddW(buf[0], buf[1], buf[2]);
+                break;
+            case "PSUB.W":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.psubW(buf[0], buf[1], buf[2]);
+                break;
+            case "PADD.B":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.paddB(buf[0], buf[1], buf[2]);
+                break;
+            case "PSUB.B":
+                buf = checkInstrClassRRR(operands);
+                this.encoder.psubB(buf[0], buf[1], buf[2]);
+                break;
             case "MUL":
                 buf = checkInstrClassRRRR(operands);
                 this.encoder.mul(buf[0], buf[1], buf[2], buf[3]);

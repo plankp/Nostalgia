@@ -185,6 +185,18 @@ public final class Decoder {
             case Opcode.OP0_CMOV_R:
                 vis.cmovR(rC, rB, rA);
                 break;
+            case Opcode.OP0_PADD_W:
+                vis.paddW(rC, rB, rA);
+                break;
+            case Opcode.OP0_PADD_B:
+                vis.paddB(rC, rB, rA);
+                break;
+            case Opcode.OP0_PSUB_W:
+                vis.psubW(rC, rB, rA);
+                break;
+            case Opcode.OP0_PSUB_B:
+                vis.psubB(rC, rB, rA);
+                break;
             default:
                 // Reconstruct the whole opcode
                 vis.illegalOp((op << 9) | lo9);

@@ -75,6 +75,11 @@ public final class Opcode {
     public static final int OP0_CMOV_I  = 44 & MASK_OP0;
     public static final int OP0_CMOV_R  = 45 & MASK_OP0;
 
+    public static final int OP0_PADD_W  = 46 & MASK_OP0;
+    public static final int OP0_PADD_B  = 47 & MASK_OP0;
+    public static final int OP0_PSUB_W  = 48 & MASK_OP0;
+    public static final int OP0_PSUB_B  = 49 & MASK_OP0;
+
     // All OP1 opcodes must be masked to MASK_OP1!
     //
     // Each OP1 opcode must have one of the following formats:

@@ -493,6 +493,42 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void paddW(int rsrc, int rflag, int rdst) {
+        this.out.printf("PADD.W     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rsrc),
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
+    }
+
+    @Override
+    public void paddB(int rsrc, int rflag, int rdst) {
+        this.out.printf("PADD.B     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rsrc),
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
+    }
+
+    @Override
+    public void psubW(int rsrc, int rflag, int rdst) {
+        this.out.printf("PSUB.W     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rsrc),
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
+    }
+
+    @Override
+    public void psubB(int rsrc, int rflag, int rdst) {
+        this.out.printf("PSUB.B     %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRC, rsrc),
+                this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
+    }
+
+    @Override
     public void iex(int imm) {
         // This is a prefix. Decode the next word after setting some fields.
 

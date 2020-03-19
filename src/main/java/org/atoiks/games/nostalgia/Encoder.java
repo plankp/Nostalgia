@@ -376,6 +376,26 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void paddW(int rC, int rB, int rA) {
+        this.emitOp0RRR(Opcode.OP0_PADD_W, rC, rB, rA);
+    }
+
+    @Override
+    public void psubW(int rC, int rB, int rA) {
+        this.emitOp0RRR(Opcode.OP0_PSUB_W, rC, rB, rA);
+    }
+
+    @Override
+    public void paddB(int rC, int rB, int rA) {
+        this.emitOp0RRR(Opcode.OP0_PADD_B, rC, rB, rA);
+    }
+
+    @Override
+    public void psubB(int rC, int rB, int rA) {
+        this.emitOp0RRR(Opcode.OP0_PSUB_B, rC, rB, rA);
+    }
+
+    @Override
     public void iex(int imm13) {
         // This opcode is special... The other instructions that use immediates
         // can subject to auto immediate extension. This one must not because

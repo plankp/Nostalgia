@@ -64,6 +64,11 @@ public interface InstrVisitor {
     public void cmovI(int imm3, int rflag, int rdst);
     public void cmovR(int rsrc, int rflag, int rdst);
 
+    public void paddW(int rlhs, int rrhs, int rdst);
+    public void paddB(int rlhs, int rrhs, int rdst);
+    public void psubW(int rlhs, int rrhs, int rdst);
+    public void psubB(int rlhs, int rrhs, int rdst);
+
     // ***** OP1 class *****
 
     public void iex(int imm12); // prefix

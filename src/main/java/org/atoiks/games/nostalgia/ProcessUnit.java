@@ -862,6 +862,110 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void paddW(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Read the values as is
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        // Split them into words
+        final short lh = (short) (lhs >>> 16);
+        final short ll = (short) lhs;
+        final short rh = (short) (rhs >>> 16);
+        final short rl = (short) rhs;
+
+        // Parallel add them
+        this.rexWrite(rdst, this.rexRA, 0
+                | (((lh + rh) & 0xFFFF) << 16)
+                | (((ll + rl) & 0xFFFF)));
+        this.resetREX();
+    }
+
+    @Override
+    public void psubW(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Read the values as is
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        // Split them into words
+        final short lh = (short) (lhs >>> 16);
+        final short ll = (short) lhs;
+        final short rh = (short) (rhs >>> 16);
+        final short rl = (short) rhs;
+
+        // Parallel sub them
+        this.rexWrite(rdst, this.rexRA, 0
+                | (((lh - rh) & 0xFFFF) << 16)
+                | (((ll - rl) & 0xFFFF)));
+        this.resetREX();
+    }
+
+    @Override
+    public void paddB(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Read the values as is
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        // Split them into bytes
+        final byte lhh = (byte) (lhs >>> 24);
+        final byte lhl = (byte) (lhs >>> 16);
+        final byte llh = (byte) (lhs >>> 8);
+        final byte lll = (byte) lhs;
+        final byte rhh = (byte) (rhs >>> 24);
+        final byte rhl = (byte) (rhs >>> 16);
+        final byte rlh = (byte) (rhs >>> 8);
+        final byte rll = (byte) rhs;
+
+        // Parallel add them
+        this.rexWrite(rdst, this.rexRA, 0 
+                | (((lhh + rhh) & 0xFF) << 24)
+                | (((lhl + rhl) & 0xFF) << 16)
+                | (((llh + rlh) & 0xFF) << 8)
+                | (((lll + rll) & 0xFF)));
+        this.resetREX();
+    }
+
+    @Override
+    public void psubB(int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Read the values as is
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
+
+        // Split them into bytes
+        final byte lhh = (byte) (lhs >>> 24);
+        final byte lhl = (byte) (lhs >>> 16);
+        final byte llh = (byte) (lhs >>> 8);
+        final byte lll = (byte) lhs;
+        final byte rhh = (byte) (rhs >>> 24);
+        final byte rhl = (byte) (rhs >>> 16);
+        final byte rlh = (byte) (rhs >>> 8);
+        final byte rll = (byte) rhs;
+
+        // Parallel add them
+        this.rexWrite(rdst, this.rexRA, 0 
+                | (((lhh - rhh) & 0xFF) << 24)
+                | (((lhl - rhl) & 0xFF) << 16)
+                | (((llh - rlh) & 0xFF) << 8)
+                | (((lll - rll) & 0xFF)));
+        this.resetREX();
+    }
+
+    @Override
     public void iex(int imm12) {
         // Note: we save all 12 bits, but not all 12 bits are used.
         // See loadImm3/6/9 or the instruction format in Opcode.java for more.
@@ -1252,6 +1356,26 @@ final class InstrTiming implements InstrVisitor {
     @Override
     public void cmovR(int rsrc, int rflag, int rdst) {
         // Faster than using a branch
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void paddW(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void psubW(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void paddB(int rlhs, int rrhs, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void psubB(int rlhs, int rrhs, int rdst) {
         this.timingBank = 1;
     }
 
