@@ -82,6 +82,10 @@ Using one that's not supported would cause the assembler to crash.
  `POP.3`    | `POP.3 %R1W, %R2W, %R3W`      | Pops three registers (16 or 32 bit depends on register suffix). Uses the stack pointer implicitly.
  `CMOV.I`   | `CMOV.I %R1W, 5, %R0W`        | Stores a maximum 16 bit immediate value into `%R1W` operand if `%R0W` operand is not 0.
  `CMOV.R`   | `CMOV.I %R1W, %R2W, %R0W`     | Moves the value of `%R2W` operand into `%R1W` operand if `%R0W` operand is not 0.
+ `PADD.W`   | `PADD.W %R1D, %R2D, %R0D`     | Performs addition the internal 32 bit buffer as two 16 bit values.
+ `PSUB.W`   | `PSUB.W %R1D, %R2D, %R0D`     | Performs subtraction on the internal 32 bit buffer as two 16 bit values.
+ `PADD.B`   | `PADD.B %R1D, %R2D, %R0D`     | Performs addition the internal 32 bit buffer as four 8 bit values.
+ `PSUB.B`   | `PSUB.B %R1D, %R2D, %R0D`     | Performs subtraction on the internal 32 bit buffer as four 8 bit values.
  `MUL`      | `MUL %R0W, %R1W, %R2W, %R3W`  | Multiplies `%R2W` operand and `%R3W` operand and stores the result into register pair `%R0W:%R1W` as high:low pair.
  `DIV`      | `DIV %R1W, %R0W, %R2W, %R3W`  | Divides `%R2W` operand by `%R3W` operand. Quotient is stored in `%R1W` operand, remainder is stored in `%R0W` operand.
 
