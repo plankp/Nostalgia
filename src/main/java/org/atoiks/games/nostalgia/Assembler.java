@@ -1,6 +1,9 @@
 package org.atoiks.games.nostalgia;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -17,10 +20,15 @@ public final class Assembler {
     private final HashMap<String, String> subtbl = new HashMap<>();
     private final Encoder encoder = new Encoder();
 
+    private final LinkedHashSet<Path> searchPaths = new LinkedHashSet<>();
     private final HashSet<String> imports = new HashSet<>();
     private final ArrayDeque<String> lines = new ArrayDeque<>();
 
     private int origin;
+
+    public void addSearchDir(String path) {
+        this.searchPaths.add(Paths.get(path).normalize().toAbsolutePath());
+    }
 
     // We do not provide a loadBuffer(String) method. Just use a StringReader.
 
@@ -338,7 +346,7 @@ public final class Assembler {
                 checkOperandCount(operands, 1);
                 tmp = this.macroExpand(operands[0]);
                 try {
-                    tmp = new File(tmp).getCanonicalPath();
+                    tmp = this.expandFile(tmp);
                     this.loadSource(tmp);
                 } catch (IOException ex) {
                     throw new RuntimeException("Assembler: Cannot load file: " + tmp);
@@ -350,7 +358,7 @@ public final class Assembler {
                 checkOperandCount(operands, 1);
                 tmp = this.macroExpand(operands[0]);
                 try {
-                    tmp = new File(tmp).getCanonicalPath();
+                    tmp = this.expandFile(tmp);
                     if (this.imports.add(tmp)) {
                         this.loadSource(tmp);
                     }
@@ -361,6 +369,18 @@ public final class Assembler {
             default:
                 throw new RuntimeException("Assembler: Illegal directive: '" + opUpcase + "'");
         }
+    }
+
+    private String expandFile(String path) {
+        final Path raw = Paths.get(path);
+        for (final Path dir : this.searchPaths) {
+            final Path resolved = dir.resolve(raw);
+            if (Files.exists(resolved)) {
+                return resolved.normalize().toAbsolutePath().toString();
+            }
+        }
+
+        return raw.normalize().toAbsolutePath().toString();
     }
 
     private void matchInstruction(String opUpcase, String[] operands) {

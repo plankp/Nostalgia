@@ -28,11 +28,22 @@ public class App {
             final Assembler assembler = new Assembler();
             final int limit = args.length;
             for (int i = 0; i < limit; ++i) {
+                final String arg = args[i];
                 try {
-                    assembler.loadSource(args[i]);
+                    switch (arg) {
+                        case "-I":
+                            assembler.addSearchDir(args[++i]);
+                            continue;
+                    }
+                } catch (IndexOutOfBoundsException ex) {
+                    throw new RuntimeException("Assembler: " + arg + " missing value after");
+                }
+
+                try {
+                    assembler.loadSource(arg);
                     anyFileLoaded = true;
                 } catch (IOException ex) {
-                    throw new RuntimeException("File: " + args[i] + "\n" + ex.getMessage());
+                    throw new RuntimeException("File: " + arg + "\n" + ex.getMessage());
                 }
             }
 
