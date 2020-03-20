@@ -20,12 +20,34 @@ public class App {
         String errMsg =
                 "Hmm... Looks like you haven't loaded a kernel yet!\n" +
                 "(You should do that) \1"; // \1 is the smiley face
-        if (args.length == 1) {
-            try {
-                kernel = assembleProgram(System.out, new FileReader(args[0]));
-            } catch (RuntimeException | IOException ex) {
-                errMsg = new StringBuilder("File: ").append(args[0]).append('\n').append(ex.getMessage()).toString();
+
+        try {
+            // Assemble the kernel program.
+            boolean anyFileLoaded = false;
+
+            final Assembler assembler = new Assembler();
+            final int limit = args.length;
+            for (int i = 0; i < limit; ++i) {
+                try {
+                    assembler.loadSource(args[i]);
+                    anyFileLoaded = true;
+                } catch (IOException ex) {
+                    throw new RuntimeException("File: " + args[i] + "\n" + ex.getMessage());
+                }
             }
+
+            // If no files are loaded, then there is no point in assembling
+            if (anyFileLoaded) {
+                final ByteBuffer buffer = ByteBuffer.wrap(assembler.assembleAll());
+
+                // Just for debug:
+                new Disassembler(System.out, buffer.duplicate()).disassembleAll();
+
+                // Make this the kernel
+                kernel = buffer;
+            }
+        } catch (RuntimeException ex) {
+            errMsg = ex.getMessage();
         }
 
         if (kernel == null) {
