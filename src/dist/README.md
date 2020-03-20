@@ -6,6 +6,19 @@
 
 ## Assembler
 
+When you do (or something similar): 
+
+```bash
+./bin/nostalgia ./sample/feed_char.nos -I ../../../
+```
+
+the assembler will try to assemble your code and will load it as the [kernel](#Kernel).
+
+If you supply multiple files, they will be assembled as if they were concatenated into one in the supplied order.
+
+`-I` needs a path after it, and this affects which paths are searched for `.INCLUDE` and `.IMPORT` directives.
+By default, it will search in the current working directory __and not the current file being assembled!__
+
 ### Very important!
 
 If the assembler crashed (due to bugs or because the code provided is incorrect),
