@@ -113,7 +113,7 @@ Reading from this register always results in 0.
 Writing to this register causes the written value to be discarded.
 
 The 15 general purpose registers are mapped from `%R1` to `%R15` inclusively.
-In particular, `%R8` (aliased to `SP`) is used as the stack pointer, and `%R9` (aliased to `BP`) is used as the base pointer by some instructions (`CALL` and `RET` for example).
+In particular, `%R8D` (aliased to `%SP`) is used as the stack pointer, and `%R9D` (aliased to `%BP`) is used as the base pointer by some instructions (`CALL` and `RET` for example).
 
 These 16 registers are internally 32 bits integers.
 Each have four access modes (detonated by suffixes):
@@ -127,7 +127,7 @@ Each have four access modes (detonated by suffixes):
 
 Any non-word accesses require an additional word sized __Register Extension Prefix__ on the instruction.
 
-Note: The access suffixes cannot be used on aliases `SP` and `BP`.
+Note: The access suffixes cannot be used on aliases `%SP` and `%BP`.
 They can be used with `%R8` or `%R9` though!
 
 The instruction pointer is 32 bits.
