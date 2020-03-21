@@ -99,8 +99,8 @@ Using one that's not supported would cause the assembler to crash.
  `PSUB.W`   | `PSUB.W %R1D, %R2D, %R0D`     | Performs subtraction on the internal 32 bit buffer as two 16 bit values.
  `PADD.B`   | `PADD.B %R1D, %R2D, %R0D`     | Performs addition the internal 32 bit buffer as four 8 bit values.
  `PSUB.B`   | `PSUB.B %R1D, %R2D, %R0D`     | Performs subtraction on the internal 32 bit buffer as four 8 bit values.
- `MUL`      | `MUL %R0W, %R1W, %R2W, %R3W`  | Multiplies `%R2W` operand and `%R3W` operand and stores the result into register pair `%R0W:%R1W` as high:low pair.
- `DIV`      | `DIV %R1W, %R0W, %R2W, %R3W`  | Divides `%R2W` operand by `%R3W` operand. Quotient is stored in `%R1W` operand, remainder is stored in `%R0W` operand.
+ `IMUL`     | `IMUL %R0W, %R1W, %R2W, %R3W` | Multiplies `%R2W` operand and `%R3W` operand as signed values and stores the result into register pair `%R0W:%R1W` as high:low pair.
+ `IDIV`     | `IDIV %R1W, %R0W, %R2W, %R3W` | Divides `%R2W` operand by `%R3W` operand as signed values. Quotient is stored in `%R1W` operand, remainder is stored in `%R0W` operand.
 
 ## Registers
 

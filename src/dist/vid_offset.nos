@@ -19,7 +19,7 @@ VID_OFFSET:
     PUSH    %R3, 0
 
     MOV.I   %R3, 80             ; 2 * (y * 80 + x)
-    MUL     %R0, %R3, %R3, %R1L
+    IMUL    %R0, %R3, %R3, %R1L
     ADD.R   %R3, %R3, %R1H
     SHL.I   %R3, 1
 

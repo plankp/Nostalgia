@@ -26,9 +26,9 @@ PRINT_CHAR:
     JABS.Z  %R0, POST_INC
 PRINT_NEWLINE:
     MOV.I   %R4, 160            ; 80 * 2
-    DIV     %R3, %R0, %R3, %R4
+    IDIV    %R3, %R0, %R3, %R4
     ADD.I   %R3, 1
-    MUL     %R0, %R3, %R3, %R4
+    IMUL    %R0, %R3, %R3, %R4
 POST_INC:
     ADD.I   %R1, 1              ; increment string offset
     JABS.Z  %R0, PRINT_LOOP     ; ready to print next char

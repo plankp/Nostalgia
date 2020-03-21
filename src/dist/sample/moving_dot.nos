@@ -19,7 +19,7 @@ DISP_CHAR:
     PUSH    %R2, 0              ; we will be destroying %R2
 
     MOV.I   %R2, 80             ; compute the memory location on screen
-    MUL     %R0, %R2, %R2, %R7  ; the formula is 2 * (y * 80 + x)
+    IMUL    %R0, %R2, %R2, %R7  ; the formula is 2 * (y * 80 + x)
     ADD.R   %R2, %R2, %R6
     SHL.I   %R2, 1
 
@@ -83,11 +83,11 @@ LOOP:
 
     MOV.I   %R3, 80             ; wrap the x coordinate
     ADD.R   %R6, %R6, %R3
-    DIV     %R0, %R6, %R6, %R3
+    IDIV    %R0, %R6, %R6, %R3
 
     MOV.I   %R3, 25             ; wrap the y coordinate
     ADD.R   %R7, %R7, %R3
-    DIV     %R0, %R7, %R7, %R3
+    IDIV    %R0, %R7, %R7, %R3
 
     ; draw the new stuff
     ST.B    %R6, 0, %R2         ; x-coordinate = R6

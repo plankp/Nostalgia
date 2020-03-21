@@ -994,7 +994,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void mul(int rD, int rC, int rB, int rA) {
+    public void imul(int rD, int rC, int rB, int rA) {
         // Note: if two destination registers are the same, then the value it
         // contains is undefined. Except if the registers were both R0, in
         // which case both high and low parts of the product are discarded.
@@ -1061,7 +1061,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void div(int rD, int rC, int rB, int rA) {
+    public void idiv(int rD, int rC, int rB, int rA) {
         // Note: if two destination registers are the same, then the value it
         // contains is undefined. Except if the registers were both R0, in
         // which case both quotient and remainder are discarded.
@@ -1392,12 +1392,12 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+    public void imul(int rlhs, int rrhs, int rdlo, int rdhi) {
         this.timingBank = 2;
     }
 
     @Override
-    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+    public void idiv(int rlhs, int rrhs, int rdrem, int rdquo) {
         this.timingBank = 3;
     }
 }

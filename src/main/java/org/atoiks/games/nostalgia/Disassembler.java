@@ -552,8 +552,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
-        this.out.printf("MUL        %s, %s, %s, %s",
+    public void imul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.out.printf("IMUL       %s, %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdhi),
                 this.rexSynthRegister(this.rexRB, rdlo),
                 this.rexSynthRegister(this.rexRD, rlhs),
@@ -562,8 +562,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
-        this.out.printf("DIV        %s, %s, %s, %s",
+    public void idiv(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.out.printf("IDIV       %s, %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdquo),
                 this.rexSynthRegister(this.rexRB, rdrem),
                 this.rexSynthRegister(this.rexRD, rlhs),

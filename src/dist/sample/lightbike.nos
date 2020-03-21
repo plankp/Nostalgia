@@ -64,7 +64,7 @@ MEMCPY_LOOP:
     .ALIGN  2
 VID_OFFSET:
     MOV.I   %R3, 80             ; compute the memory location on screen
-    MUL     %R0, %R3, %R3, %R2L ; the formula is 2 * (y * 80 + x)
+    IMUL    %R0, %R3, %R3, %R2L ; the formula is 2 * (y * 80 + x)
     ADD.R   %R3, %R3, %R2H
     SHL.I   %R3, 1
     ADD.I   %R3, 0x2000
@@ -97,11 +97,11 @@ VID_WRAP:
 
     MOV.I   %R5, 80             ; wrap x
     ADD.R   %R3, %R3, %R5
-    DIV     %R0, %R2H, %R3, %R5
+    IDIV    %R0, %R2H, %R3, %R5
 
     MOV.I   %R5, 25             ; wrap y
     ADD.R   %R4, %R4, %R5
-    DIV     %R0, %R2L, %R4, %R5
+    IDIV    %R0, %R2L, %R4, %R5
 
     POP.3   %R5, %R3, %R4
     RET

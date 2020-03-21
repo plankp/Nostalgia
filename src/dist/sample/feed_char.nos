@@ -34,9 +34,9 @@ PRINT_CHAR:
     JABS.Z  %R0, POST_INC
 PRINT_NEWLINE:
     MOV.I   %R6, 160            ; 80 * 2
-    DIV     %R4, %R0, %R4, %R6
+    IDIV    %R4, %R0, %R4, %R6
     ADD.I   %R4, 1
-    MUL     %R0, %R4, %R4, %R6
+    IMUL    %R0, %R4, %R4, %R6
 
 POST_INC:
     ; scroll the screen if we reach the end

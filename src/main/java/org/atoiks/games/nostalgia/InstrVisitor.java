@@ -74,6 +74,6 @@ public interface InstrVisitor {
     public void iex(int imm12); // prefix
     public void rex(int rD, int rC, int rB, int rA); // prefix
 
-    public void mul(int rlhs, int rrhs, int rdlo, int rdhi);
-    public void div(int rlhs, int rrhs, int rdrem, int rdquo);
+    public void imul(int rlhs, int rrhs, int rdlo, int rdhi);
+    public void idiv(int rlhs, int rrhs, int rdrem, int rdquo);
 }

@@ -599,13 +599,13 @@ public final class Assembler {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.psubB(buf[0], buf[1], buf[2]);
                 break;
-            case "MUL":
+            case "IMUL":
                 buf = checkInstrClassRRRR(operands);
-                this.encoder.mul(buf[0], buf[1], buf[2], buf[3]);
+                this.encoder.imul(buf[0], buf[1], buf[2], buf[3]);
                 break;
-            case "DIV":
+            case "IDIV":
                 buf = checkInstrClassRRRR(operands);
-                this.encoder.div(buf[0], buf[1], buf[2], buf[3]);
+                this.encoder.idiv(buf[0], buf[1], buf[2], buf[3]);
                 break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");

@@ -93,11 +93,11 @@ public final class Opcode {
     // (more to come!)
 
     public static final int OP1_REX     = 0 & MASK_OP1;
-    public static final int OP1_MUL     = 1 & MASK_OP1;
-    public static final int OP1_DIV     = 2 & MASK_OP1;
-    // Skipped 3 slots:
-    //   3 & MASK_OP1;
-    //   4 & MASK_OP1;
+    public static final int OP1_IMUL    = 1 & MASK_OP1;
+    public static final int OP1_IDIV    = 2 & MASK_OP1;
+    public static final int OP1_MUL     = 3 & MASK_OP1;
+    public static final int OP1_DIV     = 4 & MASK_OP1;
+    // Skipped 1 slot:
     //   5 & MASK_OP1;
 
     // If you are wondering why there is IEX.0 and IEX.1, it's because I messed

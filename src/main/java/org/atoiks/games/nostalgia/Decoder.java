@@ -216,11 +216,11 @@ public final class Decoder {
             case Opcode.OP1_REX:
                 vis.rex(rD, rC, rB, rA);
                 break;
-            case Opcode.OP1_MUL:
-                vis.mul(rD, rC, rB, rA);
+            case Opcode.OP1_IMUL:
+                vis.imul(rD, rC, rB, rA);
                 break;
-            case Opcode.OP1_DIV:
-                vis.div(rD, rC, rB, rA);
+            case Opcode.OP1_IDIV:
+                vis.idiv(rD, rC, rB, rA);
                 break;
             case Opcode.OP1_IEX_0:
                 vis.iex(lo12);
