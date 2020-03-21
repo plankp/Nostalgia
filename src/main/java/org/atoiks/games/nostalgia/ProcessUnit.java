@@ -343,8 +343,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
         this.rexWrite(rdst, this.rexRA, lhs | rhs);
         this.resetREX();
@@ -356,8 +356,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
         this.rexWrite(rdst, this.rexRA, lhs ^ rhs);
         this.resetREX();
@@ -369,8 +369,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
         this.rexWrite(rdst, this.rexRA, ~(lhs & rhs));
         this.resetREX();
@@ -382,8 +382,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+        final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
+        final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
         this.rexWrite(rdst, this.rexRA, ~(lhs | rhs));
         this.resetREX();
