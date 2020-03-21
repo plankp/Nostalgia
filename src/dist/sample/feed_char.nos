@@ -24,14 +24,14 @@ LOOP:
     ; check for some special characters
     MOV.I   %R6, 0x0A
     SUB.R   %R6, %R6, %R1
-    JABS.Z  %R6, PRINT_NEWLINE
+    JABS.Z  %R6, PRINT_NEWLINE, %R0
 
 PRINT_CHAR:
     ; at this point, R1 has the character typed.
     ; we slap it onto the screen directly
     ST.B    %R1, 0x2000, %R4
     ADD.I   %R4, 2
-    JABS.Z  %R0, POST_INC
+    JABS.Z  %R0, POST_INC, %R0
 PRINT_NEWLINE:
     MOV.I   %R6, 160            ; 80 * 2
     IDIV    %R4, %R0, %R4, %R6
@@ -45,7 +45,7 @@ POST_INC:
     CALL    TERM_SCROLL
     SUB.I   %R4, 160
 
-    JABS.Z  %R0, LOOP
+    JABS.Z  %R0, LOOP, %R0
 
     .IMPORT ./src/dist/memcpy.nos
     .IMPORT ./src/dist/readch.nos
@@ -69,7 +69,7 @@ CLR_LINE_LOOP:
     ST.B    %R2, 0, %R1
     ADD.I   %R1, 2
     SUB.I   %R3, 1
-    JABS.NZ %R3, CLR_LINE_LOOP
+    JABS.NZ %R3, CLR_LINE_LOOP, %R0
 
     POP.3   %R1, %R2, %R3
     RET

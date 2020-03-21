@@ -59,12 +59,12 @@ Using one that's not supported would cause the assembler to crash.
  `ADD.I`    | `ADD.I %R1W, 10`              | Adds the maximum 16 bit immediate value to a register.
  `SUB.I`    | `SUB.I %R1W, 10`              | Subtracts a maximum 16 bit immediate value from a register.
  `RSUB.I`   | `RSUB.I %R1W, 10`             | Subtracts a register from a maximum 16 bit immediate value (and stores it back into the same register).
- `JABS.Z`   | `JABS.Z %R0W, KERNEL_START`   | Performs an absolute jump to the address if register is zero.
- `JABS.NZ`  | `JABS.NZ %R0W, KERNEL_START`  | Performs an absolute jump to the address if register is not zero.
- `JABS.GE`  | `JABS.GE %R0W, KERNEL_START`  | Performs an absolute jump to the address if register is greater or equals to zero.
- `JABS.GT`  | `JABS.GT %R0W, KERNEL_START`  | Performs an absolute jump to the address if register is greater than zero.
- `JABS.LE`  | `JABS.LE %R0W, KERNEL_START`  | Performs an absolute jump to the address if register is less or equals to zero.
- `JABS.LT`  | `JABS.LT %R0W, KERNEL_START`  | Performs an absolute jump to the address if register is lesser than zero.
+ `JABS.Z`   | `JABS.Z %R1W, FUNC, %R0`      | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is zero.
+ `JABS.NZ`  | `JABS.NZ %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is not zero.
+ `JABS.GE`  | `JABS.GE %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is greater or equals to zero.
+ `JABS.GT`  | `JABS.GT %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is greater than zero.
+ `JABS.LE`  | `JABS.LE %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is less or equals to zero.
+ `JABS.LT`  | `JABS.LT %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is lesser than zero.
  `JREL.Z`   | `JREL.Z %R0W, -4`             | Performs an relative jump if register is zero.
  `JREL.NZ`  | `JREL.NZ %R0W, -4`            | Performs an relative jump if register is not zero.
  `JREL.GE`  | `JREL.GE %R0W, -4`            | Performs an relative jump if register is greater or equals to zero.

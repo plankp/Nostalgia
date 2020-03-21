@@ -1,5 +1,5 @@
     .ORG 0x4000                 ; Kernel starts at 0x4000
-    JABS.Z  %R0, 0x4030         ; jump to the process loop
+    JABS.Z  %R0, 0x4030, %R0    ; jump to the process loop
 
 ;;
 ;; Data section!
@@ -97,4 +97,4 @@ LOOP:
     CALL    DISP_CHAR           ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
 
     ; THIS LINE IS VERY IMPORTANT
-    JABS.Z  %R0, LOOP           ; jump to the process loop
+    JABS.Z  %R0, LOOP, %R0      ; jump to the process loop

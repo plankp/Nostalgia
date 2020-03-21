@@ -206,33 +206,33 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void jabsZ(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_Z, imm, rflag);
+    public void jabsZ(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_Z, imm, radj, rflag);
     }
 
     @Override
-    public void jabsNZ(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_NZ, imm, rflag);
+    public void jabsNZ(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_NZ, imm, radj, rflag);
     }
 
     @Override
-    public void jabsGE(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_GE, imm, rflag);
+    public void jabsGE(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_GE, imm, radj, rflag);
     }
 
     @Override
-    public void jabsGT(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_GT, imm, rflag);
+    public void jabsGT(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_GT, imm, radj, rflag);
     }
 
     @Override
-    public void jabsLE(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_LE, imm, rflag);
+    public void jabsLE(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_LE, imm, radj, rflag);
     }
 
     @Override
-    public void jabsLT(int imm, int rflag) {
-        this.emitOp0IR(Opcode.OP0_JABS_LT, imm, rflag);
+    public void jabsLT(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_JABS_LT, imm, radj, rflag);
     }
 
     @Override

@@ -433,79 +433,85 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void jabsZ(int imm6, int rA) {
+    public void jabsZ(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) == 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
 
     @Override
-    public void jabsNZ(int imm6, int rA) {
+    public void jabsNZ(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) != 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
 
     @Override
-    public void jabsGE(int imm6, int rA) {
+    public void jabsGE(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) >= 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
 
     @Override
-    public void jabsGT(int imm6, int rA) {
+    public void jabsGT(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) > 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
 
     @Override
-    public void jabsLE(int imm6, int rA) {
+    public void jabsLE(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) <= 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
 
     @Override
-    public void jabsLT(int imm6, int rA) {
+    public void jabsLT(int imm3, int rB, int rA) {
         // The immediate is loaded regardless of the branch!
 
-        final int imm = this.loadImm6(imm6);
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
         final int rflag = ((this.rexRA & 0x1) << 3) | rA;
 
         if (this.rexReadSigned(rflag, this.rexRA) < 0) {
-            this.ip = imm;
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
         }
         this.resetREX();
     }
@@ -1253,42 +1259,42 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void jabsZ(int imm6, int rflag) {
+    public void jabsZ(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;
     }
 
     @Override
-    public void jabsNZ(int imm6, int rflag) {
+    public void jabsNZ(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;
     }
 
     @Override
-    public void jabsGE(int imm6, int rflag) {
+    public void jabsGE(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;
     }
 
     @Override
-    public void jabsGT(int imm6, int rflag) {
+    public void jabsGT(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;
     }
 
     @Override
-    public void jabsLE(int imm6, int rflag) {
+    public void jabsLE(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;
     }
 
     @Override
-    public void jabsLT(int imm6, int rflag) {
+    public void jabsLT(int imm3, int radj, int rflag) {
         // Cost is like super high because it needs to fetch the value, check
         // the condition, then branch!
         this.timingBank = 6;

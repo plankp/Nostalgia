@@ -23,7 +23,7 @@
     MOV.I   %R1, 4000           ; screen has 80 * 25 cells, cells are wordsized
     SUB.I   %R1, 2              ; wordsize is 2 bytes
     ST.W    %R2, VIDMEM, %R1    ; VIDMEM[%R1] = NULCHR
-    JABS.GT %R1, 6              ; go back to the SUB.I instruction
+    JABS.GT %R1, 6, %R0         ; go back to the SUB.I instruction
                                 ; Note: at this point, %R1 = 0.
 
 ;;
@@ -42,7 +42,7 @@
     MOV.I   %R1, 0              ; clear all general-purpose registers
     MOV.I   %R2, 0
     MOV.I   %R3, 0
-    JABS.Z  %R0, 0x4000
+    JABS.Z  %R0, 0x4000, %R0
 
 ;;
 ;; Remember the stack pointer? We make sure the stack is actually present by

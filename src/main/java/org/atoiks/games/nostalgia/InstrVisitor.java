@@ -21,12 +21,12 @@ public interface InstrVisitor {
     public void subI(int imm6, int rdst);
     public void rsubI(int imm6, int rdst);
 
-    public void jabsZ(int imm6, int rflag);
-    public void jabsNZ(int imm6, int rflag);
-    public void jabsGE(int imm6, int rflag);
-    public void jabsGT(int imm6, int rflag);
-    public void jabsLE(int imm6, int rflag);
-    public void jabsLT(int imm6, int rflag);
+    public void jabsZ(int imm3, int radj, int rflag);
+    public void jabsNZ(int imm3, int radj, int rflag);
+    public void jabsGE(int imm3, int radj, int rflag);
+    public void jabsGT(int imm3, int radj, int rflag);
+    public void jabsLE(int imm3, int radj, int rflag);
+    public void jabsLT(int imm3, int radj, int rflag);
 
     public void jrelZ(int imm6, int rflag);
     public void jrelNZ(int imm6, int rflag);

@@ -11,7 +11,7 @@
 ;;
 
     .ORG    0x4000
-    JABS.Z  %R0, GAME_START
+    JABS.Z  %R0, GAME_START, %R0
 
 ;;
 ;; Data section!
@@ -50,7 +50,7 @@ MEMCPY_LOOP:
     ADD.I   %R4, 1
     ADD.R   %R2, %R2, %R1
     SUB.I   %R3, 1
-    JABS.Z  %R0, MEMCPY_LOOP
+    JABS.Z  %R0, MEMCPY_LOOP, %R0
 
 ;;
 ;; Calculates the video memory offset (you can ldst the result address directly
@@ -134,7 +134,7 @@ GAME_LOOP:
     ; check if the two players collide (which is obviously bad and should be a
     ; game over)
     SUB.R   %R3, %R6, %R7
-    JABS.Z  %R3, GAME_END
+    JABS.Z  %R3, GAME_END, %R0
 
     ; check if we are currently on any track. Note: this only works because we
     ; have not painted the players yet!
@@ -149,9 +149,9 @@ GAME_LOOP:
     ; if we are on a track, then since the video memory was initialized to null
     ; bytes, the value loaded from vidmem will not be zero!
     LD.B    %R3, 0, %R6
-    JABS.NZ %R3, GAME_END
+    JABS.NZ %R3, GAME_END, %R0
     LD.B    %R3, 0, %R7
-    JABS.NZ %R3, GAME_END
+    JABS.NZ %R3, GAME_END, %R0
 
     ; we are not a track, so we fill ourselves in!
     MOV.I   %R1, P1_ICON
@@ -214,4 +214,4 @@ GAME_LOOP:
     ST.B    %R1, 0, %R6
     ST.B    %R1, 0, %R7
 
-    JABS.Z  %R0, GAME_LOOP
+    JABS.Z  %R0, GAME_LOOP, %R0

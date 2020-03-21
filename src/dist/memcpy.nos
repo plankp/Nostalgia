@@ -24,4 +24,4 @@ MEMCPY_LOOP:
     ADD.I   %R2, 1
     ADD.I   %R1, 1
     SUB.I   %R3, 1
-    JABS.Z  %R0, MEMCPY_LOOP
+    JABS.Z  %R0, MEMCPY_LOOP, %R0

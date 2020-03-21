@@ -84,22 +84,22 @@ public final class Decoder {
                 vis.rsubI(immMi, rA);
                 break;
             case Opcode.OP0_JABS_Z:
-                vis.jabsZ(immMi, rA);
+                vis.jabsZ(immHi, rB, rA);
                 break;
             case Opcode.OP0_JABS_NZ:
-                vis.jabsNZ(immMi, rA);
+                vis.jabsNZ(immHi, rB, rA);
                 break;
             case Opcode.OP0_JABS_GE:
-                vis.jabsGE(immMi, rA);
+                vis.jabsGE(immHi, rB, rA);
                 break;
             case Opcode.OP0_JABS_GT:
-                vis.jabsGT(immMi, rA);
+                vis.jabsGT(immHi, rB, rA);
                 break;
             case Opcode.OP0_JABS_LE:
-                vis.jabsLE(immMi, rA);
+                vis.jabsLE(immHi, rB, rA);
                 break;
             case Opcode.OP0_JABS_LT:
-                vis.jabsLT(immMi, rA);
+                vis.jabsLT(immHi, rB, rA);
                 break;
             case Opcode.OP0_JREL_Z:
                 vis.jrelZ(immMi, rA);

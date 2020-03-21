@@ -170,12 +170,6 @@ public final class Assembler {
                 case Opcode.OP0_ADD_I:
                 case Opcode.OP0_SUB_I:
                 case Opcode.OP0_RSUB_I:
-                case Opcode.OP0_JABS_Z:
-                case Opcode.OP0_JABS_NZ:
-                case Opcode.OP0_JABS_GE:
-                case Opcode.OP0_JABS_GT:
-                case Opcode.OP0_JABS_LE:
-                case Opcode.OP0_JABS_LT:
                 case Opcode.OP0_JREL_Z:
                 case Opcode.OP0_JREL_NZ:
                 case Opcode.OP0_JREL_GE:
@@ -202,7 +196,13 @@ public final class Assembler {
 
                     break;
                 }
-                case Opcode.OP0_LD_D:       // OP0 IRR class opcodes
+                case Opcode.OP0_JABS_Z:     // OP0 IRR class opcodes
+                case Opcode.OP0_JABS_NZ:
+                case Opcode.OP0_JABS_GE:
+                case Opcode.OP0_JABS_GT:
+                case Opcode.OP0_JABS_LE:
+                case Opcode.OP0_JABS_LT:
+                case Opcode.OP0_LD_D:
                 case Opcode.OP0_ST_D:
                 case Opcode.OP0_LD_W:
                 case Opcode.OP0_ST_W:
@@ -435,28 +435,28 @@ public final class Assembler {
                 this.encoder.rsubI(buf[0], buf[1]);
                 break;
             case "JABS.Z":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsZ(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsZ(buf[0], buf[1], buf[2]);
                 break;
             case "JABS.NZ":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsNZ(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsNZ(buf[0], buf[1], buf[2]);
                 break;
             case "JABS.GE":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsGE(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsGE(buf[0], buf[1], buf[2]);
                 break;
             case "JABS.GT":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsGT(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsGT(buf[0], buf[1], buf[2]);
                 break;
             case "JABS.LE":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsLE(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsLE(buf[0], buf[1], buf[2]);
                 break;
             case "JABS.LT":
-                buf = checkInstrClassIR(operands);
-                this.encoder.jabsLT(buf[0], buf[1]);
+                buf = checkInstrClassIRR(operands);
+                this.encoder.jabsLT(buf[0], buf[1], buf[2]);
                 break;
             case "JREL.Z":
                 buf = checkInstrClassIR(operands);

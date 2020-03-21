@@ -220,50 +220,56 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void jabsZ(int imm, int rflag) {
-        this.out.printf("JABS.Z     %s, 0x%x",
+    public void jabsZ(int imm, int radj, int rflag) {
+        this.out.printf("JABS.Z     %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 
     @Override
-    public void jabsNZ(int imm, int rflag) {
-        this.out.printf("JABS.NZ    %s, 0x%x",
+    public void jabsNZ(int imm, int radj, int rflag) {
+        this.out.printf("JABS.NZ    %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 
     @Override
-    public void jabsGE(int imm, int rflag) {
-        this.out.printf("JABS.GE    %s, 0x%x",
+    public void jabsGE(int imm, int radj, int rflag) {
+        this.out.printf("JABS.GE    %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 
     @Override
-    public void jabsGT(int imm, int rflag) {
-        this.out.printf("JABS.GT    %s, 0x%x",
+    public void jabsGT(int imm, int radj, int rflag) {
+        this.out.printf("JABS.GT    %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 
     @Override
-    public void jabsLE(int imm, int rflag) {
-        this.out.printf("JABS.LE    %s, 0x%x",
+    public void jabsLE(int imm, int radj, int rflag) {
+        this.out.printf("JABS.LE    %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 
     @Override
-    public void jabsLT(int imm, int rflag) {
-        this.out.printf("JABS.LT    %s, 0x%x",
+    public void jabsLT(int imm, int radj, int rflag) {
+        this.out.printf("JABS.LT    %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rflag),
-                this.loadImm6(imm));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 

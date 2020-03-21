@@ -8,7 +8,7 @@
 ;; (because of this file)
 ;;
 
-    .ORG 0x4000
+    .ORG    0x4000
 
     .SET    VIDMEM, 0x2000
 
@@ -19,11 +19,11 @@ PRINT_LOOP:
     JREL.Z  %R2, -4             ; that was the last character, so hang
     MOV.I   %R4, 0x0A           ; handle line feed character ('\n')
     SUB.R   %R4, %R4, %R2
-    JABS.Z  %R4, PRINT_NEWLINE
+    JABS.Z  %R4, PRINT_NEWLINE, %R0
 PRINT_CHAR:
     ST.B    %R2, VIDMEM, %R3    ; print char
     ADD.I   %R3, 2              ; increment vidmem offset
-    JABS.Z  %R0, POST_INC
+    JABS.Z  %R0, POST_INC, %R0
 PRINT_NEWLINE:
     MOV.I   %R4, 160            ; 80 * 2
     IDIV    %R3, %R0, %R3, %R4
@@ -31,4 +31,4 @@ PRINT_NEWLINE:
     IMUL    %R0, %R3, %R3, %R4
 POST_INC:
     ADD.I   %R1, 1              ; increment string offset
-    JABS.Z  %R0, PRINT_LOOP     ; ready to print next char
+    JABS.Z  %R0, PRINT_LOOP, %R0; ready to print next char
