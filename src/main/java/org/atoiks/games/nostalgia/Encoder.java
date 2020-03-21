@@ -424,4 +424,14 @@ public final class Encoder implements InstrVisitor {
     public void idiv(int rlhs, int rrhs, int rdrem, int rdquo) {
         this.emitOp1RRRR(Opcode.OP1_IDIV, rlhs, rrhs, rdrem, rdquo);
     }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.emitOp1RRRR(Opcode.OP1_MUL, rlhs, rrhs, rdlo, rdhi);
+    }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.emitOp1RRRR(Opcode.OP1_DIV, rlhs, rrhs, rdrem, rdquo);
+    }
 }

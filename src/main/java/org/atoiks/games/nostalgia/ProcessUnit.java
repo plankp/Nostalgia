@@ -1004,11 +1004,12 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rdlo = ((this.rexRB & 0x1) << 3) | rB;
         final int rdhi = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRD);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRC);
+        // Sign extend to 64 bits
+        final long lhs = this.rexReadSigned(rlhs, this.rexRD);
+        final long rhs = this.rexReadSigned(rrhs, this.rexRC);
 
         // Note: tmp is long type because i32 * i32 -> i64
-        final long tmp = (long) lhs * (long) rhs;
+        final long tmp = lhs * rhs;
 
         // Now we need to partition tmp. Here is how it works:
         //
@@ -1071,15 +1072,107 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rdrem = ((this.rexRB & 0x1) << 3) | rB;
         final int rdquo = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRD);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRC);
+        // Sign extend to 64 bits
+        final long lhs = this.rexReadSigned(rlhs, this.rexRD);
+        final long rhs = this.rexReadSigned(rrhs, this.rexRC);
 
         // let the JVM handle crash on division by zero...
-        final int quo = lhs / rhs;
-        final int rem = lhs % rhs;
+        final long quo = lhs / rhs;
+        final long rem = lhs % rhs;
 
-        this.rexWrite(rdrem, this.rexRB, rem);
-        this.rexWrite(rdquo, this.rexRA, quo);
+        this.rexWrite(rdrem, this.rexRB, (int) rem);
+        this.rexWrite(rdquo, this.rexRA, (int) quo);
+        this.resetREX();
+    }
+
+    @Override
+    public void mul(int rD, int rC, int rB, int rA) {
+        // Note: if two destination registers are the same, then the value it
+        // contains is undefined. Except if the registers were both R0, in
+        // which case both high and low parts of the product are discarded.
+
+        final int rlhs = ((this.rexRD & 0x1) << 3) | rD;
+        final int rrhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int rdlo = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdhi = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Zero extend to 64 bits
+        final long lhs = Integer.toUnsignedLong(this.rexReadUnsigned(rlhs, this.rexRD));
+        final long rhs = Integer.toUnsignedLong(this.rexReadUnsigned(rrhs, this.rexRC));
+
+        // Note: tmp is long type because i32 * i32 -> i64
+        final long tmp = lhs * rhs;
+
+        // Now we need to partition tmp. Here is how it works:
+        //
+        // for rdlo:
+        //   byte  => take [ 0,  7]
+        //   word  => take [ 0, 15]
+        //   dword => take [ 0, 31]
+        //
+        // for rdhi:
+        //   byte  => take [ 8, 15]
+        //   word  => take [16, 31]
+        //   dword => take [32, 64]
+        //
+        // As you can see, it's highly recommended to use the same REX prefix
+        // for both destinations registers. (It was either this or UB!)
+
+        // rdlo
+        switch ((this.rexRB >> 1) & 0x3) {
+            case 0:
+                this.writeRegWord(rdlo, (int) tmp);
+                break;
+            case 1:
+                this.writeRegLowByte(rdlo, (int) tmp);
+                break;
+            case 2:
+                this.writeRegHighByte(rdlo, (int) tmp);
+                break;
+            case 3:
+                this.writeRegDword(rdlo, (int) tmp);
+                break;
+        }
+
+        // rdhi
+        switch ((this.rexRA >> 1) & 0x3) {
+            case 0:
+                this.writeRegWord(rdhi, (int) (tmp >>> 16));
+                break;
+            case 1:
+                this.writeRegLowByte(rdhi, (int) (tmp >>> 8));
+                break;
+            case 2:
+                this.writeRegHighByte(rdhi, (int) (tmp >>> 8));
+                break;
+            case 3:
+                this.writeRegDword(rdhi, (int) (tmp >>> 32));
+                break;
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void div(int rD, int rC, int rB, int rA) {
+        // Note: if two destination registers are the same, then the value it
+        // contains is undefined. Except if the registers were both R0, in
+        // which case both quotient and remainder are discarded.
+
+        final int rlhs  = ((this.rexRD & 0x1) << 3) | rD;
+        final int rrhs  = ((this.rexRC & 0x1) << 3) | rC;
+        final int rdrem = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdquo = ((this.rexRA & 0x1) << 3) | rA;
+
+        final long lhs = Integer.toUnsignedLong(this.rexReadUnsigned(rlhs, this.rexRD));
+        final long rhs = Integer.toUnsignedLong(this.rexReadUnsigned(rrhs, this.rexRC));
+
+        // let the JVM handle crash on division by zero...
+        final long quo = lhs / rhs;
+        final long rem = lhs % rhs;
+
+        this.rexWrite(rdrem, this.rexRB, (int) rem);
+        this.rexWrite(rdquo, this.rexRA, (int) quo);
         this.resetREX();
     }
 }
@@ -1398,6 +1491,16 @@ final class InstrTiming implements InstrVisitor {
 
     @Override
     public void idiv(int rlhs, int rrhs, int rdrem, int rdquo) {
+        this.timingBank = 3;
+    }
+
+    @Override
+    public void mul(int rlhs, int rrhs, int rdlo, int rdhi) {
+        this.timingBank = 2;
+    }
+
+    @Override
+    public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
         this.timingBank = 3;
     }
 }
