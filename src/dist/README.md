@@ -45,6 +45,18 @@ Here is a list of instructions supported by the assembler.
 All instructions are case insensitive.
 Using one that's not supported would cause the assembler to crash.
 
+Note: Some instructions end with a `.*`.
+That is a conditional suffix and must be substituted with one of the following:
+
+ Conditional Suffix | Execute Condition
+--------------------|-------------
+ `.Z`               | If the register being tested = zero.
+ `.NZ`              | If the register begin tested ≠ zero.
+ `.GT`              | If the register begin tested > zero. (signed)
+ `.GE`              | If the register begin tested ≥ zero. (signed)
+ `.LT`              | If the register begin tested < zero. (signed)
+ `.LE`              | If the register begin tested ≤ zero. (signed)
+
  Name       | Example                       | Description
 ------------|-------------------------------|------------
  `MOV.I`    | `MOV.I %R1W, 10`              | Moves a maximum 16 bit immediate value into a register.
@@ -59,21 +71,11 @@ Using one that's not supported would cause the assembler to crash.
  `ADD.I`    | `ADD.I %R1W, 10`              | Adds the maximum 16 bit immediate value to a register.
  `SUB.I`    | `SUB.I %R1W, 10`              | Subtracts a maximum 16 bit immediate value from a register.
  `RSUB.I`   | `RSUB.I %R1W, 10`             | Subtracts a register from a maximum 16 bit immediate value (and stores it back into the same register).
- `JABS.Z`   | `JABS.Z %R1W, FUNC, %R0`      | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is zero.
- `JABS.NZ`  | `JABS.NZ %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is not zero.
- `JABS.GE`  | `JABS.GE %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is greater or equals to zero.
- `JABS.GT`  | `JABS.GT %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is greater than zero.
- `JABS.LE`  | `JABS.LE %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is less or equals to zero.
- `JABS.LT`  | `JABS.LT %R1W, FUNC, %R0`     | Performs an absolute jump to the address `FUNC+%R0` if register `%R1W` is lesser than zero.
- `JREL.Z`   | `JREL.Z %R0W, -4`             | Performs an relative jump if register is zero.
- `JREL.NZ`  | `JREL.NZ %R0W, -4`            | Performs an relative jump if register is not zero.
- `JREL.GE`  | `JREL.GE %R0W, -4`            | Performs an relative jump if register is greater or equals to zero.
- `JREL.GT`  | `JREL.GT %R0W, -4`            | Performs an relative jump if register is greater than zero.
- `JREL.LE`  | `JREL.LE %R0W, -4`            | Performs an relative jump if register is less or equals to zero.
- `JREL.LT`  | `JREL.LT %R0W, -4`            | Performs an relative jump if register is lesser than zero.
+ `JABS.*`   | `JABS.* %R1W, FUNC, %R0`      | Performs an absolute jump to the address `FUNC+%R0` with register `%R1W` being tested.
+ `JREL.*`   | `JREL.* %R0W, -4`             | Performs an relative jump with register
  `PUSH`     | `PUSH %R1W, 0`                | Pushes a 16 bit or 32 bit value onto the stack (depends on register suffix). Uses the stack pointer implicitly.
  `POP`      | `POP %R1W, 0`                 | Pops a 16 bit or 32 bit value from the stack (depends on register suffix). Uses the stack pointer implicitly.
- `CALL.*`   | `CALL.* %R1W, MEMCPY, %R0`    | If condition is true (see absolute jump), then the return address is pushed onto the stack and core will perform an absolute jump to the address. Uses the stack pointer implicitly.
+ `CALL.*`   | `CALL.* %R1W, MEMCPY, %R0`    | The return address is pushed onto the stack and core will perform an absolute jump to the address `MEMCPY+%R0`. Uses the stack pointer implicitly. Register `%R1W` is being tested.
  `RET`      | `RET`                         | Pops the return address from the stack and jumps to it. Uses the stack pointer implicitly.
  `ENTER`    | `ENTER 4`                     | Allocates some space on the stack when entering a function. Uses the stack pointer and base pointer implicitly.
  `LEAVE`    | `LEAVE`                       | Used to free the stack when leaving a function. Uses the stack pointer and base pointer implicitly.
