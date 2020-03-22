@@ -56,36 +56,35 @@ public final class Opcode {
     public static final int OP0_POP     = 25 & MASK_OP0;
     public static final int OP0_PUSH3   = 26 & MASK_OP0;
     public static final int OP0_POP3    = 27 & MASK_OP0;
-    // public static final int OP0_CALL    = 28 & MASK_OP0;
-    public static final int OP0_RET     = 29 & MASK_OP0;
-    public static final int OP0_ENTER   = 30 & MASK_OP0;
-    public static final int OP0_LEAVE   = 31 & MASK_OP0;
-    public static final int OP0_LD_D    = 32 & MASK_OP0;
-    public static final int OP0_ST_D    = 33 & MASK_OP0;
-    public static final int OP0_LD_W    = 34 & MASK_OP0;
-    public static final int OP0_ST_W    = 35 & MASK_OP0;
-    public static final int OP0_LD_B    = 36 & MASK_OP0;
-    public static final int OP0_ST_B    = 37 & MASK_OP0;
-    public static final int OP0_SHL_R   = 38 & MASK_OP0;
-    public static final int OP0_SHR_R   = 39 & MASK_OP0;
-    public static final int OP0_SAR_R   = 40 & MASK_OP0;
-    public static final int OP0_SHL_I   = 41 & MASK_OP0;
-    public static final int OP0_SHR_I   = 42 & MASK_OP0;
-    public static final int OP0_SAR_I   = 43 & MASK_OP0;
-    public static final int OP0_CMOV_I  = 44 & MASK_OP0;
-    public static final int OP0_CMOV_R  = 45 & MASK_OP0;
+    public static final int OP0_RET     = 28 & MASK_OP0;
+    public static final int OP0_ENTER   = 29 & MASK_OP0;
+    public static final int OP0_LEAVE   = 30 & MASK_OP0;
+    public static final int OP0_LD_D    = 31 & MASK_OP0;
+    public static final int OP0_ST_D    = 32 & MASK_OP0;
+    public static final int OP0_LD_W    = 33 & MASK_OP0;
+    public static final int OP0_ST_W    = 34 & MASK_OP0;
+    public static final int OP0_LD_B    = 35 & MASK_OP0;
+    public static final int OP0_ST_B    = 36 & MASK_OP0;
+    public static final int OP0_SHL_R   = 37 & MASK_OP0;
+    public static final int OP0_SHR_R   = 38 & MASK_OP0;
+    public static final int OP0_SAR_R   = 39 & MASK_OP0;
+    public static final int OP0_SHL_I   = 40 & MASK_OP0;
+    public static final int OP0_SHR_I   = 41 & MASK_OP0;
+    public static final int OP0_SAR_I   = 42 & MASK_OP0;
+    public static final int OP0_CMOV_I  = 43 & MASK_OP0;
+    public static final int OP0_CMOV_R  = 44 & MASK_OP0;
 
-    public static final int OP0_PADD_W  = 46 & MASK_OP0;
-    public static final int OP0_PADD_B  = 47 & MASK_OP0;
-    public static final int OP0_PSUB_W  = 48 & MASK_OP0;
-    public static final int OP0_PSUB_B  = 49 & MASK_OP0;
+    public static final int OP0_PADD_W  = 45 & MASK_OP0;
+    public static final int OP0_PADD_B  = 46 & MASK_OP0;
+    public static final int OP0_PSUB_W  = 47 & MASK_OP0;
+    public static final int OP0_PSUB_B  = 48 & MASK_OP0;
 
-    public static final int OP0_CALL_Z  = 50 & MASK_OP0;
-    public static final int OP0_CALL_NZ = 51 & MASK_OP0;
-    public static final int OP0_CALL_GE = 52 & MASK_OP0;
-    public static final int OP0_CALL_GT = 53 & MASK_OP0;
-    public static final int OP0_CALL_LE = 54 & MASK_OP0;
-    public static final int OP0_CALL_LT = 55 & MASK_OP0;
+    public static final int OP0_CALL_Z  = 49 & MASK_OP0;
+    public static final int OP0_CALL_NZ = 50 & MASK_OP0;
+    public static final int OP0_CALL_GE = 51 & MASK_OP0;
+    public static final int OP0_CALL_GT = 52 & MASK_OP0;
+    public static final int OP0_CALL_LE = 53 & MASK_OP0;
+    public static final int OP0_CALL_LT = 54 & MASK_OP0;
 
     // All OP1 opcodes must be masked to MASK_OP1!
     //
