@@ -645,4 +645,14 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRC, rrhs));
         this.resetREX();
     }
+
+    @Override
+    public void imac(int rlhs, int rrhs, int racc, int rdst) {
+        this.out.printf("IMAC       %s, %s, %s, %s",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.rexSynthRegister(this.rexRB, racc),
+                this.rexSynthRegister(this.rexRD, rlhs),
+                this.rexSynthRegister(this.rexRC, rrhs));
+        this.resetREX();
+    }
 }

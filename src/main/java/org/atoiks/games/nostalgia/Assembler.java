@@ -640,6 +640,10 @@ public final class Assembler {
                 buf = checkInstrClassRRRR(operands);
                 this.encoder.div(buf[0], buf[1], buf[2], buf[3]);
                 break;
+            case "IMAC":
+                buf = checkInstrClassRRRR(operands);
+                this.encoder.imac(buf[0], buf[1], buf[2], buf[3]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

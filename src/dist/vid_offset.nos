@@ -19,8 +19,7 @@ VID_OFFSET:
     PUSH    %R3, 0
 
     MOV.I   %R3, 80             ; 2 * (y * 80 + x)
-    IMUL    %R0, %R3, %R3, %R1L
-    ADD.R   %R3, %R3, %R1H
+    IMAC    %R3, %R1H, %R3, %R1L
     SHL.I   %R3, 1
 
     ; At this point, %R3 can only be valid if it's within 0 and 0xFA0.

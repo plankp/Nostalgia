@@ -459,4 +459,9 @@ public final class Encoder implements InstrVisitor {
     public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
         this.emitOp1RRRR(Opcode.OP1_DIV, rlhs, rrhs, rdrem, rdquo);
     }
+
+    @Override
+    public void imac(int rlhs, int rrhs, int racc, int rdst) {
+        this.emitOp1RRRR(Opcode.OP1_IMAC, rlhs, rrhs, racc, rdst);
+    }
 }

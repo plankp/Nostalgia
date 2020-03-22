@@ -19,8 +19,7 @@ DISP_CHAR:
     PUSH    %R2, 0              ; we will be destroying %R2
 
     MOV.I   %R2, 80             ; compute the memory location on screen
-    IMUL    %R0, %R2, %R2, %R7  ; the formula is 2 * (y * 80 + x)
-    ADD.R   %R2, %R2, %R6
+    IMAC    %R2, %R6, %R2, %R7  ; the formula is 2 * (y * 80 + x)
     SHL.I   %R2, 1
 
     ST.B    %R1, 0x2000, %R2    ; write it to the screen

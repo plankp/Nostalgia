@@ -1261,6 +1261,21 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         this.rexWrite(rdquo, this.rexRA, (int) quo);
         this.resetREX();
     }
+
+    @Override
+    public void imac(int rD, int rC, int rB, int rA) {
+        final int rlhs = ((this.rexRD & 0x1) << 3) | rD;
+        final int rrhs = ((this.rexRC & 0x1) << 3) | rC;
+        final int racc = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        // Sign extend to 64 bits
+        final long lhs = this.rexReadSigned(rlhs, this.rexRD);
+        final long rhs = this.rexReadSigned(rrhs, this.rexRC);
+
+        this.rexWrite(rdst, this.rexRA, (int) (lhs * rhs + this.rexReadSigned(racc, this.rexRB)));
+        this.resetREX();
+    }
 }
 
 final class InstrTiming implements InstrVisitor {
@@ -1624,5 +1639,10 @@ final class InstrTiming implements InstrVisitor {
     @Override
     public void div(int rlhs, int rrhs, int rdrem, int rdquo) {
         this.timingBank = 3;
+    }
+
+    @Override
+    public void imac(int rlhs, int rrhs, int racc, int rdst) {
+        this.timingBank = 2;
     }
 }

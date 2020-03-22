@@ -96,15 +96,14 @@ public final class Opcode {
     // - Four registers:
     //   1xxx dddc ccbb baaa
     //
-    // (more to come!)
+    // Note: All possible OP1 opcodes have been filled!
 
     public static final int OP1_REX     = 0 & MASK_OP1;
     public static final int OP1_IMUL    = 1 & MASK_OP1;
     public static final int OP1_IDIV    = 2 & MASK_OP1;
     public static final int OP1_MUL     = 3 & MASK_OP1;
     public static final int OP1_DIV     = 4 & MASK_OP1;
-    // Skipped 1 slot:
-    //   5 & MASK_OP1;
+    public static final int OP1_IMAC    = 5 & MASK_OP1;
 
     // If you are wondering why there is IEX.0 and IEX.1, it's because I messed
     // up the bit calculation: you actually need 13 bits (not 12) to encode a

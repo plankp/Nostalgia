@@ -64,9 +64,8 @@ MEMCPY_LOOP:
     .ALIGN  2
 VID_OFFSET:
     MOV.I   %R3, 80             ; compute the memory location on screen
-    IMUL    %R0, %R3, %R3, %R2L ; the formula is 2 * (y * 80 + x)
-    ADD.R   %R3, %R3, %R2H
-    SHL.I   %R3, 1
+    IMAC    %R3, %R2H, %R3, %R2L
+    SHL.I   %R3, 1              ; the formula is 2 * (y * 80 + x)
     ADD.I   %R3, 0x2000
     RET
 

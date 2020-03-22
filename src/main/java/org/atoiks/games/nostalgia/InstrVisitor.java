@@ -85,4 +85,6 @@ public interface InstrVisitor {
 
     public void mul(int rlhs, int rrhs, int rdlo, int rdhi);
     public void div(int rlhs, int rrhs, int rdrem, int rdquo);
+
+    public void imac(int rlhs, int rrhs, int racc, int rdst);
 }

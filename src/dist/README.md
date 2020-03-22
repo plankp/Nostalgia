@@ -105,6 +105,7 @@ That is a conditional suffix and must be substituted with one of the following:
  `IDIV`     | `IDIV %R1W, %R0W, %R2W, %R3W` | Divides `%R2W` operand by `%R3W` operand as signed values. Quotient is stored in `%R1W` operand, remainder is stored in `%R0W` operand.
  `MUL`      | `MUL %R0W, %R1W, %R2W, %R3W`  | Multiplies `%R2W` operand and `%R3W` operand as unsigned values and stores the result into register pair `%R0W:%R1W` as high:low pair.
  `DIV`      | `DIV %R1W, %R0W, %R2W, %R3W`  | Divides `%R2W` operand by `%R3W` operand as unsigned values. Quotient is stored in `%R1W` operand, remainder is stored in `%R0W` operand.
+ `IMAC`     | `IMAC %R1W, %R2W, %R3W, %R4W` | `%R1W = %R2W + (%R3W * %R4W)`. All values are interpreted as signed.
 
 ## Registers
 
