@@ -19,7 +19,7 @@ LOOP:
     ; It just takes whatever character it reads and slaps it onto the screen.
     ; (first step to getting a text-based shell!?)
 
-    CALL    READCH
+    CALL.Z  %R0, READCH, %R0
 
     ; check for some special characters
     MOV.I   %R6, 0x0A
@@ -42,7 +42,7 @@ POST_INC:
     ; scroll the screen if we reach the end
     SUB.R   %R6, %R4, %R5
     JREL.LT %R6, +8
-    CALL    TERM_SCROLL
+    CALL.Z  %R0, TERM_SCROLL, %R0
     SUB.I   %R4, 160
 
     JABS.Z  %R0, LOOP, %R0
@@ -60,7 +60,7 @@ TERM_SCROLL:
     MOV.I   %R1, 0x2000         ; start of graphics memory (line 0)
     MOV.I   %R2, 0x20A0         ; start of graphics memory (line 1)
     MOV.I   %R3, 0xF00          ; cells from line 1 to end of graphics memory
-    CALL    MEMCPY
+    CALL.Z  %R0, MEMCPY, %R0
 
     ; due to MEMCPY's implementation, %R1 is 0x2F00
     MOV.I   %R2, 0x20           ; space

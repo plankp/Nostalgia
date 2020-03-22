@@ -38,7 +38,6 @@ public interface InstrVisitor {
     public void push(int imm6, int rsrc);
     public void pop(int imm6, int rdst);
 
-    public void call(int imm9);
     public void ret();
     public void enter(int imm9);
     public void leave();
@@ -68,6 +67,13 @@ public interface InstrVisitor {
     public void paddB(int rlhs, int rrhs, int rdst);
     public void psubW(int rlhs, int rrhs, int rdst);
     public void psubB(int rlhs, int rrhs, int rdst);
+
+    public void callZ(int imm3, int radj, int rflag);
+    public void callNZ(int imm3, int radj, int rflag);
+    public void callGE(int imm3, int radj, int rflag);
+    public void callGT(int imm3, int radj, int rflag);
+    public void callLE(int imm3, int radj, int rflag);
+    public void callLT(int imm3, int radj, int rflag);
 
     // ***** OP1 class *****
 

@@ -73,7 +73,7 @@ Using one that's not supported would cause the assembler to crash.
  `JREL.LT`  | `JREL.LT %R0W, -4`            | Performs an relative jump if register is lesser than zero.
  `PUSH`     | `PUSH %R1W, 0`                | Pushes a 16 bit or 32 bit value onto the stack (depends on register suffix). Uses the stack pointer implicitly.
  `POP`      | `POP %R1W, 0`                 | Pops a 16 bit or 32 bit value from the stack (depends on register suffix). Uses the stack pointer implicitly.
- `CALL`     | `CALL MEMCPY`                 | Pushes the return address onto the stack and performs an absolute jump to the address. Uses the stack pointer implicitly.
+ `CALL.*`   | `CALL.* %R1W, MEMCPY, %R0`    | If condition is true (see absolute jump), then the return address is pushed onto the stack and core will perform an absolute jump to the address. Uses the stack pointer implicitly.
  `RET`      | `RET`                         | Pops the return address from the stack and jumps to it. Uses the stack pointer implicitly.
  `ENTER`    | `ENTER 4`                     | Allocates some space on the stack when entering a function. Uses the stack pointer and base pointer implicitly.
  `LEAVE`    | `LEAVE`                       | Used to free the stack when leaving a function. Uses the stack pointer and base pointer implicitly.

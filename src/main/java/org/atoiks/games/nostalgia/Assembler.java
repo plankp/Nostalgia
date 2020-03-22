@@ -149,8 +149,7 @@ public final class Assembler {
             // IEX carrying immediates anyway so we are good for now...)
             int opcode = Byte.toUnsignedInt(bytes[addrOpc]) >> 1;
             switch (opcode) {
-                case Opcode.OP0_CALL:       // OP0 I class opcodes
-                case Opcode.OP0_ENTER:
+                case Opcode.OP0_ENTER:      // OP0 I class opcodes
                 {
                     final int lower = repl & 0b0000_0001_1111_1111;
                     final int widen = repl & 0b1111_1110_0000_0000;
@@ -209,6 +208,12 @@ public final class Assembler {
                 case Opcode.OP0_LD_B:
                 case Opcode.OP0_ST_B:
                 case Opcode.OP0_CMOV_I:
+                case Opcode.OP0_CALL_Z:
+                case Opcode.OP0_CALL_NZ:
+                case Opcode.OP0_CALL_GE:
+                case Opcode.OP0_CALL_GT:
+                case Opcode.OP0_CALL_LE:
+                case Opcode.OP0_CALL_LT:
                 {
                     final int lower = repl & 0b0000_0000_0000_0111;
                     final int widen = repl & 0b1111_1111_1111_1000;
@@ -490,10 +495,6 @@ public final class Assembler {
                 buf = checkInstrClassIR(operands);
                 this.encoder.pop(buf[0], buf[1]);
                 break;
-            case "CALL":
-                buf = checkInstrClassI(operands);
-                this.encoder.call(buf[0]);
-                break;
             case "RET":
                 checkOperandCount(operands, 0);
                 this.encoder.ret();
@@ -598,6 +599,30 @@ public final class Assembler {
             case "PSUB.B":
                 buf = checkInstrClassRRR(operands);
                 this.encoder.psubB(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.Z":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callZ(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.NZ":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callNZ(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.GE":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callGE(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.GT":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callGT(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.LE":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callLE(buf[0], buf[1], buf[2]);
+                break;
+            case "CALL.LT":
+                buf = checkInstrClassIRR(operands);
+                this.encoder.callLT(buf[0], buf[1], buf[2]);
                 break;
             case "IMUL":
                 buf = checkInstrClassRRRR(operands);

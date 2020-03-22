@@ -125,9 +125,6 @@ public final class Decoder {
             case Opcode.OP0_POP:
                 vis.pop(immMi, rA);
                 break;
-            case Opcode.OP0_CALL:
-                vis.call(immLo);
-                break;
             case Opcode.OP0_RET:
                 vis.ret();
                 break;
@@ -196,6 +193,24 @@ public final class Decoder {
                 break;
             case Opcode.OP0_PSUB_B:
                 vis.psubB(rC, rB, rA);
+                break;
+            case Opcode.OP0_CALL_Z:
+                vis.callZ(immHi, rB, rA);
+                break;
+            case Opcode.OP0_CALL_NZ:
+                vis.callNZ(immHi, rB, rA);
+                break;
+            case Opcode.OP0_CALL_GE:
+                vis.callGE(immHi, rB, rA);
+                break;
+            case Opcode.OP0_CALL_GT:
+                vis.callGT(immHi, rB, rA);
+                break;
+            case Opcode.OP0_CALL_LE:
+                vis.callLE(immHi, rB, rA);
+                break;
+            case Opcode.OP0_CALL_LT:
+                vis.callLT(immHi, rB, rA);
                 break;
             default:
                 // Reconstruct the whole opcode

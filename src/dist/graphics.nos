@@ -20,7 +20,7 @@
     .ALIGN  2
 DRAW_GLYPH:
     PUSH    %R1, 0
-    CALL    VID_OFFSET
+    CALL.Z  %R0, VID_OFFSET, %R0
     JREL.Z  %R1, +2             ; skip illegal coordinates
     ST.B    %R2, 0, %R1         ; ST.B automatically uses %R2L
     POP     %R1, 0
@@ -38,7 +38,7 @@ DRAW_GLYPH:
     .ALIGN  2
 DRAW_STYLE:
     PUSH    %R1, 0
-    CALL    VID_OFFSET
+    CALL.Z  %R0, VID_OFFSET, %R0
     JREL.Z  %R1, +2             ; skip illegal coordinates
     ST.B    %R2, 1, %R1         ; ST.B automatically uses %R2L
     POP     %R1, 0

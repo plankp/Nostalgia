@@ -276,11 +276,6 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void call(int imm) {
-        this.emitOp0I(Opcode.OP0_CALL, imm);
-    }
-
-    @Override
     public void ret() {
         this.emitOp0I(Opcode.OP0_RET, 0);
     }
@@ -393,6 +388,36 @@ public final class Encoder implements InstrVisitor {
     @Override
     public void psubB(int rC, int rB, int rA) {
         this.emitOp0RRR(Opcode.OP0_PSUB_B, rC, rB, rA);
+    }
+
+    @Override
+    public void callZ(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_Z, imm, radj, rflag);
+    }
+
+    @Override
+    public void callNZ(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_NZ, imm, radj, rflag);
+    }
+
+    @Override
+    public void callGE(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_GE, imm, radj, rflag);
+    }
+
+    @Override
+    public void callGT(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_GT, imm, radj, rflag);
+    }
+
+    @Override
+    public void callLE(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_LE, imm, radj, rflag);
+    }
+
+    @Override
+    public void callLT(int imm, int radj, int rflag) {
+        this.emitOp0IRR(Opcode.OP0_CALL_LT, imm, radj, rflag);
     }
 
     @Override

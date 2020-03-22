@@ -55,19 +55,19 @@ LOOP:
     ; compute the velocity based on keyboard input
     ; Note: up + right only moves right (think snake!)
     MOV.I   %R3, K_UP
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R4, 0x00FF, %R3    ; (x:y) should be (0:-1)
 
     MOV.I   %R3, K_DOWN
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R4, 0x0001, %R3    ; (x:y) should be (0:+1)
 
     MOV.I   %R3, K_LEFT
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R4, 0xFF00, %R3    ; (x:y) should be (-1:0)
 
     MOV.I   %R3, K_RIGHT
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R4, 0x0100, %R3    ; (x:y) should be (+1:0)
 
     ; clear the original stuff
@@ -75,7 +75,7 @@ LOOP:
     LD.B    %R7, 1, %R2         ; R7 = (old) y-coordinate
 
     MOV.I   %R1, 0x20           ; display ' ' at the original spot
-    CALL    DISP_CHAR           ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
+    CALL.Z  %R0, DISP_CHAR, %R0 ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
 
     ; compute the new position
     ADD.R   %R6, %R6, %R4H
@@ -94,7 +94,7 @@ LOOP:
     ST.B    %R7, 1, %R2         ; y-coordinate = R7
 
     MOV.I   %R1, 0x01           ; display a smiley face at the new spot
-    CALL    DISP_CHAR           ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
+    CALL.Z  %R0, DISP_CHAR, %R0 ; void DISP_CHAR(%R1:char, %R6:x, %R7:y)
 
     ; THIS LINE IS VERY IMPORTANT
     JABS.Z  %R0, LOOP, %R0      ; jump to the process loop

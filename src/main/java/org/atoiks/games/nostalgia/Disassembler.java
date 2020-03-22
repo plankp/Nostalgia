@@ -338,11 +338,6 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void call(int imm) {
-        this.out.printf("CALL       0x%x", this.loadImm9(imm));
-    }
-
-    @Override
     public void ret() {
         this.out.printf("RET");
     }
@@ -531,6 +526,60 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRA, rdst),
                 this.rexSynthRegister(this.rexRC, rsrc),
                 this.rexSynthRegister(this.rexRB, rflag));
+        this.resetREX();
+    }
+
+    @Override
+    public void callZ(int imm, int radj, int rflag) {
+        this.out.printf("CALL.Z     %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void callNZ(int imm, int radj, int rflag) {
+        this.out.printf("CALL.NZ    %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void callGE(int imm, int radj, int rflag) {
+        this.out.printf("CALL.GE    %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void callGT(int imm, int radj, int rflag) {
+        this.out.printf("CALL.GT    %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void callLE(int imm, int radj, int rflag) {
+        this.out.printf("CALL.LE    %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void callLT(int imm, int radj, int rflag) {
+        this.out.printf("CALL.LT    %s, 0x%x, %s",
+                this.rexSynthRegister(this.rexRA, rflag),
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, radj));
         this.resetREX();
     }
 

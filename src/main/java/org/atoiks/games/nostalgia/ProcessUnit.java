@@ -642,16 +642,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void call(int imm9) {
-        // Due to how this#nextWord() is implemented, by the time this
-        // instruction is actually handled here, ip would already contain the
-        // address of the next instruction!
-
-        this.pushDword(this.ip);
-        this.ip = this.loadImm9(imm9);
-    }
-
-    @Override
     public void ret() {
         this.ip = this.popDword();
     }
@@ -968,6 +958,96 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 | (((lhl - rhl) & 0xFF) << 16)
                 | (((llh - rlh) & 0xFF) << 8)
                 | (((lll - rll) & 0xFF)));
+        this.resetREX();
+    }
+
+    @Override
+    public void callZ(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) == 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void callNZ(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) != 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void callGE(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) >= 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void callGT(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) > 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void callLE(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) <= 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void callLT(int imm3, int rB, int rA) {
+        // The immediate is loaded regardless of the branch!
+
+        final int imm = this.loadImm3(imm3);
+        final int radj = ((this.rexRB & 0x1) << 3) | rB;
+        final int rflag = ((this.rexRA & 0x1) << 3) | rA;
+
+        if (this.rexReadSigned(rflag, this.rexRA) < 0) {
+            this.pushDword(this.ip);
+            this.ip = imm + this.rexReadSigned(radj, this.rexRB);
+        }
         this.resetREX();
     }
 
@@ -1355,12 +1435,6 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void call(int imm9) {
-        // Most of the cost comes from the implicit push
-        this.timingBank = 4;
-    }
-
-    @Override
     public void ret() {
         // Most of the cost comes from the implicit pop
         this.timingBank = 5;
@@ -1476,6 +1550,48 @@ final class InstrTiming implements InstrVisitor {
     @Override
     public void psubB(int rlhs, int rrhs, int rdst) {
         this.timingBank = 1;
+    }
+
+    @Override
+    public void callZ(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void callNZ(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void callGE(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void callGT(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void callLE(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void callLT(int imm3, int radj, int rflag) {
+        // Cost is like super high because it needs to fetch the value, check
+        // the condition, then branch!
+        this.timingBank = 6;
     }
 
     @Override

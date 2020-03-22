@@ -112,7 +112,7 @@ GAME_END:
     MOV.I   %R2, 0x2000
     MOV.I   %R3, 10
     MOV.I   %R4, TXT_GAMEOVER
-    CALL    MEMCPY
+    CALL.Z  %R0, MEMCPY, %R0
 
     JREL.Z  %R0, -4             ; hang
 
@@ -139,11 +139,11 @@ GAME_LOOP:
     ; check if we are currently on any track. Note: this only works because we
     ; have not painted the players yet!
     OR.R    %R2, %R6, %R0
-    CALL    VID_OFFSET
+    CALL.Z  %R0, VID_OFFSET, %R0
     OR.R    %R6, %R3, %R0       ; %R6 is where p1 will be (in vidmem)
 
     OR.R    %R2, %R7, %R0
-    CALL    VID_OFFSET
+    CALL.Z  %R0, VID_OFFSET, %R0
     OR.R    %R7, %R3, %R0       ; %R7 is where p1 will be (in vidmem)
 
     ; if we are on a track, then since the video memory was initialized to null
@@ -162,46 +162,46 @@ GAME_LOOP:
 
     ; check for keyboard input. Note: only one direction per update frame
     MOV.I   %R3, 87             ; 'W'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R10, 0x00FF, %R3
 
     MOV.I   %R3, 83             ; 'S'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R10, 0x0001, %R3
 
     MOV.I   %R3, 65             ; 'A'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R10, 0xFF00, %R3
 
     MOV.I   %R3, 68             ; 'D'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R10, 0x0100, %R3
 
     MOV.I   %R3, 73             ; 'I'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R11, 0x00FF, %R3
 
     MOV.I   %R3, 75             ; 'K'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R11, 0x0001, %R3
 
     MOV.I   %R3, 74             ; 'J'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R11, 0xFF00, %R3
 
     MOV.I   %R3, 76             ; 'L'
-    CALL    CHK_DOWN
+    CALL.Z  %R0, CHK_DOWN, %R0
     CMOV.I  %R11, 0x0100, %R3
 
     ; compute the new position
     ADD.R   %R3, %R12H, %R10H
     ADD.R   %R4, %R12L, %R10L
-    CALL    VID_WRAP
+    CALL.Z  %R0, VID_WRAP, %R0
     OR.R    %R12, %R2, %R0
 
     ADD.R   %R3, %R13H, %R11H
     ADD.R   %R4, %R13L, %R11L
-    CALL    VID_WRAP
+    CALL.Z  %R0, VID_WRAP, %R0
     OR.R    %R13, %R2, %R0
 
     ; save it back into memory
