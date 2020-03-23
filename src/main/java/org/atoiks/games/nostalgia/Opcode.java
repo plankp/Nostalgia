@@ -86,6 +86,8 @@ public final class Opcode {
     public static final int OP0_CALL_LE = 53 & MASK_OP0;
     public static final int OP0_CALL_LT = 54 & MASK_OP0;
 
+    public static final int OP0_MOV_HI  = 55 & MASK_OP0;
+
     public static final int OP0_RESV    = 63 & MASK_OP0;
 
     // All OP1 opcodes must be masked to MASK_OP1!

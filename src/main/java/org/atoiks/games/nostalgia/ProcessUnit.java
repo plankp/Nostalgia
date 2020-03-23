@@ -299,6 +299,34 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void movHI(int imm6, int rA) {
+        final int imm  = this.loadImm6(imm6);
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        int old = this.readRegDword(rdst);
+        switch ((this.rexRA >> 1) & 0x3) {
+            case 0:
+                old &= 0x000000FF;
+                old |= (imm & 0xFF) << 8;
+                break;
+            case 1:
+                old &= 0x0000000F;
+                old |= (imm & 0xF) << 4;
+                break;
+            case 2:
+                old &= 0x00000F00;
+                old |= (imm & 0xF) << 12;
+                break;
+            case 3:
+                old &= 0x0000FFFF;
+                old |= (imm & 0xFFFF) << 16;
+                break;
+        }
+        this.rexWrite(rdst, this.rexRA, old);
+        this.resetREX();
+    }
+
+    @Override
     public void addR(int rC, int rB, int rA) {
         final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
@@ -1295,6 +1323,11 @@ final class InstrTiming implements InstrVisitor {
 
     @Override
     public void movI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void movHI(int imm6, int rdst) {
         this.timingBank = 1;
     }
 

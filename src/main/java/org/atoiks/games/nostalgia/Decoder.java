@@ -212,6 +212,9 @@ public final class Decoder {
             case Opcode.OP0_CALL_LT:
                 vis.callLT(immHi, rB, rA);
                 break;
+            case Opcode.OP0_MOV_HI:
+                vis.movHI(immMi, rA);
+                break;
             case Opcode.OP0_RESV:
                 System.err.println("RESERVED OP0 CLASS OPCODE");
                 break;
