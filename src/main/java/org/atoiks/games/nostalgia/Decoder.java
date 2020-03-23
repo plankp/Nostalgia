@@ -212,6 +212,9 @@ public final class Decoder {
             case Opcode.OP0_CALL_LT:
                 vis.callLT(immHi, rB, rA);
                 break;
+            case Opcode.OP0_RESV:
+                System.err.println("RESERVED OP0 CLASS OPCODE");
+                break;
             default:
                 // Reconstruct the whole opcode
                 vis.illegalOp((op << 9) | lo9);
