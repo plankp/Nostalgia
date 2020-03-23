@@ -395,6 +395,10 @@ public final class Assembler {
                 buf = checkInstrClassIR(operands);
                 this.encoder.movI(buf[0], buf[1]);
                 break;
+            case "MOV.LO":
+                buf = checkInstrClassIR(operands);
+                this.encoder.movLO(buf[0], buf[1]);
+                break;
             case "MOV.HI":
                 buf = checkInstrClassIR(operands);
                 this.encoder.movHI(buf[0], buf[1]);

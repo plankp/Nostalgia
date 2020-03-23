@@ -299,6 +299,34 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void movLO(int imm6, int rA) {
+        final int imm  = this.loadImm6(imm6);
+        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+
+        int old = this.readRegDword(rdst);
+        switch ((this.rexRA >> 1) & 0x3) {
+            case 0:
+                old &= 0x0000FF00;
+                old |= imm & 0xFF;
+                break;
+            case 1:
+                old &= 0x000000F0;
+                old |= imm & 0xF;
+                break;
+            case 2:
+                old &= 0x0000F000;
+                old |= (imm & 0xF) << 8;
+                break;
+            case 3:
+                old &= 0xFFFF0000;
+                old |= imm & 0xFFFF;
+                break;
+        }
+        this.writeRegDword(rdst, old);
+        this.resetREX();
+    }
+
+    @Override
     public void movHI(int imm6, int rA) {
         final int imm  = this.loadImm6(imm6);
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
@@ -322,7 +350,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 old |= (imm & 0xFFFF) << 16;
                 break;
         }
-        this.rexWrite(rdst, this.rexRA, old);
+        this.writeRegDword(rdst, old);
         this.resetREX();
     }
 
@@ -1316,13 +1344,18 @@ final class InstrTiming implements InstrVisitor {
 
     @Override
     public void illegalOp(int fullWord) {
-        // Operation is illega anyway, timing is irrelevant. We give it 0
+        // Operation is illegal anyway, timing is irrelevant. We give it 0
         // meaning if it did something, it took no time!
         this.timingBank = 0;
     }
 
     @Override
     public void movI(int imm6, int rdst) {
+        this.timingBank = 1;
+    }
+
+    @Override
+    public void movLO(int imm6, int rdst) {
         this.timingBank = 1;
     }
 

@@ -151,6 +151,11 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void movLO(int imm, int rdst) {
+        this.emitOp0IR(Opcode.OP0_MOV_LO, imm, rdst);
+    }
+
+    @Override
     public void movHI(int imm, int rdst) {
         this.emitOp0IR(Opcode.OP0_MOV_HI, imm, rdst);
     }

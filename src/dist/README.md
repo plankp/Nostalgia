@@ -60,6 +60,7 @@ That is a conditional suffix and must be substituted with one of the following:
  Name       | Example                       | Description
 ------------|-------------------------------|------------
  `MOV.I`    | `MOV.I %R1W, 10`              | Moves a maximum 16 bit immediate value into a register.
+ `MOV.LO`   | `MOV.LO %R1W, 10`             | Moves a maximum 16 bit immediate value into the lower half of the register. The higher half is left untouched, and the immediate value is potentially subject to truncation.
  `MOV.HI`   | `MOV.HI %R1W, 10`             | Moves a maximum 16 bit immediate value into the higher half of the register. The lower half is left untouched, and the immediate value is potentially subject to truncation.
  `ADD.R`    | `ADD.R %R1W, %R2W, %R3W`      | Adds two registers and stores the result into a register.
  `SUB.R`    | `SUB.R %R1W, %R2W, %R3W`      | Takes the difference of two registers and stores the result into a register.

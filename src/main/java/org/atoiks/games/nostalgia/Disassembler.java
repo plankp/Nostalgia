@@ -124,6 +124,14 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void movLO(int imm, int rdst) {
+        this.out.printf("MOV.LO     %s, 0x%x",
+                this.rexSynthRegister(this.rexRA, rdst),
+                this.loadImm6(imm));
+        this.resetREX();
+    }
+
+    @Override
     public void movHI(int imm, int rdst) {
         this.out.printf("MOV.HI     %s, 0x%x",
                 this.rexSynthRegister(this.rexRA, rdst),

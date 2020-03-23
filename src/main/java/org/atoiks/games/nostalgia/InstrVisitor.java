@@ -7,6 +7,7 @@ public interface InstrVisitor {
     // ***** OP0 class *****
 
     public void movI(int imm6, int rdst);
+    public void movLO(int imm6, int rdst);
     public void movHI(int imm6, int rdst);
 
     public void addR(int rlhs, int rrhs, int rdst);
