@@ -86,8 +86,8 @@ public final class Opcode {
     public static final int OP0_CALL_LE = 53 & MASK_OP0;
     public static final int OP0_CALL_LT = 54 & MASK_OP0;
 
-    public static final int OP0_MOV_HI  = 55 & MASK_OP0;
-    public static final int OP0_MOV_LO  = 56 & MASK_OP0; // TODO: RESHUFFLE
+    public static final int OP0_MOV_LO  = 55 & MASK_OP0;
+    public static final int OP0_MOV_HI  = 56 & MASK_OP0;
 
     public static final int OP0_RESV    = 63 & MASK_OP0;
 
