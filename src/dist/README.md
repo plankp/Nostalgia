@@ -41,11 +41,7 @@ Using one that's not supported would cause the assembler to crash.
  `.INCLUDE` | `.INCLUDE ./dat.nos`          | Includes a file (C's `#include`)
  `.IMPORT`  | `.IMPORT ./utils/memcpy.nos`  | Includes a file once even when used more than once.
 
-Here is a list of instructions supported by the assembler.
-All instructions are case insensitive.
-Using one that's not supported would cause the assembler to crash.
-
-Note: Some instructions end with a `.*`.
+Some instructions end with a `.*`.
 That is a conditional suffix and must be substituted with one of the following:
 
  Conditional Suffix | Execute Condition
@@ -56,6 +52,23 @@ That is a conditional suffix and must be substituted with one of the following:
  `.GE`              | If the register begin tested ≥ zero. (signed)
  `.LT`              | If the register begin tested < zero. (signed)
  `.LE`              | If the register begin tested ≤ zero. (signed)
+
+Some instructions have `<regmask>` as an operand.
+That is a register mask.
+It is conceptually as a non-empty set of registers sorted in natural order (so `%R1`, `%R2`, ...).
+It is also written as a list of registers:
+
+```
+LDM.D %R1D, %R2D, %R3D, %R4D, %R5D, %SP
+```
+
+Notice all the registers of the mask have the same [access mode suffix](#Registers).
+These restrictions will be noted by each individual instruction using a register mask.
+Using a different access mode suffix from the one specified results in an error.
+
+Here is a list of instructions supported by the assembler.
+All instructions are case insensitive.
+Using one that's not supported would cause the assembler to crash.
 
  Name       | Example                       | Description
 ------------|-------------------------------|------------
@@ -87,6 +100,12 @@ That is a conditional suffix and must be substituted with one of the following:
  `ST.W`     | `ST.W %R2W, 0x1000, %R0W`     | Stores a word into memory at address `0x1000+%R0W`.
  `LD.B`     | `LD.B %R2L, 0x1000, %R0W`     | Loads a byte from memory from address `0x1000+%R0W`.
  `ST.B`     | `ST.B %R2L, 0x1000, %R0W`     | Stores a byte into memory at address `0x1000+%R0W`.
+ `LDM.D`    | `LDM.D <regmask>, %SP`        | Performs `LD.D` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `D`. 
+ `STM.D`    | `STM.D <regmask>, %SP`        | Decrements address then performs `ST.D` in reverse order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `D`. 
+ `LDM.W`    | `LDM.W <regmask>, %SP`        | Performs `LD.W` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `W`. 
+ `STM.W`    | `STM.W <regmask>, %SP`        | Decrements address then performs `ST.W` in reverse order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `W`. 
+ `LDM.B`    | `LDM.B <regmask>, %SP`        | Performs `LD.B` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `L`. 
+ `STM.B`    | `STM.B <regmask>, %SP`        | Decrements address then performs `ST.B` in reverse order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `L`. 
  `SHL.R`    | `SHL.R %R2W, %R1W`            | Performs left shift on register (same as `SAL.R`).
  `SAL.R`    | `SAL.R %R2W, %R1W`            | Performs left shift on register (same as `SHL.R`).
  `SHR.R`    | `SHR.R %R2W, %R1W`            | Performs logical right shift on register.

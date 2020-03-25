@@ -539,6 +539,30 @@ public final class Assembler {
                 buf = checkInstrClassIRR(operands);
                 this.encoder.stB(buf[0], buf[1], buf[2]);
                 break;
+            case "LDM.D":
+                buf = checkInstrMultipleLDST(operands, 0b11);
+                this.encoder.ldmD(buf[0], buf[1]);
+                break;
+            case "STM.D":
+                buf = checkInstrMultipleLDST(operands, 0b11);
+                this.encoder.stmD(buf[0], buf[1]);
+                break;
+            case "LDM.W":
+                buf = checkInstrMultipleLDST(operands, 0b00);
+                this.encoder.ldmW(buf[0], buf[1]);
+                break;
+            case "STM.W":
+                buf = checkInstrMultipleLDST(operands, 0b00);
+                this.encoder.stmW(buf[0], buf[1]);
+                break;
+            case "LDM.B":
+                buf = checkInstrMultipleLDST(operands, 0b01);
+                this.encoder.ldmB(buf[0], buf[1]);
+                break;
+            case "STM.B":
+                buf = checkInstrMultipleLDST(operands, 0b01);
+                this.encoder.stmB(buf[0], buf[1]);
+                break;
             case "SHL.R":
             case "SAL.R":
                 // no distinction between arithmetic and logical left shift
@@ -729,6 +753,34 @@ public final class Assembler {
         final int rs1 = getRegisterIndex(operands[2]);
         final int rs2 = getRegisterIndex(operands[3]);
         return new int[] { rs1, rs2, rd2, rd1 };
+    }
+
+    private int[] checkInstrMultipleLDST(String[] operands, int validRexDataWidth) {
+        // This is encoded the same as class IR, but has a very different
+        // syntax (as far as the assembler is concerned)
+
+        if (operands.length < 2) {
+            throw new RuntimeException("Assembler: Illegal operands count < 2: " + Arrays.toString(operands));
+        }
+
+        // actually 16 bits, but use int to prevent accidental sign extension.
+        int regmask = 0;
+        for (int i = 0; i < operands.length - 1; ++i) {
+            final int rex = getRegisterIndex(operands[i]);
+            if (((rex >> 4) & 0x3) != (validRexDataWidth & 0x3)) {
+                throw new RuntimeException("Assembler: Illegal register width for register mask: " + operands[i]);
+            }
+
+            regmask |= 1 << (rex & 0xF);
+        }
+
+        if (regmask == 0) {
+            throw new RuntimeException("Assembler: Illegal register mask of 0: " + Arrays.toString(operands));
+        }
+
+        final int rx = getRegisterIndex(operands[operands.length - 1]);
+
+        return new int[] { regmask, rx };
     }
 
     private static void checkOperandCount(String[] operands, int count) {

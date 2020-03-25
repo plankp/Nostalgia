@@ -798,6 +798,126 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void ldmD(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+
+        for (int index = 0, addr = base; index < 16; ++index) {
+            if ((mask & (1 << index)) != 0) {
+                this.memory.read(addr, buf);
+                this.writeRegDword(index, buf.flip().getInt());
+
+                addr += 4;
+                buf.flip();
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void stmD(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+        final ByteBuffer buf = ByteBuffer.allocate(4);
+
+        for (int index = 15, addr = base; index >= 0; --index) {
+            if ((mask & (1 << index)) != 0) {
+                addr -= 4;
+
+                buf.putInt(this.readRegDword(index));
+                this.memory.write(addr, buf.flip());
+
+                buf.flip();
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void ldmW(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
+
+        for (int index = 0, addr = base; index < 16; ++index) {
+            if ((mask & (1 << index)) != 0) {
+                this.memory.read(addr, buf);
+                this.writeRegWord(index, buf.flip().getInt());
+
+                addr += 2;
+                buf.flip();
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void stmW(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+        final ByteBuffer buf = ByteBuffer.allocate(2);
+
+        for (int index = 15, addr = base; index >= 0; --index) {
+            if ((mask & (1 << index)) != 0) {
+                addr -= 2;
+
+                buf.putInt(this.readRegWord(index));
+                this.memory.write(addr, buf.flip());
+
+                buf.flip();
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void ldmB(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+
+        for (int index = 0, addr = base; index < 16; ++index) {
+            if ((mask & (1 << index)) != 0) {
+                this.writeRegLowByte(index, this.memory.read(addr));
+                addr++;
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
+    public void stmB(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+
+        for (int index = 15, addr = base; index >= 0; --index) {
+            if ((mask & (1 << index)) != 0) {
+                addr--;
+                this.memory.write(addr, this.readRegLowByte(index));
+            }
+        }
+
+        this.resetREX();
+    }
+
+    @Override
     public void shlR(int rC, int rB, int rA) {
         final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
@@ -1559,6 +1679,36 @@ final class InstrTiming implements InstrVisitor {
     @Override
     public void stB(int imm3, int radj, int rsrc) {
         this.timingBank = 4;
+    }
+
+    @Override
+    public void ldmD(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void stmD(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void ldmW(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void stmW(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void ldmB(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void stmB(int imm3, int rbase) {
+        this.timingBank = 6;
     }
 
     @Override

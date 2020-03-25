@@ -27,6 +27,10 @@ public final class Opcode {
     //
     // - Three registers:
     //   0xxx xxxc ccbb baaa
+    //
+    // Note: All possible OP0 opcodes have been filled!
+    // (OP0_RESV reserved to allow future extensions)
+    // (and I guess if you decide to kill-off confusing ones...)
 
     public static final int OP0_MOV_I   = 0 & MASK_OP0;
     public static final int OP0_ADD_R   = 1 & MASK_OP0;
@@ -88,6 +92,15 @@ public final class Opcode {
 
     public static final int OP0_MOV_LO  = 55 & MASK_OP0;
     public static final int OP0_MOV_HI  = 56 & MASK_OP0;
+
+    public static final int OP0_LDM_D   = 57 & MASK_OP0;
+    public static final int OP0_STM_D   = 58 & MASK_OP0;
+
+    public static final int OP0_LDM_W   = 59 & MASK_OP0;
+    public static final int OP0_STM_W   = 60 & MASK_OP0;
+
+    public static final int OP0_LDM_B   = 61 & MASK_OP0;
+    public static final int OP0_STM_B   = 62 & MASK_OP0;
 
     public static final int OP0_RESV    = 63 & MASK_OP0;
 

@@ -218,6 +218,24 @@ public final class Decoder {
             case Opcode.OP0_MOV_HI:
                 vis.movHI(immMi, rA);
                 break;
+            case Opcode.OP0_LDM_D:
+                vis.ldmD(immMi, rA);
+                break;
+            case Opcode.OP0_STM_D:
+                vis.stmD(immMi, rA);
+                break;
+            case Opcode.OP0_LDM_W:
+                vis.ldmW(immMi, rA);
+                break;
+            case Opcode.OP0_STM_W:
+                vis.stmW(immMi, rA);
+                break;
+            case Opcode.OP0_LDM_B:
+                vis.ldmB(immMi, rA);
+                break;
+            case Opcode.OP0_STM_B:
+                vis.stmB(immMi, rA);
+                break;
             case Opcode.OP0_RESV:
                 System.err.println("RESERVED OP0 CLASS OPCODE");
                 break;

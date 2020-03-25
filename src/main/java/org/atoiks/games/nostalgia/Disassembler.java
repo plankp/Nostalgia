@@ -110,6 +110,24 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         return (short) full;
     }
 
+    private String getRegmask(int mask, char suffix) {
+        // Do we really want to allow R0 in regmasks?
+
+        final StringBuilder sb = new StringBuilder();
+
+        for (int index = 0; index < 16; ++index) {
+            if ((mask & (1 << index)) != 0) {
+                sb.append("%R").append(index).append(suffix).append(',');
+            }
+        }
+
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public void illegalOp(int fullWord) {
         this.out.printf("0x%04x     ??", fullWord);
@@ -419,6 +437,60 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                 this.rexSynthRegister(this.rexRA, rsrc),
                 this.loadImm3(imm),
                 this.rexSynthRegister(this.rexRB, radj));
+        this.resetREX();
+    }
+
+    @Override
+    public void ldmD(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("LDM.D      %s, %s",
+                this.getRegmask(mask, 'D'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void stmD(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("STM.D      %s, %s",
+                this.getRegmask(mask, 'D'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void ldmW(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("LDM.W      %s, %s",
+                this.getRegmask(mask, 'W'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void stmW(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("STM.W      %s, %s",
+                this.getRegmask(mask, 'W'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void ldmB(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("LDM.B      %s, %s",
+                this.getRegmask(mask, 'L'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void stmB(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("STM.B      %s, %s",
+                this.getRegmask(mask, 'L'),
+                this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
     }
 
