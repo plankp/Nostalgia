@@ -117,11 +117,12 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
         for (int index = 0; index < 16; ++index) {
             if ((mask & (1 << index)) != 0) {
-                sb.append("%R").append(index).append(suffix).append(',');
+                sb.append("%R").append(index).append(suffix).append(", ");
             }
         }
 
         if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
             sb.deleteCharAt(sb.length() - 1);
         }
 
