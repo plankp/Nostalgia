@@ -92,7 +92,7 @@ CHK_DOWN:
 ;;
     .ALIGN  2
 VID_WRAP:
-    PUSH.3  %R5, %R3, %R4
+    STM.WS  %R5, %R3, %R4, %SP
 
     MOV.I   %R5, 80             ; wrap x
     ADD.R   %R3, %R3, %R5
@@ -102,7 +102,7 @@ VID_WRAP:
     ADD.R   %R4, %R4, %R5
     IDIV    %R0, %R2L, %R4, %R5
 
-    POP.3   %R5, %R3, %R4
+    LDM.WS   %R5, %R3, %R4, %SP
     RET
 
     .ALIGN  2
