@@ -555,13 +555,13 @@ public final class Assembler {
                 buf = checkInstrMultipleLDST(operands, 0b00);
                 this.encoder.stmW(buf[0], buf[1]);
                 break;
-            case "LDM.B":
+            case "LDM.L":
                 buf = checkInstrMultipleLDST(operands, 0b01);
-                this.encoder.ldmB(buf[0], buf[1]);
+                this.encoder.ldmLB(buf[0], buf[1]);
                 break;
-            case "STM.B":
+            case "STM.L":
                 buf = checkInstrMultipleLDST(operands, 0b01);
-                this.encoder.stmB(buf[0], buf[1]);
+                this.encoder.stmLB(buf[0], buf[1]);
                 break;
             case "LDM.DS":
                 buf = checkInstrMultipleLDST(operands, 0b11);
@@ -579,13 +579,13 @@ public final class Assembler {
                 buf = checkInstrMultipleLDST(operands, 0b00);
                 this.encoder.stmW(buf[0] | 1, buf[1]);
                 break;
-            case "LDM.BS":
+            case "LDM.LS":
                 buf = checkInstrMultipleLDST(operands, 0b01);
-                this.encoder.ldmB(buf[0] | 1, buf[1]);
+                this.encoder.ldmLB(buf[0] | 1, buf[1]);
                 break;
-            case "STM.BS":
+            case "STM.LS":
                 buf = checkInstrMultipleLDST(operands, 0b01);
-                this.encoder.stmB(buf[0] | 1, buf[1]);
+                this.encoder.stmLB(buf[0] | 1, buf[1]);
                 break;
             case "SHL.R":
             case "SAL.R":

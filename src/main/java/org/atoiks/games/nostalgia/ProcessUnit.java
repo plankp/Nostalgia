@@ -900,7 +900,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void ldmB(int imm6, int rA) {
+    public void ldmLB(int imm6, int rA) {
         final int mask = this.loadImm6(imm6);
         final int rbase = ((this.rexRA & 0x1) << 3) | rA;
 
@@ -921,7 +921,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void stmB(int imm6, int rA) {
+    public void stmLB(int imm6, int rA) {
         final int mask = this.loadImm6(imm6);
         final int rbase = ((this.rexRA & 0x1) << 3) | rA;
 
@@ -1708,12 +1708,12 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void ldmB(int imm3, int rbase) {
+    public void ldmLB(int imm3, int rbase) {
         this.timingBank = 6;
     }
 
     @Override
-    public void stmB(int imm3, int rbase) {
+    public void stmLB(int imm3, int rbase) {
         this.timingBank = 6;
     }
 

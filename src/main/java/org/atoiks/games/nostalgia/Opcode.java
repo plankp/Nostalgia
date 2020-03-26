@@ -99,8 +99,8 @@ public final class Opcode {
     public static final int OP0_LDM_W   = 59 & MASK_OP0;
     public static final int OP0_STM_W   = 60 & MASK_OP0;
 
-    public static final int OP0_LDM_B   = 61 & MASK_OP0;
-    public static final int OP0_STM_B   = 62 & MASK_OP0;
+    public static final int OP0_LDM_LB   = 61 & MASK_OP0;
+    public static final int OP0_STM_LB   = 62 & MASK_OP0;
 
     public static final int OP0_RESV    = 63 & MASK_OP0;
 
