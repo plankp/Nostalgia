@@ -59,10 +59,10 @@ It is conceptually as a non-empty set of registers sorted in natural order (so `
 It is also written as a list of registers:
 
 ```
-LDM.D %R1D, %R2D, %R3D, %R4D, %R5D, %SP
+LDM.W %R1W, %R2W, %R3W, %R4W, %R5W, %SP
 ```
 
-Notice all the registers of the mask have the same [access mode suffix](#Registers).
+Notice all the registers of the mask (`%R1` to `%R5`) have the same [access mode suffix](#Registers).
 These restrictions will be noted by each individual instruction using a register mask.
 Using a different access mode suffix from the one specified results in an error.
 
