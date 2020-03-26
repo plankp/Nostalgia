@@ -65,6 +65,7 @@ LDM.W %R1W, %R2W, %R3W, %R4W, %R5W, %SP
 Notice all the registers of the mask (`%R1` to `%R5`) have the same [access mode suffix](#Registers).
 These restrictions will be noted by each individual instruction using a register mask.
 Using a different access mode suffix from the one specified results in an error.
+Another restriction is that the zero register `%R0` cannot appear in the mask.
 
 Here is a list of instructions supported by the assembler.
 All instructions are case insensitive.
@@ -106,6 +107,12 @@ Using one that's not supported would cause the assembler to crash.
  `STM.W`    | `STM.W <regmask>, %SP`        | Decrements address then performs `ST.W` in reverse order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `W`. 
  `LDM.B`    | `LDM.B <regmask>, %SP`        | Performs `LD.B` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `L`. 
  `STM.B`    | `STM.B <regmask>, %SP`        | Decrements address then performs `ST.B` in reverse order of register mask. The `%SP` operand indicates the initial memory address. Access mode suffix must be `L`. 
+ `LDM.DS`   | `LDM.DS <regmask>, %SP`       | Performs `LD.D` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `D`. 
+ `STM.DS`   | `STM.DS <regmask>, %SP`       | Decrements address then performs `ST.D` in reverse order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `D`. 
+ `LDM.WS`   | `LDM.WS <regmask>, %SP`       | Performs `LD.W` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `W`. 
+ `STM.WS`   | `STM.WS <regmask>, %SP`       | Decrements address then performs `ST.W` in reverse order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `W`. 
+ `LDM.BS`   | `LDM.BS <regmask>, %SP`       | Performs `LD.B` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `L`. 
+ `STM.BS`   | `STM.BS <regmask>, %SP`       | Decrements address then performs `ST.B` in reverse order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `L`. 
  `SHL.R`    | `SHL.R %R2W, %R1W`            | Performs left shift on register (same as `SAL.R`).
  `SAL.R`    | `SAL.R %R2W, %R1W`            | Performs left shift on register (same as `SHL.R`).
  `SHR.R`    | `SHR.R %R2W, %R1W`            | Performs logical right shift on register.

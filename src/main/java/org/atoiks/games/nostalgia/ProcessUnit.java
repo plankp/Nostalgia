@@ -805,7 +805,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
         final ByteBuffer buf = ByteBuffer.allocate(4);
 
-        for (int index = 0, addr = base; index < 16; ++index) {
+        int addr = base;
+        for (int index = 1; index < 16; ++index) {
             if ((mask & (1 << index)) != 0) {
                 this.memory.read(addr, buf);
                 this.writeRegDword(index, buf.flip().getInt());
@@ -815,6 +816,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 
@@ -826,7 +830,8 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
         final ByteBuffer buf = ByteBuffer.allocate(4);
 
-        for (int index = 15, addr = base; index >= 0; --index) {
+        int addr = base;
+        for (int index = 15; index >= 1; --index) {
             if ((mask & (1 << index)) != 0) {
                 addr -= 4;
 
@@ -837,6 +842,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 
@@ -848,16 +856,20 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
         final ByteBuffer buf = ByteBuffer.allocate(2);
 
-        for (int index = 0, addr = base; index < 16; ++index) {
+        int addr = base;
+        for (int index = 1; index < 16; ++index) {
             if ((mask & (1 << index)) != 0) {
                 this.memory.read(addr, buf);
-                this.writeRegWord(index, buf.flip().getInt());
+                this.writeRegWord(index, buf.flip().getShort());
 
                 addr += 2;
                 buf.flip();
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 
@@ -869,17 +881,21 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
         final ByteBuffer buf = ByteBuffer.allocate(2);
 
-        for (int index = 15, addr = base; index >= 0; --index) {
+        int addr = base;
+        for (int index = 15; index >= 1; --index) {
             if ((mask & (1 << index)) != 0) {
                 addr -= 2;
 
-                buf.putInt(this.readRegWord(index));
+                buf.putShort(this.readRegWord(index));
                 this.memory.write(addr, buf.flip());
 
                 buf.flip();
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 
@@ -890,13 +906,17 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
 
-        for (int index = 0, addr = base; index < 16; ++index) {
+        int addr = base;
+        for (int index = 1; index < 16; ++index) {
             if ((mask & (1 << index)) != 0) {
                 this.writeRegLowByte(index, this.memory.read(addr));
                 addr++;
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 
@@ -907,13 +927,17 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
 
         final int base = this.rexReadUnsigned(rbase, this.rexRA);
 
-        for (int index = 15, addr = base; index >= 0; --index) {
+        int addr = base;
+        for (int index = 15; index >= 1; --index) {
             if ((mask & (1 << index)) != 0) {
                 addr--;
                 this.memory.write(addr, this.readRegLowByte(index));
             }
         }
 
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
         this.resetREX();
     }
 

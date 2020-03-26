@@ -111,11 +111,10 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     private String getRegmask(int mask, char suffix) {
-        // Do we really want to allow R0 in regmasks?
-
         final StringBuilder sb = new StringBuilder();
 
-        for (int index = 0; index < 16; ++index) {
+        // Skip index 0 (which does not mean %R0)
+        for (int index = 1; index < 16; ++index) {
             if ((mask & (1 << index)) != 0) {
                 sb.append("%R").append(index).append(suffix).append(", ");
             }
@@ -444,7 +443,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void ldmD(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("LDM.D      %s, %s",
+        this.out.printf("LDM.D%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'D'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
@@ -453,7 +453,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void stmD(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("STM.D      %s, %s",
+        this.out.printf("STM.D%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'D'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
@@ -462,7 +463,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void ldmW(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("LDM.W      %s, %s",
+        this.out.printf("LDM.W%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'W'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
@@ -471,7 +473,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void stmW(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("STM.W      %s, %s",
+        this.out.printf("STM.W%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'W'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
@@ -480,7 +483,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void ldmB(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("LDM.B      %s, %s",
+        this.out.printf("LDM.B%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'L'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();
@@ -489,7 +493,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void stmB(int imm6, int rbase) {
         final int mask = this.loadImm6(imm6);
-        this.out.printf("STM.B      %s, %s",
+        this.out.printf("STM.B%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
                 this.getRegmask(mask, 'L'),
                 this.rexSynthRegister(this.rexRA, rbase));
         this.resetREX();

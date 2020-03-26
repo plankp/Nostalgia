@@ -563,6 +563,30 @@ public final class Assembler {
                 buf = checkInstrMultipleLDST(operands, 0b01);
                 this.encoder.stmB(buf[0], buf[1]);
                 break;
+            case "LDM.DS":
+                buf = checkInstrMultipleLDST(operands, 0b11);
+                this.encoder.ldmD(buf[0] | 1, buf[1]);
+                break;
+            case "STM.DS":
+                buf = checkInstrMultipleLDST(operands, 0b11);
+                this.encoder.stmD(buf[0] | 1, buf[1]);
+                break;
+            case "LDM.WS":
+                buf = checkInstrMultipleLDST(operands, 0b00);
+                this.encoder.ldmW(buf[0] | 1, buf[1]);
+                break;
+            case "STM.WS":
+                buf = checkInstrMultipleLDST(operands, 0b00);
+                this.encoder.stmW(buf[0] | 1, buf[1]);
+                break;
+            case "LDM.BS":
+                buf = checkInstrMultipleLDST(operands, 0b01);
+                this.encoder.ldmB(buf[0] | 1, buf[1]);
+                break;
+            case "STM.BS":
+                buf = checkInstrMultipleLDST(operands, 0b01);
+                this.encoder.stmB(buf[0] | 1, buf[1]);
+                break;
             case "SHL.R":
             case "SAL.R":
                 // no distinction between arithmetic and logical left shift
@@ -771,7 +795,12 @@ public final class Assembler {
                 throw new RuntimeException("Assembler: Illegal register width for register mask: " + operands[i]);
             }
 
-            regmask |= 1 << (rex & 0xF);
+            final int slot = rex & 0xF;
+            if (slot == 0) {
+                throw new RuntimeException("Assembler: Illegal %R0 use in register mask");
+            }
+
+            regmask |= 1 << slot;
         }
 
         if (regmask == 0) {

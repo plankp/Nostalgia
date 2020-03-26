@@ -55,7 +55,7 @@ POST_INC:
 ;;
     .ALIGN  2
 TERM_SCROLL:
-    PUSH.3  %R1, %R2, %R3
+    STM.WS  %R1W, %R2W, %R3W, %SP
 
     MOV.I   %R1, 0x2000         ; start of graphics memory (line 0)
     MOV.I   %R2, 0x20A0         ; start of graphics memory (line 1)
@@ -71,5 +71,5 @@ CLR_LINE_LOOP:
     SUB.I   %R3, 1
     JABS.NZ %R3, CLR_LINE_LOOP, %R0
 
-    POP.3   %R1, %R2, %R3
+    LDM.WS  %R1, %R2, %R3, %SP
     RET
