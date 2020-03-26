@@ -30,7 +30,6 @@ public final class Opcode {
     //
     // Note: All possible OP0 opcodes have been filled!
     // (OP0_RESV reserved to allow future extensions)
-    // (and I guess if you decide to kill-off confusing ones...)
 
     public static final int OP0_MOV_I   = 0 & MASK_OP0;
     public static final int OP0_MOV_LO  = 1 & MASK_OP0;
