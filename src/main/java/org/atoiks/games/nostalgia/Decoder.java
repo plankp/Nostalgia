@@ -230,6 +230,12 @@ public final class Decoder {
             case Opcode.OP0_STM_LB:
                 vis.stmLB(immMi, rA);
                 break;
+            case Opcode.OP0_LDM_HB:
+                vis.ldmHB(immMi, rA);
+                break;
+            case Opcode.OP0_STM_HB:
+                vis.stmHB(immMi, rA);
+                break;
             case Opcode.OP0_RESV:
                 System.err.println("RESERVED OP0 CLASS OPCODE");
                 break;

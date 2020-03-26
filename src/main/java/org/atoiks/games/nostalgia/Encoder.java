@@ -361,6 +361,16 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
+    public void ldmHB(int imm, int rbase) {
+        this.emitOp0IR(Opcode.OP0_LDM_HB, imm, rbase);
+    }
+
+    @Override
+    public void stmHB(int imm, int rbase) {
+        this.emitOp0IR(Opcode.OP0_STM_HB, imm, rbase);
+    }
+
+    @Override
     public void shlR(int rlhs, int rrhs, int rdst) {
         this.emitOp0RRR(Opcode.OP0_SHL_R, rlhs, rrhs, rdst);
     }

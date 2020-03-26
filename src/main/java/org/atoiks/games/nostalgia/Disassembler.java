@@ -501,6 +501,26 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void ldmHB(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("LDM.H%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
+                this.getRegmask(mask, 'H'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
+    public void stmHB(int imm6, int rbase) {
+        final int mask = this.loadImm6(imm6);
+        this.out.printf("STM.H%c     %s, %s",
+                (mask & 1) != 0 ? 'S' : ' ',
+                this.getRegmask(mask, 'H'),
+                this.rexSynthRegister(this.rexRA, rbase));
+        this.resetREX();
+    }
+
+    @Override
     public void shlR(int rlhs, int rrhs, int rdst) {
         this.out.printf("SHL.R      %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdst),

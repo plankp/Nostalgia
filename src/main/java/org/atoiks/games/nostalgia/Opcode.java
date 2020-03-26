@@ -58,8 +58,11 @@ public final class Opcode {
     public static final int OP0_JREL_LT = 23 & MASK_OP0;
     public static final int OP0_PUSH    = 24 & MASK_OP0;
     public static final int OP0_POP     = 25 & MASK_OP0;
-    // public static final int OP0_PUSH3   = 26 & MASK_OP0;
-    // public static final int OP0_POP3    = 27 & MASK_OP0;
+
+    // TODO: RESHUFFLE
+    public static final int OP0_LDM_HB  = 26 & MASK_OP0;
+    public static final int OP0_STM_HB  = 27 & MASK_OP0;
+
     public static final int OP0_RET     = 28 & MASK_OP0;
     public static final int OP0_ENTER   = 29 & MASK_OP0;
     public static final int OP0_LEAVE   = 30 & MASK_OP0;

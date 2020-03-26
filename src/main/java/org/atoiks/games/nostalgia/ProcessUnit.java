@@ -942,6 +942,48 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
+    public void ldmHB(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+
+        int addr = base;
+        for (int index = 1; index < 16; ++index) {
+            if ((mask & (1 << index)) != 0) {
+                this.writeRegHighByte(index, this.memory.read(addr));
+                addr++;
+            }
+        }
+
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
+        this.resetREX();
+    }
+
+    @Override
+    public void stmHB(int imm6, int rA) {
+        final int mask = this.loadImm6(imm6);
+        final int rbase = ((this.rexRA & 0x1) << 3) | rA;
+
+        final int base = this.rexReadUnsigned(rbase, this.rexRA);
+
+        int addr = base;
+        for (int index = 15; index >= 1; --index) {
+            if ((mask & (1 << index)) != 0) {
+                addr--;
+                this.memory.write(addr, this.readRegHighByte(index));
+            }
+        }
+
+        if ((mask & 1) != 0) {
+            this.rexWrite(rbase, this.rexRA, addr);
+        }
+        this.resetREX();
+    }
+
+    @Override
     public void shlR(int rC, int rB, int rA) {
         final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
@@ -1714,6 +1756,16 @@ final class InstrTiming implements InstrVisitor {
 
     @Override
     public void stmLB(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void ldmHB(int imm3, int rbase) {
+        this.timingBank = 6;
+    }
+
+    @Override
+    public void stmHB(int imm3, int rbase) {
         this.timingBank = 6;
     }
 

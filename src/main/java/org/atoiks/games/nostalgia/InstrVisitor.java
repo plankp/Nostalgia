@@ -57,6 +57,8 @@ public interface InstrVisitor {
     public void stmW(int imm6, int rbase);
     public void ldmLB(int imm6, int rbase);
     public void stmLB(int imm6, int rbase);
+    public void ldmHB(int imm6, int rbase);
+    public void stmHB(int imm6, int rbase);
 
     public void shlR(int rlhs, int rrhs, int rdst);
     public void shrR(int rlhs, int rrhs, int rdst);
