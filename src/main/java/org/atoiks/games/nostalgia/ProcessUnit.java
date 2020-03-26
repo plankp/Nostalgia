@@ -1011,24 +1011,6 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void push3(int rC, int rB, int rA) {
-        this.internalPush(this.rexRC, rC, 0);
-        this.internalPush(this.rexRB, rB, 0);
-        this.internalPush(this.rexRA, rA, 0);
-
-        this.resetREX();
-    }
-
-    @Override
-    public void pop3(int rC, int rB, int rA) {
-        this.internalPop(this.rexRA, rA, 0);
-        this.internalPop(this.rexRB, rB, 0);
-        this.internalPop(this.rexRC, rC, 0);
-
-        this.resetREX();
-    }
-
-    @Override
     public void cmovI(int imm3, int rB, int rA) {
         // The immediate slot is consumed regardless of the flag!
 
@@ -1763,16 +1745,6 @@ final class InstrTiming implements InstrVisitor {
     @Override
     public void sarI(int imm6, int rdst) {
         this.timingBank = 1;
-    }
-
-    @Override
-    public void push3(int rC, int rB, int rA) {
-        this.timingBank = 6;
-    }
-
-    @Override
-    public void pop3(int rC, int rB, int rA) {
-        this.timingBank = 6;
     }
 
     @Override

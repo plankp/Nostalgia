@@ -552,24 +552,6 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void push3(int rC, int rB, int rA) {
-        this.out.printf("PUSH.3     %s, %s, %s",
-                this.rexSynthRegister(this.rexRA, rA),
-                this.rexSynthRegister(this.rexRC, rC),
-                this.rexSynthRegister(this.rexRB, rB));
-        this.resetREX();
-    }
-
-    @Override
-    public void pop3(int rC, int rB, int rA) {
-        this.out.printf("POP.3      %s, %s, %s",
-                this.rexSynthRegister(this.rexRA, rA),
-                this.rexSynthRegister(this.rexRC, rC),
-                this.rexSynthRegister(this.rexRB, rB));
-        this.resetREX();
-    }
-
-    @Override
     public void cmovI(int imm3, int rflag, int rdst) {
         this.out.printf("CMOV.I     %s, 0x%x, %s",
                 this.rexSynthRegister(this.rexRA, rdst),

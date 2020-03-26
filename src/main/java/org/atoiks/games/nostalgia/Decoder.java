@@ -170,12 +170,6 @@ public final class Decoder {
             case Opcode.OP0_SAR_I:
                 vis.sarI(immMi, rA);
                 break;
-            case Opcode.OP0_PUSH3:
-                vis.push3(rC, rB, rA);
-                break;
-            case Opcode.OP0_POP3:
-                vis.pop3(rC, rB, rA);
-                break;
             case Opcode.OP0_CMOV_I:
                 vis.cmovI(immHi, rB, rA);
                 break;

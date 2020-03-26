@@ -121,8 +121,6 @@ Using one that's not supported would cause the assembler to crash.
  `SAL.I`    | `SAL.I %R2W, 5`               | Performs left shift on register (same as `SHL.I`).
  `SHR.I`    | `SHR.I %R2W, 5`               | Performs logical right shift on register.
  `SAR.I`    | `SAR.I %R2W, 5`               | Performs arithmetic right shift on register.
- `PUSH.3`   | `PUSH.3 %R1W, %R2W, %R3W`     | Pushes three registers (16 or 32 bit depends on register suffix). Uses the stack pointer implicitly.
- `POP.3`    | `POP.3 %R1W, %R2W, %R3W`      | Pops three registers (16 or 32 bit depends on register suffix). Uses the stack pointer implicitly.
  `CMOV.I`   | `CMOV.I %R1W, 5, %R0W`        | Stores a maximum 16 bit immediate value into `%R1W` operand if `%R0W` operand is not 0.
  `CMOV.R`   | `CMOV.I %R1W, %R2W, %R0W`     | Moves the value of `%R2W` operand into `%R1W` operand if `%R0W` operand is not 0.
  `PADD.W`   | `PADD.W %R1D, %R2D, %R0D`     | Performs addition the internal 32 bit buffer as two 16 bit values.

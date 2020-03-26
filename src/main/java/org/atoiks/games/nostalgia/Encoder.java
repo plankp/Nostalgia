@@ -391,16 +391,6 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void push3(int rC, int rB, int rA) {
-        this.emitOp0RRR(Opcode.OP0_PUSH3, rC, rB, rA);
-    }
-
-    @Override
-    public void pop3(int rC, int rB, int rA) {
-        this.emitOp0RRR(Opcode.OP0_POP3, rC, rB, rA);
-    }
-
-    @Override
     public void cmovI(int imm3, int rflag, int rdst) {
         this.emitOp0IRR(Opcode.OP0_CMOV_I, imm3, rflag, rdst);
     }
