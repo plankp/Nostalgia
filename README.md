@@ -10,21 +10,24 @@ Jokes aside, this is a simulator of an imaginary computer system.
 
 You need jdk 8 or above.
 
-Run `gradlew build` to build it or `gradlew run` to run after building.
-
-You probably want to supply the path to the kernel also. For example:
-
-```bash
-$ ./gradlew run --args ./src/main/resources/moving_dot.nos
-```
+Run `gradlew build` to build it.
 
 ## Game Instructions
 
 > _Heh! You consider this a game!?_
 
-You code assembler! Maybe some people like this...
+You code programs for the imaginary Nostalgia Execution Environment!
+Maybe some people like this...
 
-The list of mnemonics and how the environment works is described in [src/dist](/src/dist/).
+For example, to get [moving_dot.nos](/src/dist/sample/moving_dot.nos) working, you would do:
+
+```bash
+$ ./bin/as -o kernel.bin ./sample/moving_dot.nos
+$ ./bin/nostalgia kernel.bin
+```
+
+For more information, see the README.md that is bundled with the build.
+Alternatively, click [here](/src/dist/README.md); it's the same document.
 
 _The following is a modified version of [moving_dot.nos](/src/dist/sample/moving_dot.nos)_
 
