@@ -18,6 +18,19 @@ application {
     mainClassName = 'org.atoiks.games.nostalgia.App'
 }
 
+task createExtraAppDummy(type: CreateStartScripts) {
+    mainClassName = 'org.atoiks.games.nostalgia.toolchain.Dummy'
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    applicationName = 'dummy'
+}
+
+applicationDistribution.into("bin") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(createExtraAppDummy)
+    fileMode = 0755
+}
+
 allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
