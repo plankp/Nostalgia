@@ -1,18 +1,28 @@
-# Nostalgia Execution Environment and Assembler
+# Nostalgia Execution Environment and Toolchain
 
 > I'll do my best to keep this as up to date as possible.
 >
 > And it seems like I will be doing this in reverse order...
+
+## Disassembler
+
+When you do (or something similar):
+
+```bash
+./bin/dis ./a.out
+```
+
+the disassembler will try disassemble the supplied list of binary files.
 
 ## Assembler
 
 When you do (or something similar): 
 
 ```bash
-./bin/nostalgia ./sample/feed_char.nos -I ../../../
+./bin/as ./sample/feed_char.nos -I ../../../
 ```
 
-the assembler will try to assemble your code and will load it as the [kernel](#Kernel).
+the assembler will try to assemble your code into a binary file.
 
 If you supply multiple files, they will be assembled as if they were concatenated into one in the supplied order.
 
@@ -168,6 +178,16 @@ Note: Due to unfortunate Java reasons, it's currently signed... (We'll fix it...
 
 ## Environment
 
+When you do:
+
+```bash
+./bin/nostalgia ./a.out
+```
+
+the environment will try to load the binary file as the [kernel](#Kernel).
+
+If you do not provide a kernel, provide too many (only one is allowed), or your kernel has issues, the [dummy kernel](/src/main/resources/dummy_kernel.nos) will do it's best at reporting that.
+
 ### [Bootloader](/src/main/resources/bootloader.nos)
 
 You do not control this part (not even if you write self-modifying hacky code).
@@ -183,8 +203,6 @@ This is where your kernel goes...
 
 This will be loaded at `0x4000`.
 Use `.ORG 0x4000` to make address calculations less painful!
-
-If you do not provide a kernel, your kernel has issues, or the assembler decided to crash for no reason, the [dummy kernel](/src/main/resources/dummy_kernel.nos) will report that to you!
 
 ### Keyboard Memory
 

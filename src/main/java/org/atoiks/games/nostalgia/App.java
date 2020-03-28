@@ -2,6 +2,8 @@ package org.atoiks.games.nostalgia;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class App {
     public static void main(String[] args) throws IOException {
@@ -21,44 +23,16 @@ public class App {
                 "Hmm... Looks like you haven't loaded a kernel yet!\n" +
                 "(You should do that) \1"; // \1 is the smiley face
 
-        try {
-            // Assemble the kernel program.
-            boolean anyFileLoaded = false;
+        if (args.length == 1) {
+            try {
+                final byte[] bytes = Files.readAllBytes(Paths.get(args[0]));
 
-            final Assembler assembler = new Assembler();
-            final int limit = args.length;
-            for (int i = 0; i < limit; ++i) {
-                final String arg = args[i];
-                try {
-                    switch (arg) {
-                        case "-I":
-                            assembler.addSearchDir(args[++i]);
-                            continue;
-                    }
-                } catch (IndexOutOfBoundsException ex) {
-                    throw new RuntimeException("Assembler: " + arg + " missing value after");
-                }
-
-                try {
-                    assembler.loadSource(arg);
-                    anyFileLoaded = true;
-                } catch (IOException ex) {
-                    throw new RuntimeException("File: " + arg + "\n" + ex.getMessage());
-                }
+                // Note: We don't disassemble this one (there is a disassembler
+                // tool bundled now anyway!)
+                kernel = ByteBuffer.wrap(bytes);
+            } catch (IOException | RuntimeException ex) {
+                errMsg = ex.getMessage();
             }
-
-            // If no files are loaded, then there is no point in assembling
-            if (anyFileLoaded) {
-                final ByteBuffer buffer = ByteBuffer.wrap(assembler.assembleAll());
-
-                // Just for debug:
-                new Disassembler(System.out, buffer.duplicate()).disassembleAll();
-
-                // Make this the kernel
-                kernel = buffer;
-            }
-        } catch (RuntimeException ex) {
-            errMsg = ex.getMessage();
         }
 
         if (kernel == null) {
