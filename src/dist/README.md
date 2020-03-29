@@ -29,12 +29,7 @@ If you supply multiple files, they will be assembled as if they were concatenate
 `-I` needs a path after it, and this affects which paths are searched for `.INCLUDE` and `.IMPORT` directives.
 By default, it will search in the current working directory __and not the current file being assembled!__
 
-### Very important!
-
-If the assembler crashed (due to bugs or because the code provided is incorrect),
-the default kernel will display the error message.
-
------
+For the list of instructions, please consult the [Nostalgia Instruction Reference](./IREF.md).
 
 Here is a list of directives supported by the assembler.
 All directives start with a dot and are case insensitive.
@@ -50,8 +45,6 @@ Using one that's not supported would cause the assembler to crash.
  `.ORG`     | `.ORG 0x4000`                 | Sets the current virtual address. This does not affect where in memory the assembled code is loaded. It does affect labels.
  `.INCLUDE` | `.INCLUDE ./dat.nos`          | Includes a file (C's `#include`)
  `.IMPORT`  | `.IMPORT ./utils/memcpy.nos`  | Includes a file once even when used more than once.
-
-For the list of instructions, please consult the [Nostalgia Instruction Reference](./IREF.md).
 
 ## Registers
 
