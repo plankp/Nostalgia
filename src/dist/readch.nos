@@ -26,7 +26,7 @@ READCH_NB:
 ;;
     .ALIGN  2
 READCH:
-    STM.WS  %R2, %R3, %SP
+    PUSH.W  %R2, %R3
     MOV.I   %R2, 0x1000
     MOV.I   %R3, 0b10
 
@@ -34,5 +34,5 @@ READCH:
     LD.W    %R1, 0x5, %R2
     JREL.Z  %R1, -8
 
-    LDM.WS  %R2, %R3, %SP
+    POP.W   %R2, %R3
     RET     0

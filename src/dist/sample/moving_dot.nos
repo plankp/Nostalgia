@@ -16,7 +16,7 @@ POS_COORD:
 ;; %R7 = y coordinate
 ;;
 DISP_CHAR:
-    PUSH    %R2, 0              ; we will be destroying %R2
+    PUSH.W  %R2                 ; we will be destroying %R2
 
     MOV.I   %R2, 80             ; compute the memory location on screen
     IMAC    %R2, %R6, %R2, %R7  ; the formula is 2 * (y * 80 + x)
@@ -24,7 +24,7 @@ DISP_CHAR:
 
     ST.B    %R1, 0x2000, %R2    ; write it to the screen
 
-    POP     %R2, 0              ; here we restore %R2
+    POP.W   %R2                 ; here we restore %R2
     RET     0                   ; end of function
 
 ;;

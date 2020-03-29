@@ -13,10 +13,10 @@
 ;;
     .ALIGN  2
 MEMCPY:
-    PUSH    %R5, 0
+    PUSH.W  %R5
 MEMCPY_LOOP:
     JREL.NZ %R3, +4
-    POP     %R5, 0
+    POP.W   %R5
     RET     0
 
     LD.B    %R5, 0, %R2

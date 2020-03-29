@@ -16,7 +16,7 @@
 ;;
     .ALIGN  2
 VID_OFFSET:
-    PUSH    %R3, 0
+    PUSH.W  %R3
 
     MOV.I   %R3, 80             ; 2 * (y * 80 + x)
     IMAC    %R3, %R1H, %R3, %R1L
@@ -31,5 +31,5 @@ VID_OFFSET:
     JREL.Z  %R0, +2
     MOV.I   %R1, 0              ; %R3 was invalid, return 0
 
-    POP     %R3, 0
+    POP.W   %R3
     RET     0

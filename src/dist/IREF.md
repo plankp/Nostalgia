@@ -487,7 +487,24 @@ IF BIT 0 THEN ra = ADDRESS
 
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
- 0x1B   | POP _RA_, _imm6_          | [IR](#Class-IR)   | Pops from the stack, subtract by _imm6_, then stores into _RA_
+ 0x1A   | POP.D _regmask_           | [I9](#Class-I9)   | Pops a sequence of registers from the stack
+ 0x1A   | POP.W _regmask_           | [I9](#Class-I9)   | Pops a sequence of registers from the stack
+
+Note: bit 0 of the register mask does not encode `%R0` but the `D` variant.
+
+### Effect
+
+```
+WIDTH = IF BIT 0 THEN .D ELSE .W
+
+ADDRESS = sp
+FOR EACH REGISTER IN regmask
+    REGISTER.WIDTH = LOAD WIDTH PTR ADDRESS
+    ADDRESS += WIDTH
+
+sp = ADDRESS
+```
+
 
 ## PSUB - Subtract Packed Integers
 
@@ -500,7 +517,23 @@ IF BIT 0 THEN ra = ADDRESS
 
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
- 0x1A   | PUSH _RA_, _imm6_         | [IR](#Class-IR)   | Push _RA_ + _imm6_ onto the stack
+ 0x1A   | PUSH.D _regmask_          | [I9](#Class-I9)   | Pushes a sequence of registers onto the stack
+ 0x1A   | PUSH.W _regmask_          | [I9](#Class-I9)   | Pushes a sequence of registers onto the stack
+
+Note: bit 0 of the register mask does not encode `%R0` but the `D` variant.
+
+### Effect
+
+```
+WIDTH = IF BIT 0 THEN .D ELSE .W
+
+ADDRESS = sp
+FOR EACH REGISTER IN regmask REVERSED
+    ADDRESS -= WIDTH
+    STORE WIDTH PTR ADDRESS = REGISTER.WIDTH
+
+sp = ADDRESS
+```
 
 ## RET - Return to Function
 

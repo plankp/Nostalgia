@@ -176,8 +176,6 @@ public final class Assembler {
                 case Opcode.OP0_JREL_GT:
                 case Opcode.OP0_JREL_LE:
                 case Opcode.OP0_JREL_LT:
-                case Opcode.OP0_PUSH:
-                case Opcode.OP0_POP:
                 case Opcode.OP0_SHL_I:
                 case Opcode.OP0_SHR_I:
                 case Opcode.OP0_SAR_I:
@@ -496,13 +494,21 @@ public final class Assembler {
                 buf = checkInstrClassIR(operands);
                 this.encoder.jrelLT(buf[0], buf[1]);
                 break;
-            case "PUSH":
-                buf = checkInstrClassIR(operands);
-                this.encoder.push(buf[0], buf[1]);
+            case "PUSH.D":
+                buf = checkInstrPushPop(operands, 0b11);
+                this.encoder.push(buf[0] | 1);
                 break;
-            case "POP":
-                buf = checkInstrClassIR(operands);
-                this.encoder.pop(buf[0], buf[1]);
+            case "POP.D":
+                buf = checkInstrPushPop(operands, 0b11);
+                this.encoder.pop(buf[0] | 1);
+                break;
+            case "PUSH.W":
+                buf = checkInstrPushPop(operands, 0b00);
+                this.encoder.push(buf[0]);
+                break;
+            case "POP.W":
+                buf = checkInstrPushPop(operands, 0b00);
+                this.encoder.pop(buf[0]);
                 break;
             case "RET":
                 buf = checkInstrClassI(operands);
@@ -788,17 +794,10 @@ public final class Assembler {
         return new int[] { rs1, rs2, rd2, rd1 };
     }
 
-    private int[] checkInstrMultipleLDST(String[] operands, int validRexDataWidth) {
-        // This is encoded the same as class IR, but has a very different
-        // syntax (as far as the assembler is concerned)
-
-        if (operands.length < 2) {
-            throw new RuntimeException("Assembler: Illegal operands count < 2: " + Arrays.toString(operands));
-        }
-
-        // actually 16 bits, but use int to prevent accidental sign extension.
+    private int getRegmask(String[] operands, int start, int end, int validRexDataWidth) {
+        // actually 16 bits, but use int to prevent accidental sign extension
         int regmask = 0;
-        for (int i = 0; i < operands.length - 1; ++i) {
+        for (int i = start; i < end; ++i) {
             final int rex = getRegisterIndex(operands[i]);
             if (((rex >> 4) & 0x3) != (validRexDataWidth & 0x3)) {
                 throw new RuntimeException("Assembler: Illegal register width for register mask: " + operands[i]);
@@ -813,12 +812,37 @@ public final class Assembler {
         }
 
         if (regmask == 0) {
-            throw new RuntimeException("Assembler: Illegal register mask of 0: " + Arrays.toString(operands));
+            throw new RuntimeException("Assembler: Illegal register mask of 0: " + Arrays.toString(operands) + " from " + start + " to " + end);
         }
 
+        return regmask;
+    }
+
+    private int[] checkInstrMultipleLDST(String[] operands, int validRexDataWidth) {
+        // This is encoded the same as class IR, but has a very different
+        // syntax (as far as the assembler is concerned)
+
+        if (operands.length < 2) {
+            throw new RuntimeException("Assembler: Illegal operands count < 2: " + Arrays.toString(operands));
+        }
+
+        final int regmask = getRegmask(operands, 0, operands.length - 1, validRexDataWidth);
         final int rx = getRegisterIndex(operands[operands.length - 1]);
 
         return new int[] { regmask, rx };
+    }
+
+    private int[] checkInstrPushPop(String[] operands, int validRexDataWidth) {
+        // This is encoded the same as class I, but has a very different syntax
+        // (as far as the assembler is concered)
+
+        if (operands.length < 1) {
+            throw new RuntimeException("Assembler: Illegal operands count < 2: " + Arrays.toString(operands));
+        }
+
+        final int regmask = getRegmask(operands, 0, operands.length, validRexDataWidth);
+
+        return new int[] { regmask };
     }
 
     private static void checkOperandCount(String[] operands, int count) {

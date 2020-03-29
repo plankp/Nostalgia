@@ -37,8 +37,8 @@ public interface InstrVisitor {
     public void jrelLE(int imm6, int rflag);
     public void jrelLT(int imm6, int rflag);
 
-    public void push(int imm6, int rsrc);
-    public void pop(int imm6, int rdst);
+    public void push(int imm9);
+    public void pop(int imm9);
 
     public void ret(int imm9);
     public void enter(int imm9);

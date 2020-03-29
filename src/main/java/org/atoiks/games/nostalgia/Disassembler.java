@@ -356,18 +356,22 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void push(int imm, int rsrc) {
-        this.out.printf("PUSH       %s, 0x%x",
-                this.rexSynthRegister(this.rexRA, rsrc),
-                this.loadImm6(imm));
+    public void push(int imm9) {
+        final int mask = this.loadImm9(imm9);
+        final char wdt = (mask & 1) != 0 ? 'D' : 'W';
+        this.out.printf("PUSH.%c     %s",
+                wdt,
+                this.getRegmask(mask, wdt));
         this.resetREX();
     }
 
     @Override
-    public void pop(int imm, int rdst) {
-        this.out.printf("POP        %s, 0x%x",
-                this.rexSynthRegister(this.rexRA, rdst),
-                this.loadImm6(imm));
+    public void pop(int imm9) {
+        final int mask = this.loadImm9(imm9);
+        final char wdt = (mask & 1) != 0 ? 'D' : 'W';
+        this.out.printf("POP.%c      %s",
+                wdt,
+                this.getRegmask(mask, wdt));
         this.resetREX();
     }
 

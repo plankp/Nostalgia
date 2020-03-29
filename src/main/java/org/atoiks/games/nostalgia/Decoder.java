@@ -120,10 +120,10 @@ public final class Decoder {
                 vis.jrelLT(immMi, rA);
                 break;
             case Opcode.OP0_PUSH:
-                vis.push(immMi, rA);
+                vis.push(immLo);
                 break;
             case Opcode.OP0_POP:
-                vis.pop(immMi, rA);
+                vis.pop(immLo);
                 break;
             case Opcode.OP0_RET:
                 vis.ret(immLo);

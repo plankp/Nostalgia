@@ -651,50 +651,75 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void push(int imm6, int rA) {
-        final int imm = this.loadImm6(imm6);
+    public void push(int imm9) {
+        final int mask = this.loadImm9(imm9);
 
-        this.internalPush(this.rexRA, rA, imm);
-        this.resetREX();
-    }
+        int addr = this.regs[REG_SLOT_SP];
 
-    private void internalPush(int rex, int reg, int immediate) {
-        // Note: byte values are promoted to word before the push. In other
-        // words, each push consumes either a word size or a dword size.
+        if ((mask & 1) != 0) {
+            // dword
+            final ByteBuffer buf = ByteBuffer.allocate(4);
+            for (int index = 15; index >= 1; --index) {
+                if ((mask & (1 << index)) != 0) {
+                    addr -= 4;
 
-        final int rsrc = ((rex & 0x1) << 3) | reg;
-        final int value = this.rexReadSigned(rsrc, rex) + immediate;
+                    buf.putInt(this.readRegDword(index));
+                    this.memory.write(addr, buf.flip());
 
-        if (((rex >> 1) & 0x3) == 3) {
-            this.pushDword(value);
+                    buf.flip();
+                }
+            }
         } else {
-            this.pushWord((short) value);
+            // word
+            final ByteBuffer buf = ByteBuffer.allocate(2);
+            for (int index = 15; index >= 1; --index) {
+                if ((mask & (1 << index)) != 0) {
+                    addr -= 2;
+
+                    buf.putShort(this.readRegWord(index));
+                    this.memory.write(addr, buf.flip());
+
+                    buf.flip();
+                }
+            }
         }
+
+        this.regs[REG_SLOT_SP] = addr;
     }
 
     @Override
-    public void pop(int imm6, int rA) {
-        final int imm = this.loadImm6(imm6);
+    public void pop(int imm9) {
+        final int mask = this.loadImm9(imm9);
 
-        this.internalPop(this.rexRA, rA, imm);
-        this.resetREX();
-    }
+        int addr = this.regs[REG_SLOT_SP];
 
-    private void internalPop(int rex, int reg, int immediate) {
-        // Note: the amount of stack space restored is dependent on the REX
-        // prefix. Also, like the push instruction, byte pops are actually word
-        // pops.
+        if ((mask & 1) != 0) {
+            // dword
+            final ByteBuffer buf = ByteBuffer.allocate(4);
+            for (int index = 1; index < 16; ++index) {
+                if ((mask & (1 << index)) != 0) {
+                    this.memory.read(addr, buf);
+                    this.writeRegDword(index, buf.flip().getInt());
 
-        final int rdst = ((rex & 0x1) << 3) | reg;
-
-        final int value;
-        if (((rex >> 1) & 0x3) == 3) {
-            value = this.popDword();
+                    addr += 4;
+                    buf.flip();
+                }
+            }
         } else {
-            value = this.popWord();
+            // word
+            final ByteBuffer buf = ByteBuffer.allocate(2);
+            for (int index = 1; index < 16; ++index) {
+                if ((mask & (1 << index)) != 0) {
+                    this.memory.read(addr, buf);
+                    this.writeRegWord(index, buf.flip().getShort());
+
+                    addr += 2;
+                    buf.flip();
+                }
+            }
         }
 
-        this.rexWrite(rdst, rex, value - immediate);
+        this.regs[REG_SLOT_SP] = addr;
     }
 
     @Override
@@ -1673,15 +1698,15 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void push(int imm6, int rsrc) {
-        // Treat like an ordinary load store
-        this.timingBank = 4;
+    public void push(int imm9) {
+        // Treat like an load-store multiple
+        this.timingBank = 6;
     }
 
     @Override
-    public void pop(int imm6, int rdst) {
-        // Treat like an ordinary load store
-        this.timingBank = 4;
+    public void pop(int imm9) {
+        // Treat like an load-store multiple
+        this.timingBank = 6;
     }
 
     @Override
