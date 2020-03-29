@@ -17,7 +17,7 @@ MEMCPY:
 MEMCPY_LOOP:
     JREL.NZ %R3, +4
     POP     %R5, 0
-    RET
+    RET     0
 
     LD.B    %R5, 0, %R2
     ST.B    %R5, 0, %R1

@@ -40,7 +40,7 @@ public interface InstrVisitor {
     public void push(int imm6, int rsrc);
     public void pop(int imm6, int rdst);
 
-    public void ret();
+    public void ret(int imm9);
     public void enter(int imm9);
     public void leave();
 

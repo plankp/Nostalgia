@@ -24,7 +24,7 @@ DRAW_GLYPH:
     JREL.Z  %R1, +2             ; skip illegal coordinates
     ST.B    %R2, 0, %R1         ; ST.B automatically uses %R2L
     POP     %R1, 0
-    RET
+    RET     0
 
 ;;
 ;; Sets the rendering style of the given graphics cell.
@@ -42,4 +42,4 @@ DRAW_STYLE:
     JREL.Z  %R1, +2             ; skip illegal coordinates
     ST.B    %R2, 1, %R1         ; ST.B automatically uses %R2L
     POP     %R1, 0
-    RET
+    RET     0

@@ -32,4 +32,4 @@ VID_OFFSET:
     MOV.I   %R1, 0              ; %R3 was invalid, return 0
 
     POP     %R3, 0
-    RET
+    RET     0

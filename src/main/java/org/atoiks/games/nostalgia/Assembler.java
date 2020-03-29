@@ -149,7 +149,8 @@ public final class Assembler {
             // IEX carrying immediates anyway so we are good for now...)
             int opcode = Byte.toUnsignedInt(bytes[addrOpc]) >> 1;
             switch (opcode) {
-                case Opcode.OP0_ENTER:      // OP0 I class opcodes
+                case Opcode.OP0_RET:        // OP0 I class opcodes
+                case Opcode.OP0_ENTER:
                 {
                     final int lower = repl & 0b0000_0001_1111_1111;
                     final int widen = repl & 0b1111_1110_0000_0000;
@@ -504,8 +505,8 @@ public final class Assembler {
                 this.encoder.pop(buf[0], buf[1]);
                 break;
             case "RET":
-                checkOperandCount(operands, 0);
-                this.encoder.ret();
+                buf = checkInstrClassI(operands);
+                this.encoder.ret(buf[0]);
                 break;
             case "ENTER":
                 buf = checkInstrClassI(operands);

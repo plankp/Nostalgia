@@ -25,7 +25,7 @@ DISP_CHAR:
     ST.B    %R1, 0x2000, %R2    ; write it to the screen
 
     POP     %R2, 0              ; here we restore %R2
-    RET                         ; end of function
+    RET     0                   ; end of function
 
 ;;
 ;; Checks if the specified key is pressed
@@ -36,7 +36,7 @@ DISP_CHAR:
 CHK_DOWN:
     ST.W    %R3, 0x1002, %R0    ; register the specified keycode
     LD.B    %R3, 0x1004, %R0    ; check if it's pressed
-    RET
+    RET     0
 
 ;;
 ;; Actual process loop

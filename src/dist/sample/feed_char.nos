@@ -72,4 +72,4 @@ CLR_LINE_LOOP:
     JABS.NZ %R3, CLR_LINE_LOOP, %R0
 
     LDM.WS  %R1, %R2, %R3, %SP
-    RET
+    RET     0

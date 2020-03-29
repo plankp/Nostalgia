@@ -43,7 +43,7 @@ MEMCPY:
 MEMCPY_LOOP:
     JREL.GT %R3, +4
     POP     %R5, 0
-    RET
+    RET     0
 
     LD.B    %R5, 0, %R4
     ST.B    %R5, 0, %R2
@@ -67,7 +67,7 @@ VID_OFFSET:
     IMAC    %R3, %R2H, %R3, %R2L
     SHL.I   %R3, 1              ; the formula is 2 * (y * 80 + x)
     ADD.I   %R3, 0x2000
-    RET
+    RET     0
 
 ;;
 ;; Checks if the specified key is pressed
@@ -79,7 +79,7 @@ VID_OFFSET:
 CHK_DOWN:
     ST.W    %R3, 0x1002, %R0    ; register the specified keycode
     LD.B    %R3, 0x1004, %R0    ; check if it's pressed
-    RET
+    RET     0
 
 ;;
 ;; Screen wrap. It does handle one level of negative numbers!
@@ -102,8 +102,8 @@ VID_WRAP:
     ADD.R   %R4, %R4, %R5
     IDIV    %R0, %R2L, %R4, %R5
 
-    LDM.WS   %R5, %R3, %R4, %SP
-    RET
+    LDM.WS  %R5, %R3, %R4, %SP
+    RET     0
 
     .ALIGN  2
 GAME_END:

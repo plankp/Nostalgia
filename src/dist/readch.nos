@@ -15,7 +15,7 @@ READCH_NB:
     MOV.I   %R1, 0b10
     ST.B    %R1, 0x1005, %R0
     LD.W    %R1, 0x1005, %R0
-    RET
+    RET     0
 
 ;;
 ;; Retrieves the next character in a blocking fashion: this function will wait
@@ -35,4 +35,4 @@ READCH:
     JREL.Z  %R1, -8
 
     LDM.WS  %R2, %R3, %SP
-    RET
+    RET     0

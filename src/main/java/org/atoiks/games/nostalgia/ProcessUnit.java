@@ -698,8 +698,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void ret() {
+    public void ret(int imm9) {
         this.ip = this.popDword();
+        this.regs[REG_SLOT_SP] += this.loadImm9(imm9);
     }
 
     @Override
@@ -1684,7 +1685,7 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void ret() {
+    public void ret(int imm9) {
         // Most of the cost comes from the implicit pop
         this.timingBank = 5;
     }

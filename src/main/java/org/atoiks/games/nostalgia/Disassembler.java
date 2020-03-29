@@ -372,8 +372,8 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void ret() {
-        this.out.printf("RET");
+    public void ret(int imm) {
+        this.out.printf("RET        0x%x", this.loadImm9(imm));
     }
 
     @Override

@@ -126,7 +126,7 @@ public final class Decoder {
                 vis.pop(immMi, rA);
                 break;
             case Opcode.OP0_RET:
-                vis.ret();
+                vis.ret(immLo);
                 break;
             case Opcode.OP0_ENTER:
                 vis.enter(immLo);

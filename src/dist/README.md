@@ -102,7 +102,7 @@ Using one that's not supported would cause the assembler to crash.
  `PUSH`     | `PUSH %R1W, 0`                | Pushes a 16 bit or 32 bit value onto the stack (depends on register suffix). Uses the stack pointer implicitly.
  `POP`      | `POP %R1W, 0`                 | Pops a 16 bit or 32 bit value from the stack (depends on register suffix). Uses the stack pointer implicitly.
  `CALL.*`   | `CALL.* %R1W, MEMCPY, %R0`    | The return address is pushed onto the stack and core will perform an absolute jump to the address `MEMCPY+%R0`. Uses the stack pointer implicitly. Register `%R1W` is being tested.
- `RET`      | `RET`                         | Pops the return address from the stack and jumps to it. Uses the stack pointer implicitly.
+ `RET`      | `RET 0`                       | Pops the return address from the stack, jumps to it, then pops a maximum 16 bit amount of bytes off the stack. Uses the stack pointer implicitly.
  `ENTER`    | `ENTER 4`                     | Allocates some space on the stack when entering a function. Uses the stack pointer and base pointer implicitly.
  `LEAVE`    | `LEAVE`                       | Used to free the stack when leaving a function. Uses the stack pointer and base pointer implicitly.
  `LD.D`     | `LD.D %R2D, 0x1000, %R0W`     | Loads a dword from memory from address `0x1000+%R0W`.

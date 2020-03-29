@@ -286,8 +286,8 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void ret() {
-        this.emitOp0I(Opcode.OP0_RET, 0);
+    public void ret(int imm) {
+        this.emitOp0I(Opcode.OP0_RET, imm);
     }
 
     @Override
