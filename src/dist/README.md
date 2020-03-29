@@ -127,10 +127,10 @@ Using one that's not supported would cause the assembler to crash.
  `STM.LS`   | `STM.LS <regmask>, %SP`       | Decrements address then performs `ST.B` in reverse order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `L`. 
  `LDM.HS`   | `LDM.HS <regmask>, %SP`       | Performs `LD.B` then increment address in forwards order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `H`. 
  `STM.HS`   | `STM.HS <regmask>, %SP`       | Decrements address then performs `ST.B` in reverse order of register mask. The `%SP` operand indicates the initial memory address; it will contain the final memory address after this instruction. Access mode suffix must be `H`. 
- `SHL.R`    | `SHL.R %R2W, %R1W`            | Performs left shift on register (same as `SAL.R`).
- `SAL.R`    | `SAL.R %R2W, %R1W`            | Performs left shift on register (same as `SHL.R`).
- `SHR.R`    | `SHR.R %R2W, %R1W`            | Performs logical right shift on register.
- `SAR.R`    | `SAR.R %R2W, %R1W`            | Performs arithmetic right shift on register.
+ `SHL.R`    | `SHL.R %R3W, %R2W, %R1W`      | Performs left shift on register (same as `SAL.R`).
+ `SAL.R`    | `SAL.R %R3W, %R2W, %R1W`      | Performs left shift on register (same as `SHL.R`).
+ `SHR.R`    | `SHR.R %R3W, %R2W, %R1W`      | Performs logical right shift on register.
+ `SAR.R`    | `SAR.R %R3W, %R2W, %R1W`      | Performs arithmetic right shift on register.
  `SHL.I`    | `SHL.I %R2W, 5`               | Performs left shift on register (same as `SAL.I`).
  `SAL.I`    | `SAL.I %R2W, 5`               | Performs left shift on register (same as `SHL.I`).
  `SHR.I`    | `SHR.I %R2W, 5`               | Performs logical right shift on register.
