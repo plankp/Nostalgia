@@ -628,22 +628,22 @@ public final class Assembler {
             case "SAL.I":
                 // semantically no distinction between arithmetic and logical left shift
                 buf = checkInstrClassIR(operands);
-                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
-                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                if (Integer.toUnsignedLong(buf[0]) > 0x1F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 31: " + Integer.toUnsignedLong(buf[0]));
                 }
                 this.encoder.shlI(buf[0], buf[1]);
                 break;
             case "SHR.I":
                 buf = checkInstrClassIR(operands);
-                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
-                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                if (Integer.toUnsignedLong(buf[0]) > 0x1F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 31: " + Integer.toUnsignedLong(buf[0]));
                 }
                 this.encoder.shrI(buf[0], buf[1]);
                 break;
             case "SAR.I":
                 buf = checkInstrClassIR(operands);
-                if (Integer.toUnsignedLong(buf[0]) > 0x0F) {
-                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 15: " + Integer.toUnsignedLong(buf[0]));
+                if (Integer.toUnsignedLong(buf[0]) > 0x1F) {
+                    System.err.println("Assembler: Warning: " + opUpcase + " with immediate greater than 31: " + Integer.toUnsignedLong(buf[0]));
                 }
                 this.encoder.sarI(buf[0], buf[1]);
                 break;
