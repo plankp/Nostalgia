@@ -34,7 +34,8 @@
  [`POP`](#POP---Pop-from-the-Stack)                             | Pop from the Stack
  [`PSUB`](#PSUB---Subtract-Packed-Integers)                     | Subtract Packed Integers
  [`PUSH`](#PUSH---Push-Onto-the-Stack)                          | Push Onto the Stack
- [`RET`](#RET---Return-to-Function)                             | Return from FunctionSUB`](#RSUnBr-u-t-eReverse-Subtract)                             | Reverse Subtract
+ [`RET`](#RET---Return-to-Function)                             | Return from Function
+ [`RSUB`](#RSUB---Reverse-Subtract)                             | Reverse Subtract
  [`SUB`](#SUB---Subtract)                                       | Subtract
  [`XOR`](#XOR---Logical-XOR)                                    | Logical XOR
 
@@ -42,8 +43,8 @@
 
  Mnemonic                           | Summary
 ------------------------------------|---------
- [`IEX`](#IEX---Integer-extension)  | Integer extension
- [`REX`](#REX---Register-extension) | Register extension
+ [`IEX`](#IEX---Integer-Extension)  | Integer Extension
+ [`REX`](#REX---Register-Extension) | Register Extension
 
 ## Instruction Encoding
 
@@ -109,7 +110,7 @@
 *   `c` = 3 bit register selector
 *   `d` = 3 bit register selector
 
-## IEX - Integer extension
+## IEX - Integer Extension
 
  Opcode | Instruction   | Encoding          | Description
 --------|---------------|-------------------|----------------------------------
@@ -150,7 +151,7 @@ Encoding Class IRR:
 imm = (EXTENSION SHL 3) OR imm3
 ```
 
-## REX - Register extension
+## REX - Register Extension
 
  Opcode | Instruction                   | Encoding          | Description
 --------|-------------------------------|-------------------|----------------------------------
@@ -161,7 +162,9 @@ Note: This instruction is not exposed by the assembler!
 ### Description
 
 Extends the register accesses of the next instruction.
-This only applies to instructions that use registers.
+This only applies to instructions that use actual registers as operands _RA_, _RB_, _RC_ or _RD_.
+The _regmask_ operand does not count as using actual registers, and therefore,
+this extension is not applied over the register mask.
 
 ### Effect
 
@@ -452,6 +455,11 @@ IF BIT 0 THEN ra = ADDRESS
  0x01   | MOV.LO _RA_, _imm6_       | [IR](#Class-IR)   | lower half of _RA_ = _imm6_
  0x02   | MOV.HI _RA_, _imm6_       | [IR](#Class-IR)   | higher half of _RA_ = _imm6_
 
+### Description
+
+Moves a maximum 16 bit immediate value (through [`IEX`](#IEX---Integer-Extension)) zero-extended into the specified part of the register.
+The value may be subject to truncation if the immediate value contains more bits than the destination register.
+
 ## NAND - Logical AND then Logical NOT
 
  Opcode | Instruction               | Encoding          | Description
@@ -504,7 +512,6 @@ FOR EACH REGISTER IN regmask
 
 sp = ADDRESS
 ```
-
 
 ## PSUB - Subtract Packed Integers
 
