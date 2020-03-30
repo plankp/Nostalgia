@@ -123,7 +123,10 @@ Note: This instruction is not exposed by the assembler!
 
 Extends the immediate of the next instruction to 16 bits.
 This only applies to instructions that use the immediate field as an immediate value.
+
 The last integer extension is used if they appear in a sequence.
+
+All immediate values are zero-extended without this extension prefix.
 
 ### Effect
 
@@ -165,6 +168,10 @@ Extends the register accesses of the next instruction.
 This only applies to instructions that use actual registers as operands _RA_, _RB_, _RC_ or _RD_.
 The _regmask_ operand does not count as using actual registers, and therefore,
 this extension is not applied over the register mask.
+
+The last register extension is used if they appear in a sequence.
+
+All register accesses are 16-bit word accesses within `%R0` to `%R7` (inclusive) without this extension prefix.
 
 ### Effect
 

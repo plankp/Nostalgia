@@ -67,7 +67,7 @@ Each have four access modes (detonated by suffixes):
  `W`     | Accesses the word (0 to 15). ___This is the default access mode for compatibility reasons!___
  `D`     | Accesses the full dword (0 to 31)
 
-Any non-word accesses require an additional word sized __Register Extension Prefix__ on the instruction.
+Any non-word accesses require an additional word sized [`REX`](IREF.md#REX---Register-Extension) on the instruction.
 
 Note: The access suffixes cannot be used on aliases `%SP` and `%BP`.
 They can be used with `%R8` or `%R9` though!
