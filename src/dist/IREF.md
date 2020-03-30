@@ -17,15 +17,9 @@
  [`JREL`](#JREL---Relative-Jump)                                | Relative Jump
  [`LD`](#LD---Load)                                             | Load
  [`LDM`](#LDM---Load-Multiple)                                  | Load Multiple
- [`MUL`](#MUL---Unsigned-Multiply)                              | Unsigned Multiply
- [`SAL`](#SAL---Arithmetic-Left-Shift)                          | Arithmetic Left Shift
- [`SAR`](#SAR---Arithmetic-Right-Shift)                         | Arithmetic Right Shift
- [`SHL`](#SHL---Logical-Left-Shift)                             | Logical Left Shift
- [`SHR`](#SHR---Logical-Right-Shift)                            | Logical Right Shift
- [`ST`](#ST---Store)                                            | Store
- [`STM`](#STM---Store-Multiple)                                 | Store Multiple
  [`LEAVE`](#LEAVE---Function-Exit)                              | Function Exit
  [`MOV`](#MOV---Move)                                           | Move
+ [`MUL`](#MUL---Unsigned-Multiply)                              | Unsigned Multiply
  [`NAND`](#NAND---Logical-AND-then-Logical-NOT)                 | Logical AND then Logical NOT
  [`NOR`](#NOR---Logical-OR-then-Logical-NOT)                    | Logical OR then Logical NOT
  [`NXOR`](#NXOR---Logical-XOR-then-Logical-NOT)                 | Logical XOR then Logical NOT
@@ -36,6 +30,12 @@
  [`PUSH`](#PUSH---Push-Onto-the-Stack)                          | Push Onto the Stack
  [`RET`](#RET---Return-to-Function)                             | Return from Function
  [`RSUB`](#RSUB---Reverse-Subtract)                             | Reverse Subtract
+ [`SAL`](#SAL---Arithmetic-Left-Shift)                          | Arithmetic Left Shift
+ [`SAR`](#SAR---Arithmetic-Right-Shift)                         | Arithmetic Right Shift
+ [`SHL`](#SHL---Logical-Left-Shift)                             | Logical Left Shift
+ [`SHR`](#SHR---Logical-Right-Shift)                            | Logical Right Shift
+ [`ST`](#ST---Store)                                            | Store
+ [`STM`](#STM---Store-Multiple)                                 | Store Multiple
  [`SUB`](#SUB---Subtract)                                       | Subtract
  [`XOR`](#XOR---Logical-XOR)                                    | Logical XOR
 
@@ -359,6 +359,20 @@ FOR EACH REGISTER IN regmask
 IF BIT 0 THEN ra = ADDRESS
 ```
 
+## LEAVE - Function Exit
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x1E   | LEAVE                     | [I9](#Class-I9)   | Sets SP to BP then pop BP
+
+## MOV - Move
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x00   | MOV.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _imm6_
+ 0x01   | MOV.LO _RA_, _imm6_       | [IR](#Class-IR)   | lower half of _RA_ = _imm6_
+ 0x02   | MOV.HI _RA_, _imm6_       | [IR](#Class-IR)   | higher half of _RA_ = _imm6_
+
 ## MUL - Unsigned Multiply
 
  Opcode | Instruction                   | Encoding          | Description
@@ -379,93 +393,6 @@ The 64-bit product into split into two parts, with the higher part stored into _
                                                            |  byte RA |  byte RB |
                                                            +----------+----------+
 ```
-
-## SAL - Arithmetic Left Shift
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x25   | SAL.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ << _RB_
- 0x28   | SAL.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ << _imm6_
-
-Note: This is the same as [`SHL`](#SHL---Logical-Left-Shift)!
-
-## SAR - Arithmetic Right Shift
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x27   | SAR.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ >> _RB_
- 0x2A   | SAR.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ >> _imm6_
-
-## SHL - Logical Left Shift
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x25   | SHL.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ << _RB_
- 0x28   | SHL.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ << _imm6_
-
-Note: This is the same as [`SAL`](#SAL---Arithmetic-Left-Shift)!
-
-## SHR - Logical Right Shift
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x26   | SHR.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ >> _RB_
- 0x29   | SHR.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ >> _imm6_
-
-## ST - Store
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x20   | ST.D _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | dword ptr [_RB_ + _imm3_] = _RA_
- 0x22   | ST.W _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | word ptr [_RB_ + _imm3_] = _RA_
- 0x24   | ST.B _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | byte ptr [_RB_ + _imm3_] = _RA_
-
-## STM - Store Multiple
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x38   | STM.D _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store dword
- 0x3A   | STM.W _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store word
- 0x3C   | STM.H _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store high byte
- 0x3E   | STM.L _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store low byte
- 0x38   | STM.DS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store dword, save final address
- 0x3A   | STM.WS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store word, save final address
- 0x3C   | STM.HS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store high byte, save final address
- 0x3E   | STM.LS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store low byte, save final address
-
-Note: bit 0 of the register mask does not encode `%R0` but the `S` variant instead.
-
-### Effect
-
-```
-WIDTH = .D OR .W OR .H OR .L
-
-ADDRESS = ra
-FOR EACH REGISTER IN regmask REVERSED
-    ADDRESS -= WIDTH
-    STORE WIDTH PTR ADDRESS = REGISTER.WIDTH
-
-IF BIT 0 THEN ra = ADDRESS
-```
-
-## LEAVE - Function Exit
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x1E   | LEAVE                     | [I9](#Class-I9)   | Sets SP to BP then pop BP
-
-## MOV - Move
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x00   | MOV.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _imm6_
- 0x01   | MOV.LO _RA_, _imm6_       | [IR](#Class-IR)   | lower half of _RA_ = _imm6_
- 0x02   | MOV.HI _RA_, _imm6_       | [IR](#Class-IR)   | higher half of _RA_ = _imm6_
-
-### Description
-
-Moves a maximum 16 bit immediate value (through [`IEX`](#IEX---Integer-Extension)) zero-extended into the specified part of the register.
-The value may be subject to truncation if the immediate value contains more bits than the destination register.
 
 ## NAND - Logical AND then Logical NOT
 
@@ -560,6 +487,74 @@ sp = ADDRESS
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
  0x0D   | RSUB.I _RA_, _imm6_       | [IR](#Class-IR)   | _RA_ = _imm6_ - _RA_
+
+## SAL - Arithmetic Left Shift
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x25   | SAL.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ << _RB_
+ 0x28   | SAL.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ << _imm6_
+
+Note: This is the same as [`SHL`](#SHL---Logical-Left-Shift)!
+
+## SAR - Arithmetic Right Shift
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x27   | SAR.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ >> _RB_
+ 0x2A   | SAR.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ >> _imm6_
+
+## SHL - Logical Left Shift
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x25   | SHL.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ << _RB_
+ 0x28   | SHL.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ << _imm6_
+
+Note: This is the same as [`SAL`](#SAL---Arithmetic-Left-Shift)!
+
+## SHR - Logical Right Shift
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x26   | SHR.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ >> _RB_
+ 0x29   | SHR.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ >> _imm6_
+
+## ST - Store
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x20   | ST.D _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | dword ptr [_RB_ + _imm3_] = _RA_
+ 0x22   | ST.W _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | word ptr [_RB_ + _imm3_] = _RA_
+ 0x24   | ST.B _RA_, _imm3_, _RB_   | [IRR](#Class-IRR) | byte ptr [_RB_ + _imm3_] = _RA_
+
+## STM - Store Multiple
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x38   | STM.D _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store dword
+ 0x3A   | STM.W _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store word
+ 0x3C   | STM.H _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store high byte
+ 0x3E   | STM.L _regmask_, _RA_     | [IR](#Class-IR)   | Decrement then store low byte
+ 0x38   | STM.DS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store dword, save final address
+ 0x3A   | STM.WS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store word, save final address
+ 0x3C   | STM.HS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store high byte, save final address
+ 0x3E   | STM.LS _regmask_, _RA_    | [IR](#Class-IR)   | Decrement then store low byte, save final address
+
+Note: bit 0 of the register mask does not encode `%R0` but the `S` variant instead.
+
+### Effect
+
+```
+WIDTH = .D OR .W OR .H OR .L
+
+ADDRESS = ra
+FOR EACH REGISTER IN regmask REVERSED
+    ADDRESS -= WIDTH
+    STORE WIDTH PTR ADDRESS = REGISTER.WIDTH
+
+IF BIT 0 THEN ra = ADDRESS
+```
 
 ## SUB - Subtract
 
