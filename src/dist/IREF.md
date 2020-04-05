@@ -412,7 +412,7 @@ The 64-bit product into split into two parts, with the higher part stored into _
 --------|---------------------------|-------------------|----------------------
  0x06   | OR.R _RA_, _RC_, _RB_     | [3R](#Class-3R)   | _RA_ = _RC_ OR _RB_
 
-## OR - Logical OR NOT
+## ORN - Logical OR NOT
 
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
