@@ -7,7 +7,7 @@
 ;;   We do a couple things here:
 ;;   - Initialize the graphics memory by turning all cells into white text on
 ;;     black.
-;;   - Set stack pointer to 0x800. The stack grows upwards towards 0x0000 and
+;;   - Set stack pointer to 0x1000. The stack grows upwards towards 0x0000 and
 ;;     will eventually overwrite the bootloader! Yay!
 ;;   - Set instruction pointer to 0x4000; that is where the kernel will be at.
 ;;
