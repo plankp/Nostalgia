@@ -6,6 +6,7 @@
 ----------------------------------------------------------------|---------
  [`ADD`](#ADD---Add)                                            | Add
  [`AND`](#AND---Logical-AND)                                    | Logical AND
+ [`ANDN`](#ANDN---Logical-AND-NOT)                              | Logical AND NOT
  [`CALL`](#CALL---Call-Function)                                | Call Function
  [`CMOV`](#CMOV---Conditional-Move)                             | Conditional Move
  [`DIV`](#DIV---Unsigned-Divide)                                | Unsigned Divide
@@ -20,10 +21,9 @@
  [`LEAVE`](#LEAVE---Function-Exit)                              | Function Exit
  [`MOV`](#MOV---Move)                                           | Move
  [`MUL`](#MUL---Unsigned-Multiply)                              | Unsigned Multiply
- [`NAND`](#NAND---Logical-AND-then-Logical-NOT)                 | Logical AND then Logical NOT
- [`NOR`](#NOR---Logical-OR-then-Logical-NOT)                    | Logical OR then Logical NOT
  [`NXOR`](#NXOR---Logical-XOR-then-Logical-NOT)                 | Logical XOR then Logical NOT
  [`OR`](#OR---Logical-OR)                                       | Logical OR
+ [`ORN`](#ORN---Logical-OR-NOT)                                 | Logical OR NOT
  [`PADD`](#PADD---Add-Packed-Integers)                          | Add Packed Integers
  [`POP`](#POP---Pop-from-the-Stack)                             | Pop from the Stack
  [`PSUB`](#PSUB---Subtract-Packed-Integers)                     | Subtract Packed Integers
@@ -198,6 +198,12 @@ The high two bits determine the width of the data access.
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
  0x05   | AND.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ AND _RB_
+
+## ANDN - Logical AND NOT
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x08   | ANDN.R _RA_, _RC_, _RB_   | [3R](#Class-3R)   | _RA_ = _RC_ AND (BITWISE-NOT _RB_)
 
 ## CALL - Call Function
 
@@ -394,18 +400,6 @@ The 64-bit product into split into two parts, with the higher part stored into _
                                                            +----------+----------+
 ```
 
-## NAND - Logical AND then Logical NOT
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x08   | NAND.R _RA_, _RC_, _RB_   | [3R](#Class-3R)   | _RA_ = BITWISE-NOT (_RC_ AND _RB_)
-
-## NOR - Logical OR then Logical NOT
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x09   | NOR.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = BITWISE-NOT (_RC_ OR _RB_)
-
 ## NXOR - Logical XOR then Logical NOT
 
  Opcode | Instruction               | Encoding          | Description
@@ -417,6 +411,12 @@ The 64-bit product into split into two parts, with the higher part stored into _
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
  0x06   | OR.R _RA_, _RC_, _RB_     | [3R](#Class-3R)   | _RA_ = _RC_ OR _RB_
+
+## OR - Logical OR NOT
+
+ Opcode | Instruction               | Encoding          | Description
+--------|---------------------------|-------------------|----------------------
+ 0x09   | ORN.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ OR (BITWISE-NOT _RB_)
 
 ## PADD - Add Packed Integers
 

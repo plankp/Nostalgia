@@ -422,13 +422,13 @@ public final class Assembler {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.xorR(buf[0], buf[1], buf[2]);
                 break;
-            case "NAND.R":
+            case "ANDN.R":
                 buf = checkInstrClassRRR(operands);
-                this.encoder.nandR(buf[0], buf[1], buf[2]);
+                this.encoder.andnR(buf[0], buf[1], buf[2]);
                 break;
-            case "NOR.R":
+            case "ORN.R":
                 buf = checkInstrClassRRR(operands);
-                this.encoder.norR(buf[0], buf[1], buf[2]);
+                this.encoder.ornR(buf[0], buf[1], buf[2]);
                 break;
             case "NXOR.R":
                 buf = checkInstrClassRRR(operands);

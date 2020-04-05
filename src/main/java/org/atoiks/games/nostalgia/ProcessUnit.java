@@ -420,7 +420,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void nandR(int rC, int rB, int rA) {
+    public void andnR(int rC, int rB, int rA) {
         final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
@@ -428,12 +428,12 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
         final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
-        this.rexWrite(rdst, this.rexRA, ~(lhs & rhs));
+        this.rexWrite(rdst, this.rexRA, lhs & ~rhs);
         this.resetREX();
     }
 
     @Override
-    public void norR(int rC, int rB, int rA) {
+    public void ornR(int rC, int rB, int rA) {
         final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
         final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
@@ -441,7 +441,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int lhs = this.rexReadUnsigned(rlhs, this.rexRC);
         final int rhs = this.rexReadUnsigned(rrhs, this.rexRB);
 
-        this.rexWrite(rdst, this.rexRA, ~(lhs | rhs));
+        this.rexWrite(rdst, this.rexRA, lhs | ~rhs);
         this.resetREX();
     }
 
@@ -1584,12 +1584,12 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void nandR(int rlhs, int rrhs, int rdst) {
+    public void andnR(int rlhs, int rrhs, int rdst) {
         this.timingBank = 1;
     }
 
     @Override
-    public void norR(int rlhs, int rrhs, int rdst) {
+    public void ornR(int rlhs, int rrhs, int rdst) {
         this.timingBank = 1;
     }
 

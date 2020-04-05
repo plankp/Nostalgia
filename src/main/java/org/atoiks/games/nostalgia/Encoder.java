@@ -186,13 +186,13 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void nandR(int rlhs, int rrhs, int rdst) {
-        this.emitOp0RRR(Opcode.OP0_NAND_R, rlhs, rrhs, rdst);
+    public void andnR(int rlhs, int rrhs, int rdst) {
+        this.emitOp0RRR(Opcode.OP0_ANDN_R, rlhs, rrhs, rdst);
     }
 
     @Override
-    public void norR(int rlhs, int rrhs, int rdst) {
-        this.emitOp0RRR(Opcode.OP0_NOR_R, rlhs, rrhs, rdst);
+    public void ornR(int rlhs, int rrhs, int rdst) {
+        this.emitOp0RRR(Opcode.OP0_ORN_R, rlhs, rrhs, rdst);
     }
 
     @Override

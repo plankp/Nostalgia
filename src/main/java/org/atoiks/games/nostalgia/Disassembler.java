@@ -203,7 +203,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void nandR(int rlhs, int rrhs, int rdst) {
+    public void andnR(int rlhs, int rrhs, int rdst) {
         this.out.printf("NAND.R     %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
                 this.rexSynthRegister(this.rexRC, rlhs),
@@ -212,7 +212,7 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void norR(int rlhs, int rrhs, int rdst) {
+    public void ornR(int rlhs, int rrhs, int rdst) {
         this.out.printf("NOR.R      %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
                 this.rexSynthRegister(this.rexRC, rlhs),

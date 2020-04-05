@@ -65,11 +65,11 @@ public final class Decoder {
             case Opcode.OP0_XOR_R:
                 vis.xorR(rC, rB, rA);
                 break;
-            case Opcode.OP0_NAND_R:
-                vis.nandR(rC, rB, rA);
+            case Opcode.OP0_ANDN_R:
+                vis.andnR(rC, rB, rA);
                 break;
-            case Opcode.OP0_NOR_R:
-                vis.norR(rC, rB, rA);
+            case Opcode.OP0_ORN_R:
+                vis.ornR(rC, rB, rA);
                 break;
             case Opcode.OP0_NXOR_R:
                 vis.nxorR(rC, rB, rA);
