@@ -446,15 +446,13 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void nxorR(int rC, int rB, int rA) {
-        final int rlhs = ((this.rexRC & 0x1) << 3) | rC;
-        final int rrhs = ((this.rexRB & 0x1) << 3) | rB;
+    public void fpext(int imm3, int rB, int rA) {
+        final int imm = this.loadImm3(imm3);
+        final int rsrc = ((this.rexRB & 0x1) << 3) | rB;
         final int rdst = ((this.rexRA & 0x1) << 3) | rA;
 
-        final int lhs = this.rexReadSigned(rlhs, this.rexRC);
-        final int rhs = this.rexReadSigned(rrhs, this.rexRB);
+        // TODO:
 
-        this.rexWrite(rdst, this.rexRA, ~(lhs ^ rhs));
         this.resetREX();
     }
 
@@ -1594,8 +1592,9 @@ final class InstrTiming implements InstrVisitor {
     }
 
     @Override
-    public void nxorR(int rlhs, int rrhs, int rdst) {
-        this.timingBank = 1;
+    public void fpext(int imm, int rsrc, int rdst) {
+        // FIXME: fpext is actually a group of instructions!
+        this.timingBank = 0;
     }
 
     @Override

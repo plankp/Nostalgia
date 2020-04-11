@@ -430,10 +430,6 @@ public final class Assembler {
                 buf = checkInstrClassRRR(operands);
                 this.encoder.ornR(buf[0], buf[1], buf[2]);
                 break;
-            case "NXOR.R":
-                buf = checkInstrClassRRR(operands);
-                this.encoder.nxorR(buf[0], buf[1], buf[2]);
-                break;
             case "ADD.I":
                 buf = checkInstrClassIR(operands);
                 this.encoder.addI(buf[0], buf[1]);

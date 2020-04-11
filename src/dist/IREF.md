@@ -21,7 +21,6 @@
  [`LEAVE`](#LEAVE---Function-Exit)                              | Function Exit
  [`MOV`](#MOV---Move)                                           | Move
  [`MUL`](#MUL---Unsigned-Multiply)                              | Unsigned Multiply
- [`NXOR`](#NXOR---Logical-XOR-then-Logical-NOT)                 | Logical XOR then Logical NOT
  [`OR`](#OR---Logical-OR)                                       | Logical OR
  [`ORN`](#ORN---Logical-OR-NOT)                                 | Logical OR NOT
  [`PADD`](#PADD---Add-Packed-Integers)                          | Add Packed Integers
@@ -399,12 +398,6 @@ The 64-bit product into split into two parts, with the higher part stored into _
                                                            |  byte RA |  byte RB |
                                                            +----------+----------+
 ```
-
-## NXOR - Logical XOR then Logical NOT
-
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x0A   | NXOR.R _RA_, _RC_, _RB_   | [3R](#Class-3R)   | _RA_ = BITWISE-NOT (_RC_ XOR _RB_)
 
 ## OR - Logical OR
 

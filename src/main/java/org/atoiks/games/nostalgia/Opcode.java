@@ -42,7 +42,8 @@ public final class Opcode {
     public static final int OP0_XOR_R   = 7 & MASK_OP0;
     public static final int OP0_ANDN_R  = 8 & MASK_OP0;
     public static final int OP0_ORN_R   = 9 & MASK_OP0;
-    public static final int OP0_NXOR_R  = 10 & MASK_OP0; // wut?
+
+    public static final int OP0_FPEXT   = 10 & MASK_OP0;
 
     public static final int OP0_ADD_I   = 11 & MASK_OP0;
     public static final int OP0_SUB_I   = 12 & MASK_OP0;

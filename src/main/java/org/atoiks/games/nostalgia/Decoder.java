@@ -71,8 +71,8 @@ public final class Decoder {
             case Opcode.OP0_ORN_R:
                 vis.ornR(rC, rB, rA);
                 break;
-            case Opcode.OP0_NXOR_R:
-                vis.nxorR(rC, rB, rA);
+            case Opcode.OP0_FPEXT:
+                vis.fpext(immHi, rB, rA);
                 break;
             case Opcode.OP0_ADD_I:
                 vis.addI(immMi, rA);

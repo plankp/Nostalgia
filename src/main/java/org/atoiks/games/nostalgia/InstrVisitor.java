@@ -17,7 +17,8 @@ public interface InstrVisitor {
     public void xorR(int rlhs, int rrhs, int rdst);
     public void andnR(int rlhs, int rrhs, int rdst);
     public void ornR(int rlhs, int rrhs, int rdst);
-    public void nxorR(int rlhs, int rrhs, int rdst);
+
+    public void fpext(int imm3, int rsrc, int rdst);
 
     public void addI(int imm6, int rdst);
     public void subI(int imm6, int rdst);

@@ -221,11 +221,11 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
     }
 
     @Override
-    public void nxorR(int rlhs, int rrhs, int rdst) {
-        this.out.printf("NXOR.R     %s, %s, %s",
+    public void fpext(int imm, int rsrc, int rdst) {
+        this.out.printf("FPEXT      %s, %s, %s",
                 this.rexSynthRegister(this.rexRA, rdst),
-                this.rexSynthRegister(this.rexRC, rlhs),
-                this.rexSynthRegister(this.rexRB, rrhs));
+                this.loadImm3(imm),
+                this.rexSynthRegister(this.rexRB, rsrc));
         this.resetREX();
     }
 

@@ -196,8 +196,8 @@ public final class Encoder implements InstrVisitor {
     }
 
     @Override
-    public void nxorR(int rlhs, int rrhs, int rdst) {
-        this.emitOp0RRR(Opcode.OP0_NXOR_R, rlhs, rrhs, rdst);
+    public void fpext(int imm, int rsrc, int rdst) {
+        this.emitOp0IRR(Opcode.OP0_FPEXT, imm, rsrc, rdst);
     }
 
     @Override
