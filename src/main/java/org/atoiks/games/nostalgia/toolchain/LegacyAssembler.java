@@ -11,6 +11,10 @@ import org.atoiks.games.nostalgia.Assembler;
 public final class LegacyAssembler {
 
     public static void main(String[] args) {
+        entry(args);
+    }
+
+    public static boolean entry(String[] args) {
         boolean errored = false;
         boolean dspHelp = false;
 
@@ -64,13 +68,14 @@ public final class LegacyAssembler {
                     + "  -h | --help            Displays this help message\n"
                     + "  -o <file>              Write output to <file>\n"
                     + "  -I <dir>               Add directory to search path");
-            return;
+            return false;
         }
 
         if (errored) {
-            return;
+            return false;
         }
 
+        boolean ret = true;
         final Assembler assembler = new Assembler();
         try {
             for (final String inc : incDirs) {
@@ -81,10 +86,11 @@ public final class LegacyAssembler {
             for (final String inp : inpList) {
                 assembler.loadSource(inp);
             }
+            ret = !inpList.isEmpty();
             inpList = null;
         } catch (IOException | RuntimeException ex) {
             System.out.println(ex.getMessage());
-            return;
+            return false;
         }
 
         final byte[] bytes = assembler.assembleAll();
@@ -92,7 +98,8 @@ public final class LegacyAssembler {
             Files.write(Paths.get(output), bytes);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
-            return;
+            return false;
         }
+        return ret;
     }
 }

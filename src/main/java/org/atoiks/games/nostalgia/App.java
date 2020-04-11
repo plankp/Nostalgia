@@ -1,82 +1,107 @@
 package org.atoiks.games.nostalgia;
 
 import java.io.*;
-import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class App {
-    public static void main(String[] args) throws IOException {
-        final Screen screen = new Screen();
-        screen.setVisible(true);
 
-        final MemoryUnit mem = new MemoryUnit();
-        final ProcessUnit proc = new ProcessUnit(mem);
+    public static void main(String[] args) throws Exception {
+        boolean errored = false;
+        boolean dspHelp = false;
 
-        System.out.println("===== Assembling loader =====");
-        final ByteBuffer loader = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/bootloader.nos")));
+        boolean disassemble = false;
+        final ArrayList<String> asArgs = new ArrayList<>();
+        final ArrayList<String> emuArgs = new ArrayList<>();
 
-        System.out.println("===== Assembling kernel =====");
+        final int limit = args.length;
+        for (int i = 0; i < limit; ++i) {
+            final String el = args[i];
 
-        ByteBuffer kernel = null;
-        String errMsg =
-                "Hmm... Looks like you haven't loaded a kernel yet!\n" +
-                "(You should do that) \1"; // \1 is the smiley face
+            if (el.isEmpty()) {
+                continue;
+            }
 
-        if (args.length == 1) {
             try {
-                final byte[] bytes = Files.readAllBytes(Paths.get(args[0]));
+                if (el.charAt(0) == '-') {
+                    switch (el) {
+                        case "-h":
+                        case "--help":
+                            dspHelp = true;
+                            continue;
+                        case "-I":
+                            asArgs.add(el);
+                            asArgs.add(args[++i]);
+                            continue;
+                        case "--dis":
+                            disassemble = true;
+                            continue;
+                        case "--fast":
+                        case "--slow":
+                            emuArgs.add(el);
+                            continue;
+                        default:
+                            System.out.println("Error: Unsupported option: " + el);
+                            errored = true;
+                            continue;
+                    }
+                }
 
-                // Note: We don't disassemble this one (there is a disassembler
-                // tool bundled now anyway!)
-                kernel = ByteBuffer.wrap(bytes);
-            } catch (IOException | RuntimeException ex) {
-                errMsg = ex.getMessage();
+                asArgs.add(el);
+            } catch (IndexOutOfBoundsException ex) {
+                System.out.println("Error: Option " + el + " missing value after");
+                errored = true;
+                continue;
             }
         }
 
-        if (kernel == null) {
-            kernel = assembleProgram(System.out, new InputStreamReader(App.class.getResourceAsStream("/dummy_kernel.nos")));
-
-            // flash the error message into 0x4200
-            final byte[] msgBytes = new StringBuilder()
-                    .append("Atoiks Games - Nostalgia...\n\n")
-                    .append(errMsg)
-                    .append('\0') // null terminated strings (like C)!
-                    .toString()
-                    .getBytes("US-ASCII");
-            mem.mapHandler(0x4200, new GenericMemory(msgBytes));
+        if (dspHelp) {
+            System.out.println(""
+                    + "Nostalgia\n"
+                    + "\n"
+                    + "Usage: nostalgia [options] file...\n"
+                    + "\n"
+                    + "Options:\n"
+                    + "  -h | --help            Displays this help message\n"
+                    + "  -I <dir>               Add directory to search path when assembling the kernel\n"
+                    + "  --dis                  Disassemble the kernel (that was just assembled)\n"
+                    + "  --fast                 Runs at (relatively) fast mode\n"
+                    + "  --slow                 Runs at (relatively) slow mode [default]\n"
+                    + "\n"
+                    + "Note: the file will be loaded at 0x4000");
+            return;
         }
 
-        mem.mapHandler(0, new GenericMemory(loader));
-        mem.mapHandler(0x4000, new GenericMemory(kernel.duplicate()));
-        screen.setupMemory(mem);
+        if (errored) {
+            return;
+        }
 
+        // Create a file temporary
+        final Path tempFile = Files.createTempFile(null, null);
         try {
-            while (true) {
-                proc.executeNextQuanta();
-                Thread.sleep(1);
+            final String tempFilename = tempFile.toRealPath() + "";
+
+            // Run assembler
+            asArgs.add("-o");
+            asArgs.add(tempFilename);
+            final boolean res = org.atoiks.games.nostalgia.toolchain.LegacyAssembler.entry(asArgs.toArray(new String[0]));
+            asArgs.clear();
+
+            if (res) {
+                // Run disassembler
+                if (disassemble) {
+                    org.atoiks.games.nostalgia.toolchain.LegacyDisassembler.main(new String[] { tempFilename });
+                }
+
+                // Run emulator
+                emuArgs.add(tempFilename);
             }
-        } catch (RuntimeException | InterruptedException ex) {
-            System.out.println(ex.getMessage());
-            System.out.println(proc);
+            org.atoiks.games.nostalgia.toolchain.NostalgiaEmulator.main(emuArgs.toArray(new String[0]));
+            emuArgs.clear();
+        } finally {
+            Files.deleteIfExists(tempFile);
         }
-    }
-
-    // Will close the stream after read!
-    public static ByteBuffer assembleProgram(PrintStream debugDis, Reader src) throws IOException {
-        final Assembler asm = new Assembler();
-
-        try (final BufferedReader br = new BufferedReader(src)) {
-            asm.loadSource(br);
-        }
-
-        final ByteBuffer buffer = ByteBuffer.wrap(asm.assembleAll());
-
-        if (debugDis != null) {
-            new Disassembler(debugDis, buffer.duplicate()).disassembleAll();
-        }
-
-        return buffer;
     }
 }
