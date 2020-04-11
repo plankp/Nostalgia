@@ -4,6 +4,28 @@
 >
 > And it seems like I will be doing this in reverse order...
 
+## Nostalgia Driver
+
+> Cuz sometimes you just want to run the code and don't care about all the lower-level stuff...
+> Or because `./gradlew run --args ...` is your thing...
+
+It will assemble the code, optionally disassemble it, then run it (see help message):
+
+```
+Nostalgia
+
+Usage: nostalgia [options] file...
+
+Options:
+  -h | --help            Displays this help message
+  -I <dir>               Add directory to search path when assembling the kernel
+  --dis                  Disassemble the kernel (that was just assembled)
+  --fast                 Runs at (relatively) fast mode
+  --slow                 Runs at (relatively) slow mode [default]
+
+Note: the file will be loaded at 0x4000
+```
+
 ## Disassembler
 
 When you do (or something similar):
@@ -80,12 +102,14 @@ Note: Due to unfortunate Java reasons, it's currently signed... (We'll fix it...
 When you do:
 
 ```bash
-./bin/nostalgia ./a.out
+./bin/nosemu ./a.out
 ```
 
 the environment will try to load the binary file as the [kernel](#Kernel).
 
 If you do not provide a kernel, provide too many (only one is allowed), or your kernel has issues, the [dummy kernel](/src/main/resources/dummy_kernel.nos) will do it's best at reporting that.
+
+You can add `--fast` or `--slow` (the default) to make the code go relatively faster or slower.
 
 ### [Bootloader](/src/main/resources/bootloader.nos)
 

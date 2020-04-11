@@ -23,8 +23,10 @@ For example, to get [moving_dot.nos](/src/dist/sample/moving_dot.nos) working, y
 
 ```bash
 $ ./bin/as -o kernel.bin ./sample/moving_dot.nos
-$ ./bin/nostalgia kernel.bin
+$ ./bin/nosemu kernel.bin
 ```
+
+or `./bin/nostalgia ./sample/moving_dot.nos`, but this way you don't get the assembled code.
 
 For more information, see the README.md that is bundled with the build.
 Alternatively, click [here](/src/dist/README.md); it's the same document.
