@@ -39,11 +39,19 @@ task createExtraAppLegacyDisassembler(type: CreateStartScripts) {
     applicationName = 'dis'
 }
 
+task createExtraAppNostalgiaEmulator(type: CreateStartScripts) {
+    mainClassName = 'org.atoiks.games.nostalgia.toolchain.NostalgiaEmulator'
+    classpath = startScripts.classpath
+    outputDir = startScripts.outputDir
+    applicationName = 'nosemu'
+}
+
 applicationDistribution.into("bin") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(createExtraAppDummy)
     from(createExtraAppLegacyAssembler)
     from(createExtraAppLegacyDisassembler)
+    from(createExtraAppNostalgiaEmulator)
     fileMode = 0755
 }
 
