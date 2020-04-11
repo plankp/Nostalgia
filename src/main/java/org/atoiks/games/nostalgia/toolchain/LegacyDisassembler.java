@@ -45,7 +45,7 @@ public final class LegacyDisassembler {
                 errored = true;
                 continue;
             }
-       }
+        }
 
         if (dspHelp) {
             System.out.println(""
