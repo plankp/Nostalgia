@@ -15,7 +15,7 @@
  [`FADD`](#FADD---Float-point-Add)                              | Float-point Add
  [`FDIV`](#FDIV---Float-point-Divide)                           | Float-point Divide
  [`FMOD`](#FMOD---Float-point-Modulo)                           | Float-point Modulo
- [`FMOV`](#FMOD---Float-point-Move)                             | Float-point Move
+ [`FMOV`](#FMOV---Float-point-Move)                             | Float-point Move
  [`FMUL`](#FMUL---Float-point-Multiply)                         | Float-point Multiply
  [`FREM`](#FREM---Float-point-Remainder)                        | Float-point Remainder
  [`FRDIV`](#FRDIV---Float-point-Reverse-Divide)                 | Float-point Reverse Divide
