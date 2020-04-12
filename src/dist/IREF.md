@@ -12,10 +12,12 @@
  [`CVT`](#CVT---Convert)                                        | Convert
  [`DIV`](#DIV---Unsigned-Divide)                                | Unsigned Divide
  [`ENTER`](#ENTER---Make-Stack-Frame-for-Function-Parameters)   | Make Stack Frame for Function Parameters
+ [`FADD`](#FADD---Float-point-Add)                              | Float-point Add
  [`FDIV`](#FDIV---Float-point-Divide)                           | Float-point Divide
  [`FMOD`](#FMOD---Float-point-Modulo)                           | Float-point Modulo
  [`FMUL`](#FMUL---Float-point-Multiply)                         | Float-point Multiply
  [`FREM`](#FREM---Float-point-Remainder)                        | Float-point Remainder
+ [`FSUB`](#FSUB---Float-point-Sub)                              | Float-point Subtract
  [`IDIV`](#IDIV---Signed-Divide)                                | Signed Divide
  [`IMAC`](#IMAC---Signed-Multiply-then-Add)                     | Signed Multiply then Add
  [`IMUL`](#IMUL---Signed-Multiply)                              | Signed Multiply
@@ -211,10 +213,6 @@ The highest bit determines the width of the data access.
 --------|-----------------------------------|-------------------------------|----------------------
  0x03   | ADD.R gp:_RA_, gp:_RC_, gp:_RB_   | [3R](#Class-3R)               | _RA_ = _RC_ + _RB_
  0x0B   | ADD.I gp:_RA_, _imm6_             | [IR](#Class-IR)               | _RA_ = _RA_ + _imm6_
- 0x0A   | ADD.F fp:_RA_, fp:_RB_            | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ + _RB_
-
-Notes:
-*   <sup>1</sup> - Immediate field is fixed to 4
 
 ## AND - Logical AND
 
@@ -280,6 +278,15 @@ The quotient is stored in _RA_; the remainder is stored in _RB_.
 --------|---------------------------|-------------------|----------------------
  0x1D   | ENTER _imm9_              | [I9](#Class-I9)   | Create a stack frame for a function
 
+## FADD - Float-point Add
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FADD fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ + _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 4
+
 ## FDIV - Float-point Divide
 
  Opcode | Instruction           | Encoding                      | Description
@@ -315,6 +322,15 @@ Notes:
 
 Notes:
 *   <sup>1</sup> - Immediate field is fixed to 9
+
+## FSUB - Float-point Subtract
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FSUB fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ - _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 4
 
 ## IDIV - Signed Divide
 
@@ -636,10 +652,6 @@ IF BIT 0 THEN ra = ADDRESS
 --------|-----------------------------------|-------------------------------|----------------------
  0x04   | SUB.R gp:_RA_, gp:_RC_, gp:_RB_   | [3R](#Class-3R)               | _RA_ = _RC_ - _RB_
  0x0C   | SUB.I gp:_RA_, _imm6_             | [IR](#Class-IR)               | _RA_ = _RA_ - _imm6_
- 0x0A   | SUB.F fp:_RA_, fp:_RB_            | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ - _RB_
-
-Notes:
-*   <sup>1</sup> - Immediate field is fixed to 4
 
 ## XOR - Logical XOR
 

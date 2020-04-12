@@ -508,37 +508,37 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 this.rexWrite(rdstgp, this.rexRA, (int) src);
                 break;
             }
-            case Opcode.FPEXT_ADD_F: {  // ADD.F %fp, %fp
+            case Opcode.FPEXT_FADD : {  // ADD.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs + rhs);
                 break;
             }
-            case Opcode.FPEXT_SUB_F: {  // SUB.F %fp, %fp
+            case Opcode.FPEXT_FSUB : {  // SUB.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs - rhs);
                 break;
             }
-            case Opcode.FPEXT_MUL_F: {  // MUL.F %fp, %fp
+            case Opcode.FPEXT_FMUL : {  // MUL.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs * rhs);
                 break;
             }
-            case Opcode.FPEXT_DIV_F: {  // DIV.F %fp, %fp
+            case Opcode.FPEXT_FDIV : {  // DIV.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs / rhs);
                 break;
             }
-            case Opcode.FPEXT_MOD_F: {  // MOD.F %fp, %fp
+            case Opcode.FPEXT_FMOD : {  // MOD.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs % rhs);
                 break;
             }
-            case Opcode.FPEXT_REM_F: {  // REM.F %fp, %fp
+            case Opcode.FPEXT_FREM: {  // REM.F %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, Math.IEEEremainder(lhs, rhs));

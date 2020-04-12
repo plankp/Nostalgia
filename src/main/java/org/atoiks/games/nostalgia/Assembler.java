@@ -754,29 +754,29 @@ public final class Assembler {
                 buf = checkInstrClassFpR(operands);
                 this.encoder.fpext(Opcode.FPEXT_CVT_R, buf[0], buf[1]);
                 break;
-            case "ADD.F":
+            case "FADD":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_ADD_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FADD , buf[0], buf[1]);
                 break;
-            case "SUB.F":
+            case "FSUB":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_SUB_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FSUB , buf[0], buf[1]);
                 break;
             case "FMUL":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_MUL_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FMUL , buf[0], buf[1]);
                 break;
             case "FDIV":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_DIV_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FDIV , buf[0], buf[1]);
                 break;
             case "FMOD":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_MOD_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FMOD , buf[0], buf[1]);
                 break;
             case "FREM":
                 buf = checkInstrClassFpFp(operands);
-                this.encoder.fpext(Opcode.FPEXT_REM_F, buf[0], buf[1]);
+                this.encoder.fpext(Opcode.FPEXT_FREM, buf[0], buf[1]);
                 break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");

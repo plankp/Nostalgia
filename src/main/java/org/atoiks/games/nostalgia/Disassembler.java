@@ -253,32 +253,32 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                         this.rexSynthRegister(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_ADD_F:
-                this.out.printf("ADD.F      %s, %s",
+            case Opcode.FPEXT_FADD :
+                this.out.printf("FADD       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_SUB_F:
-                this.out.printf("SUB.F      %s, %s",
+            case Opcode.FPEXT_FSUB :
+                this.out.printf("FSUB       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_MUL_F:
+            case Opcode.FPEXT_FMUL :
                 this.out.printf("FMUL       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_DIV_F:
+            case Opcode.FPEXT_FDIV :
                 this.out.printf("FDIV       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_MOD_F:
+            case Opcode.FPEXT_FMOD :
                 this.out.printf("FMOD       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
-            case Opcode.FPEXT_REM_F:
+            case Opcode.FPEXT_FREM:
                 this.out.printf("FREM       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
