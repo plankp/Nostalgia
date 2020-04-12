@@ -479,7 +479,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final int rdstfp = ((this.rexRA & 0x3) << 3) | rA;
 
         switch (imm & Opcode.MASK_FPEXT) {
-            case Opcode.FPEXT_MOV_F: {  // MOV.{HI,LO} %fp, %gp
+            case Opcode.FPEXT_MOV_F: {  // MOV.F %fp, %gp
                 final int bits = this.rexReadUnsigned(rsrcgp, this.rexRB);
                 if (((this.rexRA >> 2) & 0x1) == 0) {
                     this.fpregs[rdstfp] &= -1L << 32;
@@ -490,7 +490,7 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 }
                 break;
             }
-            case Opcode.FPEXT_MOV_R: {  // MOV.{HI,LO} %gp, %fp
+            case Opcode.FPEXT_MOV_R: {  // MOV.R %gp, %fp
                 if (((this.rexRB >> 2) & 0x1) == 0) {
                     this.rexWrite(rdstgp, this.rexRA, (int) this.fpregs[rsrcfp]);
                 } else {
@@ -503,42 +503,42 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 this.rexWriteFp(rdstfp, this.rexRA, src);
                 break;
             }
-            case Opcode.FPEXT_CVT_R: {  // CVT.I %gp, %fp
+            case Opcode.FPEXT_CVT_R: {  // CVT.R %gp, %fp
                 final double src = this.rexReadFp(rsrcfp, this.rexRB);
                 this.rexWrite(rdstgp, this.rexRA, (int) src);
                 break;
             }
-            case Opcode.FPEXT_FADD : {  // ADD.F %fp, %fp
+            case Opcode.FPEXT_FADD : {  // FADD %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs + rhs);
                 break;
             }
-            case Opcode.FPEXT_FSUB : {  // SUB.F %fp, %fp
+            case Opcode.FPEXT_FSUB : {  // FSUB %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs - rhs);
                 break;
             }
-            case Opcode.FPEXT_FMUL : {  // MUL.F %fp, %fp
+            case Opcode.FPEXT_FMUL : {  // FMUL %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs * rhs);
                 break;
             }
-            case Opcode.FPEXT_FDIV : {  // DIV.F %fp, %fp
+            case Opcode.FPEXT_FDIV : {  // FDIV %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs / rhs);
                 break;
             }
-            case Opcode.FPEXT_FMOD : {  // MOD.F %fp, %fp
+            case Opcode.FPEXT_FMOD : {  // FMOD %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, lhs % rhs);
                 break;
             }
-            case Opcode.FPEXT_FREM: {  // REM.F %fp, %fp
+            case Opcode.FPEXT_FREM: {  // FREM %fp, %fp
                 final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
                 final double lhs = this.rexReadFp(rdstfp, this.rexRA);
                 this.rexWriteFp(rdstfp, this.rexRA, Math.IEEEremainder(lhs, rhs));
