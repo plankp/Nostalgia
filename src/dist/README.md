@@ -70,7 +70,7 @@ Using one that's not supported would cause the assembler to crash.
 
 ## Registers
 
-There is 1 zero register, 15 general purpose registers, and an instruction pointer.
+There is 1 zero register, 15 general purpose registers, 32 float-point registers, and an instruction pointer.
 
 The zero register is mapped to `%R0`.
 Reading from this register always results in 0.
@@ -87,12 +87,18 @@ Each have four access modes (detonated by suffixes):
  `L`     | Accesses the low byte (0 to 7).
  `H`     | Accesses the high byte (8 to 15).
  `W`     | Accesses the word (0 to 15). ___This is the default access mode for compatibility reasons!___
- `D`     | Accesses the full dword (0 to 31)
-
-Any non-word accesses require an additional word sized [`REX`](IREF.md#REX---Register-Extension) on the instruction.
+ `D`     | Accesses the full dword (0 to 31).
 
 Note: The access suffixes cannot be used on aliases `%SP` and `%BP`.
 They can be used with `%R8` or `%R9` though!
+
+The 32 float-point registers are mapped from `%FP0` to `%FP31` inclusively.
+Each is 64 bits can have two access modes (detonated by suffixes):
+
+ Suffix  | Description
+---------|------------
+ `D`     | Accesses the low dword (0 to 31). ___This is the default access mode.___
+ `Q`     | Accesses the full qword (0 to 63) or the high dword (32 to 63) depend on the instruction.
 
 The instruction pointer is 32 bits.
 Note: Due to unfortunate Java reasons, it's currently signed... (We'll fix it... eventually...)
