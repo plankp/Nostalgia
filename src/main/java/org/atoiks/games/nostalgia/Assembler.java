@@ -778,6 +778,18 @@ public final class Assembler {
                 buf = checkInstrClassFpFp(operands);
                 this.encoder.fpext(Opcode.FPEXT_FREM, buf[0], buf[1]);
                 break;
+            case "FMOV":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_FMOV, buf[0], buf[1]);
+                break;
+            case "FRSUB":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_FRSUB, buf[0], buf[1]);
+                break;
+            case "FRDIV":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_FRDIV, buf[0], buf[1]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }

@@ -544,6 +544,22 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
                 this.rexWriteFp(rdstfp, this.rexRA, Math.IEEEremainder(lhs, rhs));
                 break;
             }
+            case Opcode.FPEXT_FMOV: {  // FMOV %fp, %fp
+                this.rexWriteFp(rdstfp, this.rexRA, this.rexReadFp(rsrcfp, this.rexRB));
+                break;
+            }
+            case Opcode.FPEXT_FRSUB: {  // FRSUB %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, rhs - lhs);
+                break;
+            }
+            case Opcode.FPEXT_FRDIV: {  // FRDIV %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, rhs / lhs);
+                break;
+            }
             default:
                 throw new RuntimeException("Process Unit: Illegal float-point extension opcode: " + (imm & Opcode.MASK_FPEXT));
         }

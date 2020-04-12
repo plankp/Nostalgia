@@ -168,6 +168,7 @@ public final class Opcode {
     public static final int FPEXT_FMOD  = 8 & MASK_FPEXT;
     public static final int FPEXT_FREM  = 9 & MASK_FPEXT;
 
-    public static final int FPEXT_MOD_F = 8 & MASK_FPEXT;
-    public static final int FPEXT_REM_F = 9 & MASK_FPEXT;
+    public static final int FPEXT_FMOV  = 10 & MASK_FPEXT;
+    public static final int FPEXT_FRSUB = 11 & MASK_FPEXT;
+    public static final int FPEXT_FRDIV = 12 & MASK_FPEXT;
 }

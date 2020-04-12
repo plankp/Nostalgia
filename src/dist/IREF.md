@@ -15,9 +15,12 @@
  [`FADD`](#FADD---Float-point-Add)                              | Float-point Add
  [`FDIV`](#FDIV---Float-point-Divide)                           | Float-point Divide
  [`FMOD`](#FMOD---Float-point-Modulo)                           | Float-point Modulo
+ [`FMOV`](#FMOD---Float-point-Move)                             | Float-point Move
  [`FMUL`](#FMUL---Float-point-Multiply)                         | Float-point Multiply
  [`FREM`](#FREM---Float-point-Remainder)                        | Float-point Remainder
- [`FSUB`](#FSUB---Float-point-Sub)                              | Float-point Subtract
+ [`FRDIV`](#FRDIV---Float-point-Reverse-Divide)                 | Float-point Reverse Divide
+ [`FRSUB`](#FRSUB---Float-point-Reverse-Subtract)               | Float-point Reverse Subtract
+ [`FSUB`](#FSUB---Float-point-Subtract)                         | Float-point Subtract
  [`IDIV`](#IDIV---Signed-Divide)                                | Signed Divide
  [`IMAC`](#IMAC---Signed-Multiply-then-Add)                     | Signed Multiply then Add
  [`IMUL`](#IMUL---Signed-Multiply)                              | Signed Multiply
@@ -296,6 +299,15 @@ Notes:
 Notes:
 *   <sup>1</sup> - Immediate field is fixed to 7
 
+## FMOV - Float-point Move
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FMOV fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 10
+
 ## FMOD - Float-point Modulo
 
  Opcode | Instruction           | Encoding                      | Description
@@ -322,6 +334,24 @@ Notes:
 
 Notes:
 *   <sup>1</sup> - Immediate field is fixed to 9
+
+## FRDIV - Float-point Reverse Divide
+
+ Opcode | Instruction               | Encoding                      | Description
+--------|---------------------------|-------------------------------|----------------------
+ 0x0A   | FRDIV fp:_RA_, fp:_RB_    | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RB_ / _RA_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 12
+
+## FRSUB - Float-point Reverse Subtract
+
+ Opcode | Instruction               | Encoding                      | Description
+--------|---------------------------|-------------------------------|----------------------
+ 0x0A   | FRSUB fp:_RA_, fp:_RB_    | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RB_ - _RA_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 11
 
 ## FSUB - Float-point Subtract
 

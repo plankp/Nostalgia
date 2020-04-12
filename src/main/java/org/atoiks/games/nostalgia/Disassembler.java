@@ -283,6 +283,21 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
+            case Opcode.FPEXT_FMOV:
+                this.out.printf("FMOV       %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_FRSUB:
+                this.out.printf("FRSUB      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_FRDIV:
+                this.out.printf("FRDIV      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
             default:
                 this.out.printf("FPEXT      %d??", op2);
                 break;
