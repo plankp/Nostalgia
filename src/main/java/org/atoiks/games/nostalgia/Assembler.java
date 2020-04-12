@@ -14,6 +14,33 @@ public final class Assembler {
         // That way there's no generic parameter
     }
 
+    private static final Map<String, Integer> GPREGS;
+    private static final Map<String, Integer> FPREGS;
+
+    static {
+        final HashMap<String, Integer> fpregs = new HashMap<>();
+        for (int i = 0; i < 32; ++i) {
+            fpregs.put("%FP" + i, i);
+            fpregs.put("%FP" + i + "D", i);
+            fpregs.put("%FP" + i + "Q", (1 << 5) | i);
+        }
+
+        final HashMap<String, Integer> gpregs = new HashMap<>();
+        for (int i = 0; i < 16; ++i) {
+            gpregs.put("%R" + i, i);
+            gpregs.put("%R" + i + "W", i);
+            gpregs.put("%R" + i + "L", (0b01 << 4) | i);
+            gpregs.put("%R" + i + "H", (0b10 << 4) | i);
+            gpregs.put("%R" + i + "D", (0b11 << 4) | i);
+        }
+        // %SP is %R8D, %BP is %R9D
+        gpregs.put("%SP", (0b11 << 4) | 8);
+        gpregs.put("%BP", (0b11 << 4) | 9);
+
+        FPREGS = fpregs;
+        GPREGS = gpregs;
+    }
+
     private final HashMap<Integer, String> patchtbl = new HashMap<>();
 
     private final HashMap<String, Integer> symtbl = new HashMap<>();
@@ -711,9 +738,79 @@ public final class Assembler {
                 buf = checkInstrClassRRRR(operands);
                 this.encoder.imac(buf[0], buf[1], buf[2], buf[3]);
                 break;
+            case "MOV.F":
+                buf = checkInstrClassRFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_MOV_F, buf[0], buf[1]);
+                break;
+            case "MOV.R":
+                buf = checkInstrClassFpR(operands);
+                this.encoder.fpext(Opcode.FPEXT_MOV_R, buf[0], buf[1]);
+                break;
+            case "CVT.F":
+                buf = checkInstrClassRFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_CVT_F, buf[0], buf[1]);
+                break;
+            case "CVT.R":
+                buf = checkInstrClassFpR(operands);
+                this.encoder.fpext(Opcode.FPEXT_CVT_R, buf[0], buf[1]);
+                break;
+            case "ADD.F":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_ADD_F, buf[0], buf[1]);
+                break;
+            case "SUB.F":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_SUB_F, buf[0], buf[1]);
+                break;
+            case "FMUL":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_MUL_F, buf[0], buf[1]);
+                break;
+            case "FDIV":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_DIV_F, buf[0], buf[1]);
+                break;
+            case "FMOD":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_MOD_F, buf[0], buf[1]);
+                break;
+            case "FREM":
+                buf = checkInstrClassFpFp(operands);
+                this.encoder.fpext(Opcode.FPEXT_REM_F, buf[0], buf[1]);
+                break;
             default:
                 throw new RuntimeException("Assembler: Illegal instruction mnemonic: '" + opUpcase + "'");
         }
+    }
+
+    private int[] checkInstrClassFpR(String[] operands) {
+        // Class FPEXT's Fp R: encoded as [fp, rx]
+        //    OP %RX, %FP
+        checkOperandCount(operands, 2);
+
+        final int rx = getRegisterIndex(operands[0]);
+        final int fp = getFpRegIndex(operands[1]);
+        return new int[] { fp, rx };
+    }
+
+    private int[] checkInstrClassRFp(String[] operands) {
+        // Class FPEXT's R Fp: encoded as [rx, fp]
+        //    OP %FP, %RX
+        checkOperandCount(operands, 2);
+
+        final int fp = getFpRegIndex(operands[0]);
+        final int rx = getRegisterIndex(operands[1]);
+        return new int[] { rx, fp };
+    }
+
+    private int[] checkInstrClassFpFp(String[] operands) {
+        // Class FPEXT's Fp Fp: encoded as [fps, fpd]
+        //    OP %FPd, %FPs
+        checkOperandCount(operands, 2);
+
+        final int fpd = getFpRegIndex(operands[0]);
+        final int fps = getFpRegIndex(operands[1]);
+        return new int[] { fps, fpd };
     }
 
     private int[] checkInstrClassI(String[] operands) {
@@ -918,172 +1015,29 @@ public final class Assembler {
         // Do this directly:
         //      (0bxy << 4) | 0bzabc
 
-        switch (str.toUpperCase()) {
-            case "%R0":
-            case "%R0W":
-                return 0;
-            case "%R0L":
-                return (0b01 << 4) | 0;
-            case "%R0H":
-                return (0b10 << 4) | 0;
-            case "%R0D":
-                return (0b11 << 4) | 0;
-
-            case "%R1":
-            case "%R1W":
-                return 1;
-            case "%R1L":
-                return (0b01 << 4) | 1;
-            case "%R1H":
-                return (0b10 << 4) | 1;
-            case "%R1D":
-                return (0b11 << 4) | 1;
-
-            case "%R2":
-            case "%R2W":
-                return 2;
-            case "%R2L":
-                return (0b01 << 4) | 2;
-            case "%R2H":
-                return (0b10 << 4) | 2;
-            case "%R2D":
-                return (0b11 << 4) | 2;
-
-            case "%R3":
-            case "%R3W":
-                return 3;
-            case "%R3L":
-                return (0b01 << 4) | 3;
-            case "%R3H":
-                return (0b10 << 4) | 3;
-            case "%R3D":
-                return (0b11 << 4) | 3;
-
-            case "%R4":
-            case "%R4W":
-                return 4;
-            case "%R4L":
-                return (0b01 << 4) | 4;
-            case "%R4H":
-                return (0b10 << 4) | 4;
-            case "%R4D":
-                return (0b11 << 4) | 4;
-
-            case "%R5":
-            case "%R5W":
-                return 5;
-            case "%R5L":
-                return (0b01 << 4) | 5;
-            case "%R5H":
-                return (0b10 << 4) | 5;
-            case "%R5D":
-                return (0b11 << 4) | 5;
-
-            case "%R6":
-            case "%R6W":
-                return 6;
-            case "%R6L":
-                return (0b01 << 4) | 6;
-            case "%R6H":
-                return (0b10 << 4) | 6;
-            case "%R6D":
-                return (0b11 << 4) | 6;
-
-            case "%R7":
-            case "%R7W":
-                return 7;
-            case "%R7L":
-                return (0b01 << 4) | 7;
-            case "%R7H":
-                return (0b10 << 4) | 7;
-            case "%R7D":
-                return (0b11 << 4) | 7;
-
-            case "%R8":
-            case "%R8W":
-                return 8;
-            case "%R8L":
-                return (0b01 << 4) | 8;
-            case "%R8H":
-                return (0b10 << 4) | 8;
-            case "%R8D":
-            case "%SP": // Note: SP is always dword access
-                return (0b11 << 4) | 8;
-
-            case "%R9":
-            case "%R9W":
-                return 9;
-            case "%R9L":
-                return (0b01 << 4) | 9;
-            case "%R9H":
-                return (0b10 << 4) | 9;
-            case "%R9D":
-            case "%BP": // Note: BP is always dword access
-                return (0b11 << 4) | 9;
-
-            case "%R10":
-            case "%R10W":
-                return 10;
-            case "%R10L":
-                return (0b01 << 4) | 10;
-            case "%R10H":
-                return (0b10 << 4) | 10;
-            case "%R10D":
-                return (0b11 << 4) | 10;
-
-            case "%R11":
-            case "%R11W":
-                return 11;
-            case "%R11L":
-                return (0b01 << 4) | 11;
-            case "%R11H":
-                return (0b10 << 4) | 11;
-            case "%R11D":
-                return (0b11 << 4) | 11;
-
-            case "%R12":
-            case "%R12W":
-                return 12;
-            case "%R12L":
-                return (0b01 << 4) | 12;
-            case "%R12H":
-                return (0b10 << 4) | 12;
-            case "%R12D":
-                return (0b11 << 4) | 12;
-
-            case "%R13":
-            case "%R13W":
-                return 13;
-            case "%R13L":
-                return (0b01 << 4) | 13;
-            case "%R13H":
-                return (0b10 << 4) | 13;
-            case "%R13D":
-                return (0b11 << 4) | 13;
-
-            case "%R14":
-            case "%R14W":
-                return 14;
-            case "%R14L":
-                return (0b01 << 4) | 14;
-            case "%R14H":
-                return (0b10 << 4) | 14;
-            case "%R14D":
-                return (0b11 << 4) | 14;
-
-            case "%R15":
-            case "%R15W":
-                return 15;
-            case "%R15L":
-                return (0b01 << 4) | 15;
-            case "%R15H":
-                return (0b10 << 4) | 15;
-            case "%R15D":
-                return (0b11 << 4) | 15;
-
-            default:
-                throw new IllegalArgumentException("Assembler: Illegal register name: '" + str + "'");
+        final Integer slot = GPREGS.get(str.toUpperCase());
+        if (slot == null) {
+            throw new IllegalArgumentException("Assembler: Illegal register name: '" + str + "'");
         }
+
+        return slot.intValue();
+    }
+
+    public int getFpRegIndex(String str) {
+        return parseFpRegIndex(this.macroExpand(str));
+    }
+
+    public static int parseFpRegIndex(String str) {
+        // See ProcessUnit.java for how REX extensions work.
+        // This is different from REX on general purpose registers (%r0
+        // example).
+
+        final Integer slot = FPREGS.get(str.toUpperCase());
+        if (slot == null) {
+            throw new IllegalArgumentException("Assembler: Illegal float-point register name: '" + str + "'");
+        }
+
+        return slot.intValue();
     }
 
     public static boolean isValidLabelName(String str) {
