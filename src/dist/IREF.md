@@ -9,8 +9,13 @@
  [`ANDN`](#ANDN---Logical-AND-NOT)                              | Logical AND NOT
  [`CALL`](#CALL---Call-Function)                                | Call Function
  [`CMOV`](#CMOV---Conditional-Move)                             | Conditional Move
+ [`CVT`](#CVT---Convert)                                        | Convert
  [`DIV`](#DIV---Unsigned-Divide)                                | Unsigned Divide
  [`ENTER`](#ENTER---Make-Stack-Frame-for-Function-Parameters)   | Make Stack Frame for Function Parameters
+ [`FDIV`](#FDIV---Float-point-Divide)                           | Float-point Divide
+ [`FMOD`](#FMOD---Float-point-Modulo)                           | Float-point Modulo
+ [`FMUL`](#FMUL---Float-point-Multiply)                         | Float-point Multiply
+ [`FREM`](#FREM---Float-point-Remainder)                        | Float-point Remainder
  [`IDIV`](#IDIV---Signed-Divide)                                | Signed Divide
  [`IMAC`](#IMAC---Signed-Multiply-then-Add)                     | Signed Multiply then Add
  [`IMUL`](#IMUL---Signed-Multiply)                              | Signed Multiply
@@ -170,11 +175,15 @@ this extension is not applied over the register mask.
 
 The last register extension is used if they appear in a sequence.
 
-All register accesses are 16-bit word accesses within `%R0` to `%R7` (inclusive) without this extension prefix.
+The registers being accessed depend on the instruction:
+without this prefix, general-purpose registers access are 16-bits wide within `%R0` to `%R7` (inclusive)
+whereas float-point register accesses are 32-bits wide within `%FP0` to `%FP7` (inclusive).
 
 ### Effect
 
-The low bit of the register extension allows access to registers `%R8` to `%R15`.
+#### If the register is treated as a general-purpose register
+
+The low bit of the register extension allows access to registers `%R8` to `%R15` (inclusive).
 
 The high two bits determine the width of the data access.
 
@@ -185,12 +194,27 @@ The high two bits determine the width of the data access.
  0b10        | `H`                    | Accesses the word (0 to 15)
  0b11        | `D`                    | Accesses the full dword
 
+#### If the register is treated as a float-point register
+
+The lower two bits of the register extension allows access to registers `%FP8` to `%FP31` (inclusive).
+
+The highest bit determines the width of the data access.
+
+ Bit Pattern | Assembler Width Suffix | Description
+-------------|------------------------|-------------
+ 0b0         | `D` or omitted         | Access the low dword
+ 0b1         | `Q`                    | Access the full qword or the high dword in the case of [`MOV.F`](#MOV---Move) and [`MOV.R`](#MOV---Move)
+
 ## ADD - Add
 
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x03   | ADD.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ + _RB_
- 0x0B   | ADD.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ + _imm6_
+ Opcode | Instruction                       | Encoding                      | Description
+--------|-----------------------------------|-------------------------------|----------------------
+ 0x03   | ADD.R gp:_RA_, gp:_RC_, gp:_RB_   | [3R](#Class-3R)               | _RA_ = _RC_ + _RB_
+ 0x0B   | ADD.I gp:_RA_, _imm6_             | [IR](#Class-IR)               | _RA_ = _RA_ + _imm6_
+ 0x0A   | ADD.F fp:_RA_, fp:_RB_            | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ + _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 4
 
 ## AND - Logical AND
 
@@ -228,6 +252,17 @@ This is implemented by pushing the return address onto the stack before performi
  0x2B   | CMOV.I _RA_, _imm3_, _RB_ | [IRR](#Class-IRR) | _RA_ = _imm3_ if _RB_ ≠ 0
  0x2C   | CMOV.R _RA_, _RC_, _RB_   | [3R](#Class-3R)   | _RA_ = _RC_ if _RB_ ≠ 0
 
+## CVT - Convert
+
+ Opcode | Instruction                       | Encoding                      | Description
+--------|-----------------------------------|-------------------------------|----------------------
+ 0x0A   | CVT.F fp:_RA_, gp:_RB_            | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RB_
+ 0x0A   | CVT.R gp:_RA_, fp:_RB_            | [IRR](#Class-IRR)<sup>2</sup> | _RA_ = _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 2
+*   <sup>2</sup> - Immediate field is fixed to 3
+
 ## DIV - Unsigned Divide
 
  Opcode | Instruction                   | Encoding          | Description
@@ -244,6 +279,42 @@ The quotient is stored in _RA_; the remainder is stored in _RB_.
  Opcode | Instruction               | Encoding          | Description
 --------|---------------------------|-------------------|----------------------
  0x1D   | ENTER _imm9_              | [I9](#Class-I9)   | Create a stack frame for a function
+
+## FDIV - Float-point Divide
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FDIV fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ / _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 7
+
+## FMOD - Float-point Modulo
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FMOD fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ % _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 8
+
+## FMUL - Float-point Multiply
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FMUL fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ * _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 6
+
+## FREM - Float-point Remainder
+
+ Opcode | Instruction           | Encoding                      | Description
+--------|-----------------------|-------------------------------|----------------------
+ 0x0A   | FREM fp:_RA_, fp:_RB_ | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ REMAINDER _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 9
 
 ## IDIV - Signed Divide
 
@@ -372,11 +443,21 @@ IF BIT 0 THEN ra = ADDRESS
 
 ## MOV - Move
 
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x00   | MOV.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _imm6_
- 0x01   | MOV.LO _RA_, _imm6_       | [IR](#Class-IR)   | lower half of _RA_ = _imm6_
- 0x02   | MOV.HI _RA_, _imm6_       | [IR](#Class-IR)   | higher half of _RA_ = _imm6_
+ Opcode | Instruction               | Encoding                      | Description
+--------|---------------------------|-------------------------------|----------------------
+ 0x00   | MOV.I gp:_RA_, _imm6_     | [IR](#Class-IR)               | _RA_ = _imm6_
+ 0x01   | MOV.LO gp:_RA_, _imm6_    | [IR](#Class-IR)               | lower half of _RA_ = _imm6_
+ 0x02   | MOV.HI gp:_RA_, _imm6_    | [IR](#Class-IR)               | higher half of _RA_ = _imm6_
+ 0x0A   | MOV.F fp:_RA_, gp:_RB_    | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = BITCAST _RB_
+ 0x0A   | MOV.R gp:_RA_, fp:_RB_    | [IRR](#Class-IRR)<sup>2</sup> | _RA_ = BITCAST _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 0
+*   <sup>2</sup> - Immediate field is fixed to 1
+
+### Description
+
+Moves the operand on the right side into the register operand on the left side.
 
 ## MUL - Unsigned Multiply
 
@@ -551,10 +632,14 @@ IF BIT 0 THEN ra = ADDRESS
 
 ## SUB - Subtract
 
- Opcode | Instruction               | Encoding          | Description
---------|---------------------------|-------------------|----------------------
- 0x04   | SUB.R _RA_, _RC_, _RB_    | [3R](#Class-3R)   | _RA_ = _RC_ - _RB_
- 0x0C   | SUB.I _RA_, _imm6_        | [IR](#Class-IR)   | _RA_ = _RA_ - _imm6_
+ Opcode | Instruction                       | Encoding                      | Description
+--------|-----------------------------------|-------------------------------|----------------------
+ 0x04   | SUB.R gp:_RA_, gp:_RC_, gp:_RB_   | [3R](#Class-3R)               | _RA_ = _RC_ - _RB_
+ 0x0C   | SUB.I gp:_RA_, _imm6_             | [IR](#Class-IR)               | _RA_ = _RA_ - _imm6_
+ 0x0A   | SUB.F fp:_RA_, fp:_RB_            | [IRR](#Class-IRR)<sup>1</sup> | _RA_ = _RA_ - _RB_
+
+Notes:
+*   <sup>1</sup> - Immediate field is fixed to 4
 
 ## XOR - Logical XOR
 

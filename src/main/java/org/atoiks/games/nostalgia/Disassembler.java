@@ -264,22 +264,22 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
             case Opcode.FPEXT_MUL_F:
-                this.out.printf("MUL.F      %s, %s",
+                this.out.printf("FMUL       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
             case Opcode.FPEXT_DIV_F:
-                this.out.printf("DIV.F      %s, %s",
+                this.out.printf("FDIV       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
             case Opcode.FPEXT_MOD_F:
-                this.out.printf("MOD.F      %s, %s",
+                this.out.printf("FMOD       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
             case Opcode.FPEXT_REM_F:
-                this.out.printf("REM.F      %s, %s",
+                this.out.printf("FREM       %s, %s",
                         this.rexSynthFpReg(this.rexRA, rdst),
                         this.rexSynthFpReg(this.rexRB, rsrc));
                 break;
