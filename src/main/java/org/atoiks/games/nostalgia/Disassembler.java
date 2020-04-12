@@ -92,6 +92,15 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
         return sb.toString();
     }
 
+    private String rexSynthFpReg(int rex, int inst) {
+        // Only need a 6 char buffer...
+        return new StringBuilder(6)
+                .append("%FP")
+                .append(((rex & 0x3) << 3) | inst)
+                .append(((rex >> 2) & 0x1) == 0 ? 'D' : 'Q')
+                .toString();
+    }
+
     private short loadImm3(int imm3) {
         final int full = (this.iexImm << 3) | imm3;
         this.iexImm = 0;
@@ -222,10 +231,62 @@ public final class Disassembler implements Decoder.InstrStream, InstrVisitor {
 
     @Override
     public void fpext(int imm, int rsrc, int rdst) {
-        this.out.printf("FPEXT      %s, %s, %s",
-                this.rexSynthRegister(this.rexRA, rdst),
-                this.loadImm3(imm),
-                this.rexSynthRegister(this.rexRB, rsrc));
+        final int op2 = this.loadImm3(imm);
+        switch (op2) {
+            case Opcode.FPEXT_MOV_F:
+                this.out.printf("MOV.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthRegister(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_MOV_R:
+                this.out.printf("MOV.R      %s, %s",
+                        this.rexSynthRegister(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_CVT_F:
+                this.out.printf("CVT.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthRegister(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_CVT_R:
+                this.out.printf("CVT.R      %s, %s",
+                        this.rexSynthRegister(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_ADD_F:
+                this.out.printf("ADD.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_SUB_F:
+                this.out.printf("SUB.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_MUL_F:
+                this.out.printf("MUL.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_DIV_F:
+                this.out.printf("DIV.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_MOD_F:
+                this.out.printf("MOD.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            case Opcode.FPEXT_REM_F:
+                this.out.printf("REM.F      %s, %s",
+                        this.rexSynthFpReg(this.rexRA, rdst),
+                        this.rexSynthFpReg(this.rexRB, rsrc));
+                break;
+            default:
+                this.out.printf("FPEXT      %d??", op2);
+                break;
+        }
         this.resetREX();
     }
 

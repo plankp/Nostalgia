@@ -6,8 +6,9 @@ public final class Opcode {
         /* static helper classs */
     }
 
-    public static final int MASK_OP0 = 0x3F;
-    public static final int MASK_OP1 = 0x07;
+    public static final int MASK_OP0    = 0x3F;
+    public static final int MASK_OP1    = 0x07;
+    public static final int MASK_FPEXT  = 0xFF;
 
     // All OP0 opcodes must be masked to MASK_OP0!
     //
@@ -133,4 +134,37 @@ public final class Opcode {
     // 16 bit immediate value... (oops...)
     public static final int OP1_IEX_0   = 6 & MASK_OP1;
     public static final int OP1_IEX_1   = 7 & MASK_OP1;
+
+    // All FPEXT opcodes must be masked to MASK_FPEXT!
+    //
+    // This is a brilliant hack: FPEXT opcodes actually the immediate field of
+    // a IRR format instruction with the actual OP0 opcode being OP0_FPEXT.
+    //
+    // That restricts all float-point extension instructions to be strictly
+    // register to register. That being said the register extension prefix is
+    // interpreted differently for float-point registers.
+    //
+    // Example:
+    //   MOV.F %FP0D, %R0W
+    //   MOV.F %FP0Q, %R0W
+    //
+    // Unlike the general purpose 32-bit registers, the float-point registers
+    // are 64 bits. The REX prefix contributes it's lower 2 bits to access all
+    // 32 float-point registers (labelled 0 to 31 inclusive). Apart from
+    // transfer instructions, which treat it as high or low part, it determines
+    // if the access is the full 64 bits or the lower 32 bits.
+
+    public static final int FPEXT_MOV_F = 0 & MASK_FPEXT;
+    public static final int FPEXT_MOV_R = 1 & MASK_FPEXT;
+
+    public static final int FPEXT_CVT_F = 2 & MASK_FPEXT;
+    public static final int FPEXT_CVT_R = 3 & MASK_FPEXT;
+
+    public static final int FPEXT_ADD_F = 4 & MASK_FPEXT;
+    public static final int FPEXT_SUB_F = 5 & MASK_FPEXT;
+    public static final int FPEXT_MUL_F = 6 & MASK_FPEXT;
+    public static final int FPEXT_DIV_F = 7 & MASK_FPEXT;
+
+    public static final int FPEXT_MOD_F = 8 & MASK_FPEXT;
+    public static final int FPEXT_REM_F = 9 & MASK_FPEXT;
 }

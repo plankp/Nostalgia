@@ -13,6 +13,9 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     // R0 is always 0 (writing to it causes the value to be discarded)
     private final int[] regs = new int[15];
 
+    // Either uses full 64 bits (IEEE double) or lower 32 bits (IEEE float)
+    private final long[] fpregs = new long[32];
+
     private int ip;
 
     // These are secret registers (it doesn't even show up in toString!)
@@ -147,8 +150,13 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
         final StringBuilder sb = new StringBuilder();
         sb.append("R0: 0x00000000");
         for (int i = 0; i < this.regs.length; ++i) {
-            sb.append(' ').append('R').append(i + 1).append(": 0x")
+            sb.append(' ').append('R').append(i + 1).append("D: 0x")
                     .append(String.format("%08x", this.regs[i]));
+        }
+
+        for (int i = 0; i < this.fpregs.length; ++i) {
+            sb.append('\n').append("FP").append(i).append("Q: 0x")
+                    .append(String.format("%016x", this.fpregs[i]));
         }
 
         sb.append('\n').append("ip: 0x").append(String.format("%08x", this.ip));
@@ -284,6 +292,23 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
             case 3:     return this.readRegDword(slot);
             default:    throw new AssertionError("Wtf illegal math mask with 3 produced a value out of 1..3?");
         }
+    }
+
+    private void rexWriteFp(int slot, int rex, double value) {
+        if (((rex >> 2) & 0x1) == 0) {
+            // Overwrite the low bits:
+            this.fpregs[slot] &= -1L << 32;
+            this.fpregs[slot] |= Float.floatToRawIntBits((float) value) & (-1L >>> 32);
+        } else {
+            this.fpregs[slot] = Double.doubleToRawLongBits(value);
+        }
+    }
+
+    private double rexReadFp(int slot, int rex) {
+        if (((rex >> 2) & 0x1) == 0) {
+            return Float.intBitsToFloat((int) (this.fpregs[slot]));
+        }
+        return Double.longBitsToDouble(this.fpregs[slot]);
     }
 
     @Override
@@ -448,10 +473,80 @@ public final class ProcessUnit implements Decoder.InstrStream, InstrVisitor {
     @Override
     public void fpext(int imm3, int rB, int rA) {
         final int imm = this.loadImm3(imm3);
-        final int rsrc = ((this.rexRB & 0x1) << 3) | rB;
-        final int rdst = ((this.rexRA & 0x1) << 3) | rA;
+        final int rsrcgp = ((this.rexRB & 0x1) << 3) | rB;
+        final int rdstgp = ((this.rexRA & 0x1) << 3) | rA;
+        final int rsrcfp = ((this.rexRB & 0x3) << 3) | rB;
+        final int rdstfp = ((this.rexRA & 0x3) << 3) | rA;
 
-        // TODO:
+        switch (imm & Opcode.MASK_FPEXT) {
+            case Opcode.FPEXT_MOV_F: {  // MOV.{HI,LO} %fp, %gp
+                final int bits = this.rexReadUnsigned(rsrcgp, this.rexRB);
+                if (((this.rexRA >> 2) & 0x1) == 0) {
+                    this.fpregs[rdstfp] &= -1L << 32;
+                    this.fpregs[rdstfp] |= bits & (-1L >>> 32);
+                } else {
+                    this.fpregs[rdstfp] &= -1L >>> 32;
+                    this.fpregs[rdstfp] |= bits << 32;
+                }
+                break;
+            }
+            case Opcode.FPEXT_MOV_R: {  // MOV.{HI,LO} %gp, %fp
+                if (((this.rexRB >> 2) & 0x1) == 0) {
+                    this.rexWrite(rdstgp, this.rexRA, (int) this.fpregs[rsrcfp]);
+                } else {
+                    this.rexWrite(rdstgp, this.rexRA, (int) (this.fpregs[rsrcfp] >>> 32));
+                }
+                break;
+            }
+            case Opcode.FPEXT_CVT_F: {  // CVT.F %fp, %gp
+                final double src = this.rexReadSigned(rsrcgp, this.rexRB);
+                this.rexWriteFp(rdstfp, this.rexRA, src);
+                break;
+            }
+            case Opcode.FPEXT_CVT_R: {  // CVT.I %gp, %fp
+                final double src = this.rexReadFp(rsrcfp, this.rexRB);
+                this.rexWrite(rdstgp, this.rexRA, (int) src);
+                break;
+            }
+            case Opcode.FPEXT_ADD_F: {  // ADD.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, lhs + rhs);
+                break;
+            }
+            case Opcode.FPEXT_SUB_F: {  // SUB.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, lhs - rhs);
+                break;
+            }
+            case Opcode.FPEXT_MUL_F: {  // MUL.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, lhs * rhs);
+                break;
+            }
+            case Opcode.FPEXT_DIV_F: {  // DIV.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, lhs / rhs);
+                break;
+            }
+            case Opcode.FPEXT_MOD_F: {  // MOD.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, lhs % rhs);
+                break;
+            }
+            case Opcode.FPEXT_REM_F: {  // REM.F %fp, %fp
+                final double rhs = this.rexReadFp(rsrcfp, this.rexRB);
+                final double lhs = this.rexReadFp(rdstfp, this.rexRA);
+                this.rexWriteFp(rdstfp, this.rexRA, Math.IEEEremainder(lhs, rhs));
+                break;
+            }
+            default:
+                throw new RuntimeException("Process Unit: Illegal float-point extension opcode: " + (imm & Opcode.MASK_FPEXT));
+        }
 
         this.resetREX();
     }
@@ -1593,8 +1688,8 @@ final class InstrTiming implements InstrVisitor {
 
     @Override
     public void fpext(int imm, int rsrc, int rdst) {
-        // FIXME: fpext is actually a group of instructions!
-        this.timingBank = 0;
+        // IEEE floats are expensive yo!
+        this.timingBank = 6;
     }
 
     @Override
